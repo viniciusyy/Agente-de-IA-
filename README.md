@@ -4,97 +4,128 @@
 
 - Vinicius Miyata
 
-## Problema em uma frase
+## Problema
 
 O proprietário da Pastéis Miyata precisa definir quanto produzir de cada tipo de pastel para cada feira sem depender apenas da experiência e de consultas manuais ao histórico.
 
 ## Sobre o projeto
 
-Este projeto foi desenvolvido para a disciplina de Agentes de IA com LLMs.
+Este projeto apresenta um agente simples desenvolvido para a Parte 1 da disciplina de Agentes de IA com LLMs.
 
-O sistema implementa um agente simples utilizado exclusivamente pelo proprietário da Pastéis Miyata. O agente recebe solicitações em linguagem natural, identifica a intenção do proprietário e decide quais ferramentas devem ser utilizadas.
+O sistema é utilizado exclusivamente pelo proprietário da Pastéis Miyata. O agente recebe solicitações em linguagem natural, identifica o objetivo do proprietário, decide quais ferramentas utilizar e apresenta os resultados de forma organizada.
 
-Nesta primeira entrega, o agente pode:
+Nesta primeira versão, o agente pode:
 
-- consultar o histórico de uma feira no MySQL;
-- consultar uma operação pelo identificador;
+- consultar operações reais armazenadas no MySQL;
+- consultar o histórico de uma feira;
 - calcular uma recomendação mock baseada na média das vendas recentes;
-- registrar um plano mock depois da confirmação do proprietário;
-- tratar erros de ferramentas sem encerrar o programa;
-- registrar a trajetória de cada execução em arquivo JSON.
+- aplicar regras fixas das feiras;
+- registrar um plano mock após confirmação explícita;
+- informar quando uma solicitação está fora do escopo;
+- registrar a trajetória completa de cada execução.
 
-Os cálculos desta versão são uma prova de conceito. O sistema ainda não utiliza os modelos de previsão, a MLP ou a otimização por Simplex previstos no TCC.
+O modelo de linguagem não calcula livremente as quantidades. Consultas, médias, restrições e totais são processados por código Python e pelo banco MySQL.
+
+## Limitações da primeira versão
+
+Este é um agente simples criado para provar que a arquitetura e as ferramentas são implementáveis.
+
+Nesta versão, o sistema:
+
+- ainda não utiliza os modelos definitivos de previsão do TCC;
+- ainda não executa a otimização por Simplex;
+- não controla estoque de ingredientes;
+- não cria listas de compras;
+- não inicia nenhuma atividade física de produção;
+- não altera os registros históricos do MySQL;
+- não substitui a decisão do proprietário;
+- não deve ser utilizado por outros perfis de usuário.
+
+A recomendação atual é uma simulação determinística baseada na média das últimas vendas registradas.
 
 ## Tecnologias utilizadas
 
 - Python;
 - biblioteca `openai`;
+- API da OpenAI;
+- modelo `gpt-5.6-luna`;
 - MySQL;
 - `mysql-connector-python`;
 - `python-dotenv`;
-- API de um provedor compatível com a biblioteca `openai`.
+- Git e GitHub.
+
+Não é necessário utilizar SQLite, pois a integração com software tradicional é realizada diretamente com o banco MySQL da Pastéis Miyata.
 
 ## Estrutura do projeto
 
 ```text
-Agente-de-IA-/
-├── README.md
-├── requirements.txt
-├── .env.example
-├── .gitignore
+.
 ├── dados/
 │   └── casos_demonstracao.json
 ├── docs/
-│   ├── arquitetura-v1.md
-│   ├── base-de-conhecimento-v1.md
 │   ├── case.md
 │   ├── fontes.md
 │   └── modelos.md
+├── exercicios/
+│   ├── aula-05-arquitetura.md
+│   └── aula-06-base-de-conhecimento.md
 ├── logs/
+│   ├── 01_caso_simples.json
+│   ├── 02_caso_divergencia.json
+│   ├── 03_registro_inexistente.json
+│   └── 04_acao_nao_permitida.json
 ├── prompts/
 │   └── agente_planejamento_v1.md
-└── src/
-    ├── agent.py
-    ├── config.py
-    ├── database.py
-    └── main.py
+├── src/
+│   ├── agent.py
+│   ├── config.py
+│   ├── database.py
+│   └── main.py
+├── .env.example
+├── .gitignore
+├── README.md
+└── requirements.txt
 ```
 
-## Como rodar
+# Como rodar
 
-### 1. Clonar o repositório
+## 1. Pré-requisitos
+
+Antes de executar o projeto, é necessário ter:
+
+- Python instalado;
+- MySQL em execução;
+- banco `pasteis_miyata` criado;
+- tabelas e registros utilizados pelo projeto;
+- uma chave válida da API da OpenAI;
+- créditos disponíveis na conta da API.
+
+A assinatura do ChatGPT e os créditos da API são serviços separados.
+
+## 2. Clonar o repositório
 
 ```powershell
-git clone URL_DO_REPOSITORIO
-```
-
-Entre na pasta do projeto:
-
-```powershell
+git clone https://github.com/viniciusyy/Agente-de-IA-.git
 cd Agente-de-IA-
 ```
 
-### 2. Criar o ambiente virtual
+Caso o projeto já esteja no computador, basta abrir sua pasta no terminal.
 
-No Windows PowerShell:
+## 3. Criar o ambiente virtual
 
-```powershell
-py -m venv .venv
-```
-
-Não é obrigatório ativar o ambiente virtual. Os comandos seguintes utilizam diretamente o Python instalado dentro dele.
-
-### 3. Instalar as dependências
+No PowerShell:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
+python -m venv .venv
 ```
+
+## 4. Instalar as dependências
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-### 4. Criar o arquivo `.env`
+## 5. Criar o arquivo `.env`
 
 Copie o arquivo de exemplo:
 
@@ -102,85 +133,74 @@ Copie o arquivo de exemplo:
 Copy-Item .env.example .env
 ```
 
-Abra o `.env` e preencha as configurações locais.
+Depois, abra o `.env` e informe localmente:
 
-Exemplo de configuração com a API da Mistral:
+- a chave da API da OpenAI;
+- o endereço e a porta do MySQL;
+- o nome do banco;
+- o usuário e a senha do banco.
+
+Exemplo de estrutura:
 
 ```env
-OPENAI_API_KEY=SUA_CHAVE_DA_API
-LLM_BASE_URL=https://api.mistral.ai/v1
-LLM_MODEL=mistral-small-latest
+LLM_BASE_URL=https://api.openai.com/v1
+OPENAI_API_KEY=
+LLM_MODEL=gpt-5.6-luna
 
-LLM_INPUT_PRICE_PER_MILLION=PRECO_DE_ENTRADA
-LLM_OUTPUT_PRICE_PER_MILLION=PRECO_DE_SAIDA
+LLM_INPUT_PRICE_PER_MILLION=0.20
+LLM_OUTPUT_PRICE_PER_MILLION=1.20
 
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=pasteis_miyata
-DB_USER=SEU_USUARIO
-DB_PASSWORD=SUA_SENHA
+DB_USER=
+DB_PASSWORD=
 
 AGENT_MAX_STEPS=8
 AGENT_MAX_TOOL_CALLS=6
 AGENT_MAX_TOKENS=9000
-AGENT_MAX_TIME_SECONDS=60
+AGENT_MAX_SECONDS=60
 AGENT_MAX_COST_USD=0.10
-
-LOG_DIRECTORY=logs
 ```
 
-Apesar do nome `OPENAI_API_KEY`, essa variável recebe a chave do provedor configurado em `LLM_BASE_URL`. O projeto mantém esse nome porque utiliza a biblioteca Python `openai`.
+A chave da API e a senha do MySQL não devem ser colocadas no `.env.example`, no código ou no GitHub.
 
-Os preços de entrada e saída devem ser preenchidos com os valores por um milhão de tokens divulgados pelo provedor para o modelo selecionado.
-
-O arquivo `.env` contém credenciais e não deve ser enviado ao GitHub.
-
-### 5. Preparar o MySQL
-
-O serviço do MySQL deve estar iniciado e o banco configurado no `.env` deve existir.
-
-A primeira versão espera as seguintes tabelas:
-
-- `feiras`;
-- `produtos`;
-- `operacoes`;
-- `registros_producao`.
-
-As consultas utilizam os campos de identificação da feira, datas da operação, produto, quantidade produzida, sobra e quantidade vendida.
-
-### 6. Executar o agente
-
-Na raiz do projeto:
+## 6. Executar o agente
 
 ```powershell
 .\.venv\Scripts\python.exe -m src.main
 ```
 
-O programa testará a conexão com o MySQL antes de iniciar o atendimento.
-
-Quando a conexão funcionar, será exibido:
+Quando a execução funcionar, o sistema exibirá:
 
 ```text
-Verificando conexão com o MySQL...
-Conexão com o MySQL realizada com sucesso.
-Banco selecionado: pasteis_miyata
+AGENTE SIMPLES DE PLANEJAMENTO — PASTÉIS MIYATA
+Usuário autorizado: proprietário
 ```
 
-## Como usar
+Também será realizado um teste de conexão com o MySQL.
 
-A interação ocorre pelo terminal. O proprietário digita uma solicitação em linguagem natural depois de:
+# Como usar
+
+O proprietário inicia a interação digitando uma solicitação em linguagem natural.
+
+Exemplos:
 
 ```text
-Proprietário:
+Consulte as últimas cinco operações da feira QUA.
 ```
-
-Exemplo:
 
 ```text
-Proprietário: Consulte as últimas cinco operações da feira QUA.
+Consulte a operação 101.
 ```
 
-O agente interpreta a solicitação, escolhe uma ferramenta, consulta o sistema necessário e devolve uma resposta em português.
+```text
+Calcule uma recomendação para a feira SAB_E.
+```
+
+```text
+Calcule uma recomendação para a feira SAB_E, mas inclua pastel de frango.
+```
 
 Para encerrar:
 
@@ -188,205 +208,156 @@ Para encerrar:
 sair
 ```
 
-Também são aceitos:
+## O que o sistema faz com a solicitação
+
+O agente:
+
+1. interpreta o pedido do proprietário;
+2. verifica se a solicitação pertence ao escopo;
+3. identifica se alguma informação está ausente;
+4. escolhe uma ferramenta quando necessário;
+5. executa consultas ou cálculos por código;
+6. aplica as regras fixas do negócio;
+7. apresenta o resultado;
+8. registra a trajetória em um arquivo JSON.
+
+## Como interpretar a saída
+
+Além da resposta principal, cada execução apresenta um resumo:
 
 ```text
-encerrar
+Motivo da parada
+Passos executados
+Ferramentas chamadas
+Tokens de entrada
+Tokens de saída
+Custo estimado
+Caminho do log
 ```
 
-```text
-fechar
-```
+Os principais motivos de parada são:
 
-## Exemplos de solicitações
+| Motivo | Significado |
+|---|---|
+| `RESPOSTA_FINAL` | O agente terminou normalmente |
+| `LIMITE_DE_PASSOS` | O orçamento máximo de passos foi atingido |
+| `LIMITE_DE_TOKENS` | O orçamento máximo de tokens foi atingido |
+| `LIMITE_DE_TEMPO` | O tempo máximo da execução foi atingido |
+| `LIMITE_DE_CUSTO` | O custo máximo configurado foi atingido |
+| `ERRO_DO_MODELO` | O provedor ou o modelo retornou um erro |
 
-### Consultar uma feira
+# Exemplo real de execução
+
+A entrada e a saída abaixo foram copiadas da execução registrada em `logs/01_caso_simples.json`.
+
+## Entrada
 
 ```text
 Consulte as últimas cinco operações da feira QUA.
 ```
 
-### Consultar uma operação
+## Saída
 
 ```text
-Consulte a operação 25.
+CONSULTA AO HISTÓRICO
+
+Filtros utilizados:
+- Feira: QUA
+- Últimas operações: 5
+
+Resultado:
+
+| Operação | Produção | Venda | Produzido | Vendido | Sobra | Feriado |
+|---:|---|---|---:|---:|---:|---|
+| 101 | 01/09/2026 | 02/09/2026 | 510 | 510 | 0 | Não |
+| 94 | 25/08/2026 | 26/08/2026 | 533 | 397 | 136 | Não |
+| 88 | 18/08/2026 | 19/08/2026 | 534 | 488 | 46 | Não |
+| 81 | 11/08/2026 | 12/08/2026 | 533 | 501 | 32 | Não |
+| 75 | 04/08/2026 | 05/08/2026 | 531 | 492 | 39 | Não |
+
+Resumo:
+- Total produzido: 2.641 unidades
+- Total vendido: 2.388 unidades
+- Total de sobras: 253 unidades
+- Média produzida por operação: 528,2 unidades
+- Média vendida por operação: 477,6 unidades
+- Média de sobra por operação: 50,6 unidades
+- Maior sobra: 136 unidades, na operação 94
+
+Produtos com maiores sobras registradas:
+- Queijo: até 29 unidades
+- Carne: até 28 unidades
+- Pizza: até 22 unidades
+- Carne com queijo: até 18 unidades
+- Frango catupiri: até 12 unidades
+
+Alertas:
+- A operação 101 não teve sobra.
+- A operação 94 apresentou sobra significativamente maior que as demais.
+- Os registros detalhados por produto foram consolidados.
 ```
 
-### Solicitar uma recomendação mock
+## Resumo real da execução
 
 ```text
-Calcule uma recomendação simples para a feira SAB_E.
-```
-
-### Testar uma divergência com as regras
-
-```text
-Calcule uma recomendação para a feira SAB_E, mas inclua pastel de frango.
-```
-
-O agente deve informar que o pastel de frango não é comercializado na feira `SAB_E`.
-
-### Testar um registro inexistente
-
-```text
-Consulte a operação 999999.
-```
-
-A ferramenta deve devolver o erro como dado, permitindo que o agente explique que a operação não foi encontrada.
-
-### Testar uma solicitação fora do escopo
-
-```text
-Faça uma lista de compras de ingredientes para o próximo mês.
-```
-
-O agente deve explicar que essa ação não pertence ao escopo desta versão e não deve registrar um plano.
-
-## O que o sistema devolve
-
-Ao final de cada solicitação, o terminal apresenta:
-
-- a resposta do agente;
-- o motivo da parada;
-- a quantidade de passos;
-- a quantidade de ferramentas chamadas;
-- os tokens de entrada;
-- os tokens de saída;
-- o custo estimado;
-- o caminho do arquivo de log.
-
-Exemplo da estrutura da saída:
-
-```text
-RESPOSTA DO AGENTE
-======================================================================
-[resposta apresentada ao proprietário]
-
-----------------------------------------------------------------------
-RESUMO DA EXECUÇÃO
-----------------------------------------------------------------------
 Motivo da parada: RESPOSTA_FINAL
-Passos executados: [quantidade]
-Ferramentas chamadas: [quantidade]
-Tokens de entrada: [quantidade]
-Tokens de saída: [quantidade]
-Custo estimado: US$ [valor]
-Log salvo em: logs\execucao_[data_e_hora].json
+Passos executados: 2
+Ferramentas chamadas: 1
+Tokens de entrada: 7535
+Tokens de saída: 476
+Custo estimado: US$ 0.00207820
 ```
 
-## Exemplo completo de uma execução real
+# Ferramentas do agente
 
-> **PENDENTE DE EXECUÇÃO:** esta seção será substituída por uma entrada e uma saída reais depois que a cota da API estiver ativa. O resultado não será inventado, conforme a exigência da disciplina.
-
-A entrada planejada para o exemplo é:
-
-```text
-Consulte as últimas cinco operações da feira QUA.
-```
-
-Depois da execução bem-sucedida, serão copiados para esta seção:
-
-- o texto exato digitado;
-- a resposta exata do agente;
-- o motivo da parada;
-- a quantidade de ferramentas chamadas;
-- o caminho do log correspondente.
-
-## Ferramentas do agente
-
-| Ferramenta | Função | Operação | Reversível |
+| Ferramenta | Função | Tipo | Reversível |
 |---|---|---|---|
-| `consultar_historico` | Consulta no MySQL as operações recentes de uma feira | Leitura | Não altera dados |
-| `consultar_operacao` | Consulta uma operação pelo identificador | Leitura | Não altera dados |
-| `calcular_recomendacao_mock` | Calcula a média das vendas recentes | Leitura e cálculo | Não altera dados |
-| `registrar_plano_mock` | Registra um plano aprovado em arquivo JSONL | Escrita | Sim |
+| `consultar_historico` | Consulta operações recentes de determinada feira no MySQL | Leitura | Sim |
+| `consultar_operacao` | Consulta uma operação pelo identificador | Leitura | Sim |
+| `calcular_recomendacao_mock` | Calcula uma recomendação pela média das vendas recentes | Leitura e cálculo | Sim |
+| `registrar_plano_mock` | Registra um plano mock após confirmação explícita | Escrita | Sim |
 
-## Recomendação mock
+A ferramenta de escrita não é executada sem confirmação explícita do proprietário.
 
-A recomendação desta primeira versão é calculada por software tradicional, e não pelo modelo de linguagem.
+# Regras do domínio aplicadas
 
-Para cada produto, o sistema calcula:
+O agente respeita, entre outras, as seguintes regras:
 
-```text
-média vendida =
-soma das quantidades vendidas ÷ quantidade de registros
-```
+- as feiras válidas são `QUA`, `QUI`, `SAB_C`, `SAB_E`, `DOM_C` e `DOM_E`;
+- `SAB_E` e `DOM_E` não comercializam pastel de frango, produto de código `5`;
+- `SAB_E` e `DOM_E` não comercializam pastel de escarola sem bacon, produto de código `15`;
+- o pastel de banana simples está temporariamente descontinuado;
+- quantidade vendida é calculada por `produzida - sobra`;
+- uma operação inexistente deve ser tratada como erro de ferramenta, sem derrubar o programa;
+- nenhuma quantidade pode ser inventada pelo modelo;
+- nenhum plano é registrado sem confirmação explícita do proprietário.
 
-A quantidade recomendada é a média arredondada.
+# Casos demonstrados
 
-Nas feiras `SAB_E` e `DOM_E`, os seguintes produtos são excluídos:
+Os quatro casos obrigatórios estão registrados em `logs/`:
 
-- pastel de frango, identificado pelo código `5`;
-- pastel de escarola sem bacon, identificado pelo código `15`.
+| Caso | Solicitação | Resultado esperado |
+|---|---|---|
+| Caso simples | Consultar as últimas operações da feira `QUA` | Consulta o MySQL e apresenta o histórico |
+| Divergência | Solicitar pastel de frango para `SAB_E` | Aplica a restrição e exclui o produto |
+| Registro inexistente | Consultar a operação `999999` | Informa que o registro não existe |
+| Ação não permitida | Solicitar lista mensal de ingredientes | Recusa a ação sem chamar ferramentas |
 
-Essa recomendação existe somente para demonstrar a integração entre o agente, as ferramentas e o MySQL. Ela não substitui o modelo de previsão do TCC.
+# Segurança
 
-## Logs
+Os seguintes dados não devem ser enviados ao GitHub:
 
-Cada solicitação gera um arquivo JSON dentro de:
+- arquivo `.env`;
+- chave da API;
+- senha do MySQL;
+- credenciais pessoais;
+- ambiente virtual `.venv`;
+- logs intermediários.
 
-```text
-logs/
-```
+O repositório contém apenas o `.env.example`, sem valores privados.
 
-O log contém:
+# Encerramento
 
-- objetivo informado pelo proprietário;
-- ferramentas chamadas;
-- argumentos utilizados;
-- resultados;
-- erros;
-- quantidade de passos;
-- tokens consumidos;
-- custo estimado;
-- motivo da terminação.
+Esta versão demonstra que o modelo consegue interpretar solicitações do proprietário, selecionar ferramentas, consultar o MySQL, aplicar regras do negócio, tratar erros e respeitar limites de execução.
 
-As quatro execuções exigidas na entrega deverão ser identificadas como:
-
-```text
-logs/
-├── 01_caso_simples.json
-├── 02_caso_divergencia.json
-├── 03_registro_inexistente.json
-└── 04_acao_nao_permitida.json
-```
-
-## O que o sistema não faz
-
-Nesta primeira versão, o agente não:
-
-- inicia fisicamente a produção;
-- altera registros oficiais do MySQL;
-- executa a MLP do TCC;
-- executa otimização por Simplex;
-- consulta previsão meteorológica externa;
-- compra ingredientes;
-- substitui a decisão do proprietário;
-- registra um plano sem confirmação;
-- garante que a média histórica seja uma previsão definitiva.
-
-Quando não consegue responder, o agente deve explicar a limitação ou apresentar o erro recebido da ferramenta.
-
-## Segurança
-
-As chaves da API e a senha do MySQL ficam somente no arquivo `.env`.
-
-Essas informações não devem ser:
-
-- colocadas diretamente no código;
-- incluídas no `.env.example`;
-- registradas nos logs;
-- enviadas ao GitHub;
-- compartilhadas em mensagens ou documentos.
-
-O repositório disponibiliza apenas os nomes das variáveis necessárias.
-
-## Limitações conhecidas
-
-- A recomendação utiliza uma média simples;
-- o resultado depende da qualidade dos dados do MySQL;
-- o agente depende da disponibilidade da API escolhida;
-- limites de requisições podem interromper uma execução;
-- os preços do provedor podem mudar;
-- a primeira versão funciona somente pelo terminal;
-- o sistema foi desenvolvido para uso exclusivo do proprietário.
+A integração com os modelos definitivos de previsão e com a otimização por Simplex pertence às próximas etapas do projeto e não faz parte deste agente simples.
