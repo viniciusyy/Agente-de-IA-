@@ -1,0 +1,19 @@
+{
+  "objetivo": "Consulte as últimas cinco operações da feira QUA.",
+  "data_hora_inicio": "2026-09-21T23:34:35.654009",
+  "passos": 1,
+  "chamadas_ferramenta": 0,
+  "tokens_entrada": 0,
+  "tokens_saida": 0,
+  "custo_estimado_usd": 0.0,
+  "trajetoria": [],
+  "motivo_termino": "ERRO_DO_MODELO",
+  "resposta_final": "Não foi possível consultar o modelo: Error code: 400 - {'error': {'message': \"Function tools with reasoning_effort are not supported for gpt-5.6-luna in /v1/chat/completions. To use function tools, use /v1/responses or set reasoning_effort to 'none'.\", 'type': 'invalid_request_error', 'param': 'reasoning_effort', 'code': None}}",
+  "modelo": "gpt-5.6-luna",
+  "base_url": "https://api.openai.com/v1",
+  "tempo_total_segundos": 1.214,
+  "precos_configurados": {
+    "entrada_por_milhao": 0.0,
+    "saida_por_milhao": 0.0
+  }
+}

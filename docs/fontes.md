@@ -102,3 +102,139 @@ Informações utilizadas:
 - conhecimento do cardápio;
 - regras de negócio e proteções para a conversa;
 - capacidade de compreender pedidos personalizados.
+
+## Modelos e API
+
+### Catálogo de modelos da OpenAI
+
+OPENAI. **All models — OpenAI API**.
+
+Disponível em:
+
+https://developers.openai.com/api/docs/models/all
+
+Acesso em: 21 set. 2026.
+
+Informações utilizadas:
+
+- modelos disponíveis;
+- identificadores dos modelos;
+- tamanho da janela de contexto;
+- limite de saída;
+- suporte a ferramentas;
+- perfil de utilização de cada modelo.
+
+Modelos analisados:
+
+- `gpt-5.6-luna`;
+- `gpt-5.6-terra`;
+- `gpt-5.6-sol`.
+
+### Comparação dos modelos
+
+OPENAI. **Compare models — OpenAI API**.
+
+Disponível em:
+
+https://developers.openai.com/api/docs/models/compare
+
+Acesso em: 21 set. 2026.
+
+Informações utilizadas:
+
+- comparação de recursos;
+- janela de contexto;
+- limite de saída;
+- recursos de ferramentas;
+- diferenças de posicionamento entre os modelos.
+
+### Preços da API
+
+OPENAI. **Pricing — OpenAI API**.
+
+Disponível em:
+
+https://developers.openai.com/api/docs/pricing
+
+Acesso em: 21 set. 2026.
+
+Informações utilizadas:
+
+- preço por milhão de tokens de entrada;
+- preço por milhão de tokens de saída;
+- cálculo estimado por execução;
+- cálculo estimado para 100 execuções;
+- cálculo estimado para 1.000 execuções.
+
+Observação:
+
+Os preços podem ser alterados pelo provedor. Eles deverão ser conferidos novamente antes da entrega e antes da execução dos testes.
+
+### Chamadas de ferramentas
+
+OPENAI. **Function calling — OpenAI API**.
+
+Disponível em:
+
+https://developers.openai.com/api/docs/guides/function-calling
+
+Acesso em: 21 set. 2026.
+
+Informações utilizadas:
+
+- declaração de ferramentas;
+- descrição das funções;
+- contratos de argumentos;
+- geração de chamadas pelo modelo;
+- devolução do resultado da ferramenta;
+- continuidade da conversa depois da execução.
+
+Relação com o projeto:
+
+O agente utilizará chamadas de ferramentas para consultar o MySQL, executar a previsão, executar a otimização e registrar um plano aprovado.
+
+### Saídas estruturadas
+
+OPENAI. **Structured model outputs — OpenAI API**.
+
+Disponível em:
+
+https://developers.openai.com/api/docs/guides/structured-outputs
+
+Acesso em: 21 set. 2026.
+
+Informações utilizadas:
+
+- geração de respostas estruturadas;
+- definição de esquema;
+- validação do formato;
+- redução de argumentos incompletos ou inesperados.
+
+Relação com o projeto:
+
+Os argumentos enviados às ferramentas deverão seguir contratos estruturados e validados pelo programa.
+
+### Política de privacidade
+
+OPENAI. **Enterprise privacy at OpenAI**.
+
+Disponível em:
+
+https://openai.com/enterprise-privacy/
+
+Acesso em: 21 set. 2026.
+
+Informações utilizadas:
+
+- tratamento de dados enviados pela API;
+- não utilização dos dados empresariais para treinamento por padrão;
+- necessidade de controle sobre os dados enviados;
+- proteção de informações internas.
+
+Aplicação no projeto:
+
+- credenciais não serão enviadas ao modelo;
+- chaves de API não serão enviadas no contexto;
+- somente os dados necessários serão retornados pelas ferramentas;
+- o conteúdo completo do banco MySQL não será enviado ao modelo;
+- dados internos não serão publicados no repositório.

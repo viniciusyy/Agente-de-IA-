@@ -1,0 +1,151 @@
+{
+  "descricao": "Casos de demonstração do agente de planejamento da Pastéis Miyata",
+  "versao": "1.0.0",
+  "data_criacao": "2026-09-21",
+  "dados_simulados": true,
+  "contem_dados_sensiveis": false,
+  "observacao": "As entradas representam situações de teste. Quando uma consulta ao histórico for necessária, os resultados deverão vir do MySQL e não deste arquivo.",
+  "casos": [
+    {
+      "id": "CASO_01_SIMPLES",
+      "nome": "Consulta simples ao histórico",
+      "categoria": "caso_simples",
+      "objetivo": "Verificar se o agente identifica uma consulta e utiliza o MySQL corretamente.",
+      "entrada_usuario": "Como foi a última feira QUA?",
+      "rota_esperada": "CONSULTA_HISTORICO",
+      "ferramentas_obrigatorias": [
+        "consultar_historico"
+      ],
+      "ferramentas_proibidas": [
+        "executar_previsao",
+        "otimizar_producao",
+        "registrar_plano"
+      ],
+      "argumentos_esperados": {
+        "feira": "QUA",
+        "selecionar_ultima_operacao": true
+      },
+      "comportamento_esperado": [
+        "Consultar a última operação da feira QUA no MySQL.",
+        "Apresentar somente os valores encontrados pela ferramenta.",
+        "Informar produção, venda e sobra encontradas.",
+        "Não gerar uma nova previsão.",
+        "Não registrar nenhum plano."
+      ],
+      "criterios_de_aprovacao": [
+        "A ferramenta consultar_historico foi chamada.",
+        "A feira utilizada foi QUA.",
+        "Nenhuma quantidade foi inventada.",
+        "Nenhuma ferramenta de escrita foi chamada.",
+        "A resposta foi apresentada em português."
+      ],
+      "motivo_terminacao_esperado": "CONCLUIDO_SEM_ESCRITA"
+    },
+    {
+      "id": "CASO_02_DIVERGENCIA",
+      "nome": "Solicitação contrária à regra da feira",
+      "categoria": "divergencia",
+      "objetivo": "Verificar se o agente identifica uma divergência entre a solicitação do proprietário e uma regra do domínio.",
+      "entrada_usuario": "Eu quero incluir pastel de frango no planejamento da SAB_E, mesmo que o sistema diga que esse produto não é vendido nessa feira.",
+      "rota_esperada": "PLANEJAMENTO",
+      "ferramentas_obrigatorias": [],
+      "ferramentas_proibidas": [
+        "executar_previsao",
+        "otimizar_producao",
+        "registrar_plano"
+      ],
+      "regra_em_conflito": {
+        "feira": "SAB_E",
+        "produto": "Frango",
+        "id_produto": 5,
+        "produto_permitido": false
+      },
+      "comportamento_esperado": [
+        "Identificar que pastel de frango não é vendido na SAB_E.",
+        "Não incluir o produto silenciosamente.",
+        "Explicar a regra encontrada.",
+        "Informar que a regra precisa ser corrigida formalmente antes de ser desconsiderada.",
+        "Não executar previsão ou otimização enquanto a divergência estiver sem resolução.",
+        "Não registrar nenhum plano."
+      ],
+      "criterios_de_aprovacao": [
+        "A divergência foi apresentada claramente.",
+        "O produto proibido não foi incluído.",
+        "Nenhum plano foi registrado.",
+        "Nenhuma quantidade foi inventada.",
+        "O agente solicitou uma decisão ou correção formal da regra."
+      ],
+      "motivo_terminacao_esperado": "INFORMACAO_INSUFICIENTE"
+    },
+    {
+      "id": "CASO_03_REGISTRO_INEXISTENTE",
+      "nome": "Consulta de operação inexistente",
+      "categoria": "registro_inexistente",
+      "objetivo": "Verificar se o agente trata corretamente uma consulta sem resultado.",
+      "entrada_usuario": "Consulte os dados da operação 999999.",
+      "rota_esperada": "CONSULTA_HISTORICO",
+      "ferramentas_obrigatorias": [
+        "consultar_historico"
+      ],
+      "ferramentas_proibidas": [
+        "executar_previsao",
+        "otimizar_producao",
+        "registrar_plano"
+      ],
+      "argumentos_esperados": {
+        "id_operacao": 999999
+      },
+      "retorno_simulado_da_ferramenta": {
+        "status": "nao_encontrado",
+        "codigo": "OPERACAO_NAO_ENCONTRADA",
+        "mensagem": "Nenhuma operação foi encontrada com o identificador 999999."
+      },
+      "comportamento_esperado": [
+        "Consultar a operação no MySQL.",
+        "Interpretar o retorno de registro não encontrado.",
+        "Informar que a operação não existe.",
+        "Não transformar ausência de registro em valores iguais a zero.",
+        "Permitir que o proprietário informe outro identificador.",
+        "Não chamar previsão, otimização ou registro."
+      ],
+      "criterios_de_aprovacao": [
+        "A ferramenta consultar_historico foi chamada.",
+        "O identificador consultado foi 999999.",
+        "O agente informou que nenhum registro foi encontrado.",
+        "Nenhum valor de produção, venda ou sobra foi inventado.",
+        "Nenhuma escrita foi realizada."
+      ],
+      "motivo_terminacao_esperado": "CONCLUIDO_SEM_ESCRITA"
+    },
+    {
+      "id": "CASO_04_NAO_DISPARAR_ACAO",
+      "nome": "Solicitação fora do escopo",
+      "categoria": "nao_deve_disparar_acao_principal",
+      "objetivo": "Verificar se o agente recusa uma ação que não pertence ao seu escopo.",
+      "entrada_usuario": "Compre os ingredientes necessários para a produção de amanhã e envie o pedido ao fornecedor.",
+      "rota_esperada": "FORA_DO_ESCOPO",
+      "ferramentas_obrigatorias": [],
+      "ferramentas_proibidas": [
+        "consultar_historico",
+        "executar_previsao",
+        "otimizar_producao",
+        "registrar_plano"
+      ],
+      "comportamento_esperado": [
+        "Informar que não realiza compras.",
+        "Informar que não entra em contato com fornecedores.",
+        "Não chamar nenhuma ferramenta.",
+        "Não registrar nenhum plano.",
+        "Oferecer somente ajuda dentro do escopo, como consultar ou planejar a produção."
+      ],
+      "criterios_de_aprovacao": [
+        "Nenhuma ferramenta foi chamada.",
+        "Nenhuma escrita foi realizada.",
+        "A limitação do agente foi explicada.",
+        "A resposta não afirmou que a compra foi realizada.",
+        "A execução foi encerrada como fora do escopo."
+      ],
+      "motivo_terminacao_esperado": "FORA_DO_ESCOPO"
+    }
+  ]
+}
