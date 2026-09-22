@@ -1,349 +1,425 @@
 # Análise e escolha do modelo
 
-Este documento compara três modelos candidatos para o agente de planejamento de produção da Pastéis Miyata.
+Este documento compara três modelos da OpenAI candidatos para o agente de planejamento de produção da Pastéis Miyata.
 
-A escolha considera as necessidades reais do sistema: compreender solicitações em português, identificar informações ausentes, selecionar ferramentas, produzir argumentos estruturados e respeitar as regras do negócio.
+A comparação considera as necessidades reais do sistema:
 
-Os cálculos de previsão, otimização e validação das quantidades não serão realizados pelo modelo de linguagem. Eles serão executados por ferramentas determinísticas integradas ao banco MySQL.
+- compreender solicitações em português;
+- identificar informações ausentes;
+- selecionar ferramentas;
+- gerar argumentos estruturados;
+- respeitar regras do negócio;
+- tratar erros retornados pelas ferramentas;
+- responder com custo e tempo adequados.
 
-Os preços e recursos apresentados foram consultados na documentação oficial da OpenAI em 21 de setembro de 2026:
+Os cálculos de produção não são realizados livremente pelo modelo de linguagem. As consultas, médias, restrições e totalizações são executadas por ferramentas determinísticas integradas ao banco MySQL.
 
-- Modelos: https://developers.openai.com/api/docs/models/all
-- Comparação: https://developers.openai.com/api/docs/models/compare
-- Preços: https://developers.openai.com/api/docs/pricing
-- Privacidade: https://openai.com/enterprise-privacy/
+Os preços e recursos foram consultados na documentação oficial da OpenAI em 22 de setembro de 2026:
+
+- Catálogo de modelos:  
+  https://developers.openai.com/api/docs/models
+- Comparação dos modelos:  
+  https://developers.openai.com/api/docs/models/compare
+- Preços da API:  
+  https://developers.openai.com/api/docs/pricing
+- Function calling:  
+  https://developers.openai.com/api/docs/guides/function-calling
+- Saídas estruturadas:  
+  https://developers.openai.com/api/docs/guides/structured-outputs
+
+Os preços podem mudar e deverão ser verificados novamente antes das próximas entregas.
 
 ## 3.1 Os candidatos
 
 Os três modelos candidatos são:
 
-1. `gpt-5.6-luna`;
-2. `gpt-5.6-terra`;
-3. `gpt-5.6-sol`.
+1. GPT-5.6 Luna;
+2. GPT-5.6 Terra;
+3. GPT-5.6 Sol.
 
-Eles foram escolhidos porque pertencem à mesma família, utilizam a mesma API e oferecem suporte a chamadas de ferramentas e saídas estruturadas.
+Os identificadores utilizados nos testes foram:
 
-Isso permite comparar os modelos sem alterar a arquitetura ou as ferramentas do agente.
+| Modelo | Identificador |
+|---|---|
+| GPT-5.6 Luna | `gpt-5.6-luna` |
+| GPT-5.6 Terra | `gpt-5.6-terra` |
+| GPT-5.6 Sol | `gpt-5.6-sol` |
+
+Todos os candidatos pertencem à mesma família e oferecem os recursos necessários para o agente, permitindo uma comparação mais controlada entre custo e qualidade.
 
 ### Eixos utilizados na comparação
 
 | Eixo | Por que importa neste projeto |
 |---|---|
-| Compreensão e raciocínio | O modelo precisa interpretar pedidos incompletos, identificar ambiguidades e decidir qual ferramenta utilizar |
-| Tool calling | O agente precisa chamar ferramentas de consulta ao MySQL, previsão, otimização e registro |
-| Saída estruturada | Os argumentos das ferramentas devem seguir um formato previsível e validável |
-| Janela de contexto | Deve comportar instruções, regras do negócio, histórico da conversa e resultados das ferramentas |
-| Latência | O proprietário estará esperando a resposta no terminal |
-| Custo | Cada planejamento pode exigir várias chamadas ao modelo |
-| Política de dados | Informações internas do negócio serão enviadas ao provedor |
-| Multimodalidade | Não é prioridade nesta primeira versão, pois a entrada será somente textual |
+| Compreensão e raciocínio | O modelo precisa interpretar pedidos incompletos, ambiguidades e divergências |
+| Function calling | O agente precisa escolher e chamar ferramentas de consulta, cálculo e registro |
+| Saída estruturada | Os argumentos enviados às ferramentas precisam seguir um formato validável |
+| Janela de contexto | O contexto inclui prompt, regras, conversa e resultados das ferramentas |
+| Custo | Uma solicitação pode exigir mais de uma chamada ao modelo |
+| Latência | O proprietário aguarda a resposta no terminal |
+| Política de dados | Informações internas da pastelaria são enviadas parcialmente ao provedor |
+| Multimodalidade | Não é necessária nesta versão, pois a entrada é somente textual |
 
 ### Comparação técnica
 
-| Modelo | Perfil | Contexto | Saída máxima | Tool calling | Saída estruturada | Entrada | Saída |
+| Modelo | Perfil | Contexto | Saída máxima | Function calling | Saída estruturada | Entrada | Saída |
 |---|---|---:|---:|---|---|---:|---:|
-| `gpt-5.6-luna` | Modelo econômico para tarefas bem definidas | 1,05 milhão de tokens | 128 mil tokens | Sim | Sim | US$ 0,10 por milhão de tokens | US$ 0,60 por milhão de tokens |
-| `gpt-5.6-terra` | Equilíbrio entre capacidade e custo | 1,05 milhão de tokens | 128 mil tokens | Sim | Sim | US$ 1,00 por milhão de tokens | US$ 6,00 por milhão de tokens |
-| `gpt-5.6-sol` | Modelo de maior capacidade para tarefas complexas | 1,05 milhão de tokens | 128 mil tokens | Sim | Sim | US$ 2,00 por milhão de tokens | US$ 10,00 por milhão de tokens |
+| GPT-5.6 Luna | Otimizado para cargas sensíveis a custo | 1,05 milhão | 128 mil tokens | Sim | Sim | US$ 0,20 por milhão | US$ 1,20 por milhão |
+| GPT-5.6 Terra | Equilíbrio entre capacidade e custo | 1,05 milhão | 128 mil tokens | Sim | Sim | US$ 2,00 por milhão | US$ 12,00 por milhão |
+| GPT-5.6 Sol | Modelo principal para trabalho profissional complexo | 1,05 milhão | 128 mil tokens | Sim | Sim | US$ 4,00 por milhão | US$ 20,00 por milhão |
 
-Os valores apresentados consideram a modalidade padrão de processamento e devem ser verificados novamente antes da entrega, pois o provedor pode alterar seus preços.
+Os valores da tabela correspondem ao processamento padrão e ao contexto curto. O projeto não utiliza processamento rápido, Batch API, cache explícito ou contexto acima do limite de contexto curto.
 
-### `gpt-5.6-luna`
+### GPT-5.6 Luna
 
-O `gpt-5.6-luna` é o candidato de menor custo.
+O GPT-5.6 Luna é o modelo de menor custo entre os candidatos. Segundo a documentação oficial, ele é destinado a cargas de trabalho com grande volume e sensibilidade a custo.
 
-Ele pode ser suficiente porque o modelo não será responsável por calcular as quantidades de produção. Sua responsabilidade será:
+Ele pode ser suficiente neste projeto porque o modelo não realiza os cálculos de produção. Suas responsabilidades são:
 
 - interpretar a solicitação do proprietário;
 - identificar informações ausentes;
-- decidir qual ferramenta deve ser utilizada;
-- gerar argumentos estruturados;
-- interpretar erros retornados pelas ferramentas;
-- explicar os resultados calculados pelo sistema.
-
-Sua principal vantagem é permitir um número maior de testes e execuções com custo reduzido.
-
-O principal risco é apresentar menor consistência em situações ambíguas, em argumentos mais complexos ou em sequências com várias chamadas de ferramentas.
-
-### `gpt-5.6-terra`
-
-O `gpt-5.6-terra` é uma alternativa intermediária entre custo e capacidade.
-
-Ele será considerado caso o `gpt-5.6-luna` apresente dificuldade para:
-
-- escolher a ferramenta correta;
-- identificar informações ausentes;
+- selecionar uma ferramenta;
 - gerar argumentos válidos;
-- respeitar simultaneamente várias regras;
-- interpretar erros devolvidos pelas ferramentas;
-- corrigir uma trajetória depois de uma falha.
+- interpretar o retorno da ferramenta;
+- explicar o resultado.
 
-O modelo possui custo maior, mas pode apresentar mais consistência em tarefas com várias etapas.
+Sua principal vantagem é o baixo custo, permitindo executar mais testes durante o desenvolvimento.
 
-### `gpt-5.6-sol`
+O risco é apresentar menor consistência quando o fluxo crescer e passar a envolver previsão, otimização, RAG e mais ferramentas.
 
-O `gpt-5.6-sol` é o candidato de maior capacidade e também o de maior custo entre os três.
+### GPT-5.6 Terra
 
-Ele pode apresentar melhor desempenho em situações complexas ou ambíguas. Entretanto, essa capacidade pode ser desnecessária para a primeira versão porque os cálculos e as validações críticas permanecerão em código tradicional.
+O GPT-5.6 Terra busca equilibrar capacidade e custo. Ele é uma alternativa para situações em que o Luna não apresenta consistência suficiente, mas ainda não existe justificativa para utilizar o modelo mais caro.
 
-Sua adoção somente será justificada se os testes demonstrarem uma melhoria relevante em relação aos modelos menores.
+No agente atual, ele executou corretamente os cinco casos. Entretanto, em uma das respostas agrupou parte dos produtos como “demais produtos permitidos”, reduzindo o detalhamento da apresentação.
+
+Seu custo medido foi aproximadamente dez vezes maior que o custo do Luna.
+
+### GPT-5.6 Sol
+
+O GPT-5.6 Sol é o candidato de maior capacidade entre os três avaliados. Ele é indicado pela OpenAI para trabalhos profissionais mais complexos.
+
+No agente da Pastéis Miyata, também executou corretamente os cinco casos. Entretanto:
+
+- produziu uma resposta que atingiu o limite de saída e terminou com uma frase incompleta;
+- no caso ambíguo, perguntou a feira, mas não solicitou a data na primeira resposta;
+- apresentou o maior custo total da comparação.
+
+O modelo somente será necessário se a integração futura com previsão, Simplex, RAG e novas ferramentas demonstrar uma diferença relevante de qualidade.
 
 ### Política de dados
 
-O agente utilizará informações internas da Pastéis Miyata, incluindo:
+O agente utiliza informações internas da Pastéis Miyata, como:
 
 - histórico de produção;
 - quantidade vendida;
 - quantidade de sobra;
 - datas das feiras;
-- clima registrado;
 - feriados;
 - observações operacionais.
 
-As ferramentas consultarão o MySQL e devolverão somente os dados necessários para atender à solicitação atual. O conteúdo completo das tabelas não será enviado ao modelo.
+Nenhuma senha, chave de API ou credencial do MySQL é enviada ao modelo.
 
-Nenhuma senha, chave de API ou credencial do MySQL será enviada ao modelo.
+As ferramentas consultam o banco e devolvem somente os dados necessários para a solicitação atual. O conteúdo completo do banco não é enviado ao provedor.
 
-Segundo a política empresarial da OpenAI, os dados enviados pela API não são utilizados para treinar os modelos por padrão. Mesmo assim, o projeto deverá minimizar as informações enviadas e revisar as condições do provedor antes da utilização com dados reais.
+Antes da utilização do agente em produção, as condições de armazenamento, retenção e tratamento dos dados pela OpenAI deverão ser revisadas novamente.
 
-Fonte:
+### Multimodalidade
 
-https://openai.com/enterprise-privacy/
+Os modelos avaliados aceitam entrada de imagem, mas esse recurso não é necessário na primeira versão.
+
+O proprietário interage por texto no terminal e os dados históricos são recuperados diretamente do MySQL. Portanto, multimodalidade não foi utilizada como critério de desempate.
 
 ## 3.2 Estimativa de custo
 
-### Hipóteses da primeira versão
-
-Para estimar o custo de uma execução, serão consideradas:
-
-- quatro chamadas ao modelo por planejamento;
-- 1.500 tokens de entrada por chamada;
-- 300 tokens de saída por chamada;
-- modalidade padrão de processamento;
-- 1.000 execuções durante o semestre.
-
-Assim, uma execução terá aproximadamente:
-
-```text
-Entrada:
-1.500 tokens × 4 chamadas = 6.000 tokens
-
-Saída:
-300 tokens × 4 chamadas = 1.200 tokens
-```
-
 ### Fórmula
 
-```text
-Custo da entrada:
-(tokens de entrada ÷ 1.000.000) × preço de entrada
-
-Custo da saída:
-(tokens de saída ÷ 1.000.000) × preço de saída
-
-Custo por execução:
-custo da entrada + custo da saída
-```
-
-### Custo estimado do `gpt-5.6-luna`
+O custo foi calculado pela fórmula:
 
 ```text
-Entrada:
-(6.000 ÷ 1.000.000) × US$ 0,10 = US$ 0,00060
-
-Saída:
-(1.200 ÷ 1.000.000) × US$ 0,60 = US$ 0,00072
-
-Total por execução:
-US$ 0,00060 + US$ 0,00072 = US$ 0,00132
+(tokens de entrada ÷ 1.000.000 × preço de entrada)
++
+(tokens de saída ÷ 1.000.000 × preço de saída)
+=
+custo da execução
 ```
 
-### Custo estimado do `gpt-5.6-terra`
+A medição utiliza os tokens registrados nos cinco testes reais de cada modelo.
+
+### Tokens e custo dos testes
+
+| Modelo | Tokens de entrada | Tokens de saída | Custo total dos 5 casos |
+|---|---:|---:|---:|
+| GPT-5.6 Luna | 30.797 | 1.285 | US$ 0,007701 |
+| GPT-5.6 Terra | 32.005 | 1.216 | US$ 0,078602 |
+| GPT-5.6 Sol | 32.005 | 1.203 | US$ 0,152080 |
+
+A pequena diferença na quantidade de tokens ocorreu porque os modelos produziram respostas com tamanhos diferentes. Além disso, algumas execuções foram realizadas depois de ajustes no prompt e na consolidação dos resultados das ferramentas.
+
+### Média por execução
+
+#### GPT-5.6 Luna
+
+Média de tokens por execução:
 
 ```text
-Entrada:
-(6.000 ÷ 1.000.000) × US$ 1,00 = US$ 0,00600
-
-Saída:
-(1.200 ÷ 1.000.000) × US$ 6,00 = US$ 0,00720
-
-Total por execução:
-US$ 0,00600 + US$ 0,00720 = US$ 0,01320
+Entrada: 30.797 ÷ 5 = 6.159,4 tokens
+Saída: 1.285 ÷ 5 = 257 tokens
 ```
 
-### Custo estimado do `gpt-5.6-sol`
+Cálculo:
 
 ```text
-Entrada:
-(6.000 ÷ 1.000.000) × US$ 2,00 = US$ 0,01200
-
-Saída:
-(1.200 ÷ 1.000.000) × US$ 10,00 = US$ 0,01200
-
-Total por execução:
-US$ 0,01200 + US$ 0,01200 = US$ 0,02400
+(6.159,4 ÷ 1.000.000 × US$ 0,20)
++
+(257 ÷ 1.000.000 × US$ 1,20)
+=
+US$ 0,00154028 por execução
 ```
 
-### Comparação dos custos
+#### GPT-5.6 Terra
+
+Média de tokens por execução:
+
+```text
+Entrada: 32.005 ÷ 5 = 6.401 tokens
+Saída: 1.216 ÷ 5 = 243,2 tokens
+```
+
+Cálculo:
+
+```text
+(6.401 ÷ 1.000.000 × US$ 2,00)
++
+(243,2 ÷ 1.000.000 × US$ 12,00)
+=
+US$ 0,01572040 por execução
+```
+
+#### GPT-5.6 Sol
+
+Média de tokens por execução:
+
+```text
+Entrada: 32.005 ÷ 5 = 6.401 tokens
+Saída: 1.203 ÷ 5 = 240,6 tokens
+```
+
+Cálculo:
+
+```text
+(6.401 ÷ 1.000.000 × US$ 4,00)
++
+(240,6 ÷ 1.000.000 × US$ 20,00)
+=
+US$ 0,03041600 por execução
+```
+
+### Projeção de custo
+
+Para a estimativa do semestre, foi considerado um volume de 1.000 execuções.
 
 | Modelo | Uma execução | 100 execuções | 1.000 execuções |
 |---|---:|---:|---:|
-| `gpt-5.6-luna` | US$ 0,00132 | US$ 0,132 | US$ 1,32 |
-| `gpt-5.6-terra` | US$ 0,01320 | US$ 1,32 | US$ 13,20 |
-| `gpt-5.6-sol` | US$ 0,02400 | US$ 2,40 | US$ 24,00 |
+| GPT-5.6 Luna | US$ 0,001540 | US$ 0,154028 | US$ 1,540280 |
+| GPT-5.6 Terra | US$ 0,015720 | US$ 1,572040 | US$ 15,720400 |
+| GPT-5.6 Sol | US$ 0,030416 | US$ 3,041600 | US$ 30,416000 |
 
-Esses valores são estimativas.
+Esses valores são estimativas. O custo real pode mudar de acordo com:
 
-O custo real dependerá:
+- tamanho da conversa;
+- quantidade de chamadas;
+- tamanho do retorno das ferramentas;
+- alterações no prompt;
+- preço praticado pelo provedor;
+- inclusão futura de RAG;
+- número de tentativas e erros de ferramenta.
 
-- do tamanho final do system prompt;
-- da duração da conversa;
-- da quantidade de resultados devolvidos pelas ferramentas;
-- do número efetivo de chamadas;
-- da quantidade de tentativas de correção;
-- da modalidade de processamento contratada.
+Ferramentas locais e consultas ao MySQL não possuem cobrança da OpenAI. O custo apresentado corresponde apenas aos tokens enviados e recebidos pela API.
 
-O programa deverá registrar o uso de tokens de cada execução para permitir a comparação entre a estimativa e o custo observado.
+### Custo de construção
+
+O custo de construção é representado principalmente pelo tempo empregado em:
+
+- definição do case;
+- modelagem da arquitetura;
+- implementação das ferramentas;
+- integração com MySQL;
+- construção e ajuste do prompt;
+- execução dos testes;
+- documentação dos resultados.
+
+Esse tempo não foi convertido em valor financeiro nesta entrega.
+
+### O que se perde quando o sistema erra
+
+Uma seleção incorreta de ferramenta pode gerar uma consulta desnecessária ou uma recomendação inadequada.
+
+Uma interpretação incorreta das regras de feira pode incluir um produto não comercializado naquele local. Por isso, as restrições críticas também são implementadas em código, e não apenas no prompt.
+
+O proprietário continua responsável pela aprovação final. O agente não inicia a produção e não executa compras.
 
 ## 3.3 Verificação mínima
 
-Os três modelos deverão ser avaliados com:
+### Método
 
-- o mesmo system prompt;
+Os três candidatos foram testados com:
+
+- o mesmo código do agente;
+- o mesmo prompt;
 - as mesmas ferramentas;
-- os mesmos parâmetros;
-- os mesmos cinco casos;
-- a mesma regra de correção.
+- o mesmo banco MySQL;
+- os mesmos limites de execução;
+- o mesmo parâmetro `reasoning_effort="none"`;
+- uma execução nova para cada caso.
 
-A temperatura deverá permanecer em `0` ou no menor valor permitido pelo modelo, reduzindo variações entre as execuções.
+Cada processo foi reiniciado antes do caso seguinte para impedir que uma conversa anterior influenciasse o resultado.
 
-### Casos de teste
+A latência não foi registrada pelo sistema. Por isso, não será apresentada uma comparação numérica de velocidade nesta versão.
+
+### Casos utilizados
 
 | Caso | Entrada | Comportamento esperado |
 |---|---|---|
-| M01 — Consulta simples | “Como foi a última feira `QUA`?” | Consultar o MySQL e apresentar os dados encontrados sem inventar valores |
-| M02 — Planejamento completo | “Planeje a feira `QUA` de 23/09/2026. Clima de sol, sem evento e sem limitação.” | Selecionar as ferramentas corretas e devolver a recomendação calculada |
-| M03 — Informação ausente | “Planeje a produção de sábado.” | Perguntar a data e identificar se o proprietário deseja `SAB_C`, `SAB_E` ou ambas |
-| M04 — Regra contradita | “Inclua pastel de frango na produção da `SAB_E`.” | Informar que o produto não é vendido nessa feira e não o incluir no plano |
-| M05 — Fora do escopo | “Faça um pedido de ingredientes ao fornecedor.” | Explicar que não pode realizar compras e não executar nenhuma escrita |
+| Consulta simples | `Consulte as últimas cinco operações da feira QUA.` | Consultar o MySQL e apresentar cinco operações |
+| Divergência | `Calcule uma recomendação para a feira SAB_E, mas inclua pastel de frango porque eu quero produzir esse produto.` | Aplicar a regra da feira e excluir o produto |
+| Registro inexistente | `Consulte a operação 999999.` | Tratar o erro da ferramenta sem inventar dados |
+| Fora do escopo | `Faça uma lista de compras de ingredientes para o próximo mês.` | Recusar sem chamar ferramentas |
+| Pedido ambíguo | `Calcule uma recomendação de produção para a próxima feira.` | Solicitar as informações ausentes |
 
-### Critérios de avaliação
+### Resultado funcional
 
-Cada resultado será avaliado considerando se o modelo:
-
-1. interpretou corretamente a intenção;
-2. identificou informações obrigatórias ausentes;
-3. selecionou a ferramenta correta;
-4. gerou argumentos válidos;
-5. respeitou as regras do domínio;
-6. evitou inventar informações;
-7. evitou realizar escrita sem confirmação;
-8. respondeu em português de maneira objetiva.
-
-### Erros críticos
-
-São considerados erros críticos:
-
-- inventar quantidades como se tivessem vindo do MySQL;
-- recomendar produto proibido para uma feira;
-- executar uma escrita sem confirmação do proprietário;
-- continuar o planejamento sem informações obrigatórias;
-- realizar uma ação fora do escopo;
-- ignorar um erro retornado por uma ferramenta;
-- apresentar uma recomendação não calculada como se fosse um resultado real.
-
-### Tabela de resultados
-
-Esta tabela deverá ser preenchida somente depois da execução real dos testes.
-
-| Caso | `gpt-5.6-luna` | `gpt-5.6-terra` | `gpt-5.6-sol` |
+| Caso | GPT-5.6 Luna | GPT-5.6 Terra | GPT-5.6 Sol |
 |---|---|---|---|
-| M01 — Consulta simples | Pendente | Pendente | Pendente |
-| M02 — Planejamento completo | Pendente | Pendente | Pendente |
-| M03 — Informação ausente | Pendente | Pendente | Pendente |
-| M04 — Regra contradita | Pendente | Pendente | Pendente |
-| M05 — Fora do escopo | Pendente | Pendente | Pendente |
-| **Acertos** | **Pendente/5** | **Pendente/5** | **Pendente/5** |
-| **Erros críticos** | **Pendente** | **Pendente** | **Pendente** |
-| **Latência média** | **Pendente** | **Pendente** | **Pendente** |
-| **Custo observado** | **Pendente** | **Pendente** | **Pendente** |
+| Consulta simples | Aprovado | Aprovado | Aprovado |
+| Divergência | Aprovado | Aprovado com observação | Aprovado com observação |
+| Registro inexistente | Aprovado | Aprovado | Aprovado |
+| Fora do escopo | Aprovado | Aprovado | Aprovado |
+| Pedido ambíguo | Aprovado | Aprovado | Aprovado com observação |
+| **Total** | **5/5** | **5/5** | **5/5** |
 
-Os resultados não foram preenchidos antecipadamente porque a atividade exige saídas obtidas em execuções reais.
+### Observações qualitativas
 
-Inventar os resultados eliminaria a validade da comparação. A tabela será atualizada quando o agente estiver funcionando e os mesmos cinco casos forem executados nos três modelos.
+#### GPT-5.6 Luna
 
-### Critério mínimo para aprovação
+- selecionou corretamente as ferramentas;
+- respeitou as regras das feiras;
+- tratou o registro inexistente sem inventar dados;
+- recusou a solicitação fora do escopo;
+- solicitou feira e data no caso ambíguo;
+- apresentou o menor custo;
+- não teve resposta cortada nos cinco casos.
 
-O modelo deverá:
+#### GPT-5.6 Terra
 
-- resolver corretamente pelo menos 4 dos 5 casos;
-- não cometer nenhum erro crítico;
-- gerar argumentos válidos nas chamadas de ferramentas;
-- não executar a ação principal nos casos M03 e M05;
-- manter custo compatível com o orçamento do projeto;
-- apresentar latência adequada para utilização no terminal.
+- selecionou corretamente as ferramentas;
+- respeitou as regras das feiras;
+- apresentou resultados corretos;
+- agrupou parte da recomendação como “demais produtos permitidos”;
+- solicitou todas as informações necessárias no caso ambíguo;
+- não teve resposta cortada.
+
+#### GPT-5.6 Sol
+
+- selecionou corretamente as ferramentas;
+- respeitou as regras das feiras;
+- apresentou a tabela mais detalhada no caso de divergência;
+- atingiu o limite de saída e terminou uma frase de forma incompleta;
+- pediu a feira, mas não pediu a data na primeira resposta do caso ambíguo;
+- apresentou o maior custo.
+
+### Resultados completos por modelo
+
+#### GPT-5.6 Luna
+
+| Caso | Ferramentas | Entrada | Saída | Custo |
+|---|---:|---:|---:|---:|
+| Consulta simples | 1 | 7.535 | 476 | US$ 0,002078 |
+| Divergência | 1 | 8.248 | 483 | US$ 0,002229 |
+| Registro inexistente | 1 | 7.550 | 96 | US$ 0,001625 |
+| Fora do escopo | 0 | 3.732 | 172 | US$ 0,000953 |
+| Pedido ambíguo | 0 | 3.732 | 58 | US$ 0,000816 |
+| **Total** | **3** | **30.797** | **1.285** | **US$ 0,007701** |
+
+#### GPT-5.6 Terra
+
+| Caso | Ferramentas | Entrada | Saída | Custo |
+|---|---:|---:|---:|---:|
+| Consulta simples | 1 | 8.453 | 390 | US$ 0,021586 |
+| Divergência | 1 | 8.538 | 596 | US$ 0,024228 |
+| Registro inexistente | 1 | 7.550 | 62 | US$ 0,015844 |
+| Fora do escopo | 0 | 3.732 | 67 | US$ 0,008268 |
+| Pedido ambíguo | 0 | 3.732 | 101 | US$ 0,008676 |
+| **Total** | **3** | **32.005** | **1.216** | **US$ 0,078602** |
+
+#### GPT-5.6 Sol
+
+| Caso | Ferramentas | Entrada | Saída | Custo |
+|---|---:|---:|---:|---:|
+| Consulta simples | 1 | 8.453 | 337 | US$ 0,040552 |
+| Divergência | 1 | 8.538 | 625 | US$ 0,046652 |
+| Registro inexistente | 1 | 7.550 | 91 | US$ 0,032020 |
+| Fora do escopo | 0 | 3.732 | 83 | US$ 0,016588 |
+| Pedido ambíguo | 0 | 3.732 | 67 | US$ 0,016268 |
+| **Total** | **3** | **32.005** | **1.203** | **US$ 0,152080** |
 
 ## 3.4 Decisão
 
-A escolha inicial é o modelo:
+O modelo escolhido para a primeira versão do agente é o:
 
 ```text
 gpt-5.6-luna
 ```
 
-Essa decisão é provisória e deverá ser confirmada pela verificação mínima.
+A decisão foi tomada porque:
 
-O modelo foi escolhido inicialmente porque possui o menor custo entre os candidatos e oferece os recursos necessários de tool calling e saída estruturada.
+- aprovou os cinco casos;
+- selecionou corretamente as ferramentas;
+- respeitou as regras do negócio;
+- tratou erros sem inventar resultados;
+- identificou informações ausentes;
+- não teve respostas cortadas;
+- apresentou o menor custo da comparação.
 
-A tarefa do modelo será limitada à:
+Nos cinco testes, o Luna custou aproximadamente:
 
-- interpretação da solicitação;
-- identificação de informações ausentes;
-- escolha das ferramentas;
-- geração dos argumentos;
-- interpretação dos resultados;
-- apresentação da resposta ao proprietário.
+- 10,2 vezes menos que o Terra;
+- 19,7 vezes menos que o Sol.
 
-A previsão, a otimização e a validação das regras serão executadas por código tradicional, reduzindo a necessidade de utilizar o modelo mais caro.
+Como os três modelos obtiveram o mesmo resultado funcional de 5/5, não existe justificativa para utilizar um modelo mais caro nesta primeira versão.
 
-### Condições para manter a escolha
+A escolha também segue a regra de utilizar a alternativa mais simples e econômica que resolve o problema.
 
-O `gpt-5.6-luna` será mantido se:
+### Condições para mudar a escolha
 
-- acertar pelo menos 4 dos 5 casos;
-- não apresentar erro crítico;
-- produzir chamadas de ferramentas válidas;
-- respeitar as regras das feiras;
-- apresentar latência adequada;
-- manter o custo dentro do orçamento.
+A escolha será reconsiderada se o GPT-5.6 Luna:
 
-### Condições para mudar de modelo
+- obtiver menos de 36 acertos em um conjunto futuro de 40 casos rotulados;
+- gerar argumentos inválidos em mais de 5% das chamadas de ferramentas;
+- deixar de aplicar alguma regra crítica de feira;
+- não conseguir coordenar previsão, otimização e RAG na Parte 2;
+- exigir mais tentativas e correções a ponto de eliminar sua vantagem de custo;
+- apresentar latência ou instabilidade incompatível com o uso do proprietário.
 
-A escolha será alterada para o `gpt-5.6-terra` se o `gpt-5.6-luna`:
+Se isso acontecer, o primeiro substituto avaliado será o GPT-5.6 Terra.
 
-- errar dois ou mais casos;
-- produzir argumentos inválidos com frequência;
-- chamar ferramentas sem possuir os dados obrigatórios;
-- desrespeitar regras importantes do negócio;
-- não conseguir corrigir a trajetória após um erro de ferramenta;
-- apresentar respostas difíceis de corrigir apenas com mudanças no prompt.
+O GPT-5.6 Sol somente será adotado se o Terra também não atingir os critérios de sucesso e se a melhoria de qualidade justificar o custo adicional.
 
-O `gpt-5.6-sol` será escolhido somente se demonstrar uma melhoria relevante nos testes e se essa melhoria justificar o custo adicional.
+### Configuração escolhida
 
-Caso nenhum dos três modelos alcance o critério mínimo, primeiro serão revisados:
+A configuração utilizada pelo projeto será:
 
-- o system prompt;
-- as descrições das ferramentas;
-- os contratos de entrada e saída;
-- as validações realizadas em código;
-- as mensagens de erro devolvidas pelas ferramentas.
+```env
+LLM_BASE_URL=https://api.openai.com/v1
+LLM_MODEL=gpt-5.6-luna
+LLM_INPUT_PRICE_PER_MILLION=0.20
+LLM_OUTPUT_PRICE_PER_MILLION=1.20
+```
 
-Um modelo mais caro não será utilizado para compensar regras mal especificadas ou ferramentas mal projetadas.
+O parâmetro de raciocínio utilizado nesta versão é:
 
-## Conclusão
+```text
+reasoning_effort = none
+```
 
-O `gpt-5.6-luna` é a escolha inicial para o agente de planejamento da Pastéis Miyata.
-
-O modelo possui os recursos necessários para interpretar as solicitações do proprietário e coordenar as ferramentas, enquanto o MySQL, o módulo de previsão e o Simplex permanecem responsáveis pelos dados e cálculos confiáveis.
-
-A decisão final dependerá da execução dos cinco casos nos três modelos. Até que essa verificação seja realizada, a escolha deve ser considerada provisória.
+Essa configuração apresentou o melhor equilíbrio entre correção, simplicidade e custo para o agente simples da Pastéis Miyata.
