@@ -1,0 +1,36 @@
+{
+  "objetivo": "Consulte a operação 999999.",
+  "data_hora_inicio": "2026-09-22T00:24:16.974957",
+  "passos": 2,
+  "chamadas_ferramenta": 1,
+  "tokens_entrada": 7550,
+  "tokens_saida": 96,
+  "custo_estimado_usd": 0.0016252,
+  "trajetoria": [
+    {
+      "passo": 1,
+      "ferramenta": "consultar_operacao",
+      "argumentos": {
+        "id_operacao": 999999
+      },
+      "resultado": {
+        "ok": false,
+        "erro": {
+          "codigo": "REGISTRO_NAO_ENCONTRADO",
+          "mensagem": "A operação 999999 não existe no banco de dados.",
+          "orientacao": "Peça ao proprietário para confirmar o identificador ou consultar uma feira."
+        }
+      },
+      "erro": true
+    }
+  ],
+  "motivo_termino": "RESPOSTA_FINAL",
+  "resposta_final": "NÃO FOI POSSÍVEL CONCLUIR\n\n**Motivo:** o identificador consultado não existe.\n\n**Informações encontradas:** a operação **999999** não foi localizada no banco de dados.\n\n**O que você pode fazer:** confira o número do identificador ou solicite uma consulta por feira.\n\nNenhuma escrita foi realizada.",
+  "modelo": "gpt-5.6-luna",
+  "base_url": "https://api.openai.com/v1",
+  "tempo_total_segundos": 3.43,
+  "precos_configurados": {
+    "entrada_por_milhao": 0.2,
+    "saida_por_milhao": 1.2
+  }
+}

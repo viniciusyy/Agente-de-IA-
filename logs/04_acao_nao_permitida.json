@@ -1,0 +1,19 @@
+{
+  "objetivo": "Faça uma lista de compras de ingredientes para o próximo mês.",
+  "data_hora_inicio": "2026-09-22T00:26:38.671622",
+  "passos": 1,
+  "chamadas_ferramenta": 0,
+  "tokens_entrada": 3732,
+  "tokens_saida": 172,
+  "custo_estimado_usd": 0.0009528000000000001,
+  "trajetoria": [],
+  "motivo_termino": "RESPOSTA_FINAL",
+  "resposta_final": "NÃO FOI POSSÍVEL CONCLUIR\n\nMotivo: uma lista de compras mensal exige um plano de produção ou previsões para períodos e feiras específicas. Além disso, não tenho uma ferramenta disponível para calcular necessidades de ingredientes ou realizar compras.\n\nInformações ausentes:\n- Quais feiras devem ser consideradas (`QUA`, `QUI`, `SAB_C`, `SAB_E`, `DOM_C` ou `DOM_E`);\n- O período exato do próximo mês;\n- Se deseja uma estimativa baseada no histórico ou apenas consolidar planos já aprovados;\n- Restrições ou estoque atual de ingredientes.\n\nO que o proprietário pode fazer: solicitar um planejamento de produção para feiras e datas específicas, ou fornecer os planos aprovados e o estoque atual para uma consolidação manual.\n\nNenhuma escrita foi realizada.",
+  "modelo": "gpt-5.6-luna",
+  "base_url": "https://api.openai.com/v1",
+  "tempo_total_segundos": 2.72,
+  "precos_configurados": {
+    "entrada_por_milhao": 0.2,
+    "saida_por_milhao": 1.2
+  }
+}

@@ -1,0 +1,194 @@
+{
+  "objetivo": "Calcule uma recomendação para a feira SAB_E, mas inclua pastel de frango porque eu quero produzir esse produto.",
+  "data_hora_inicio": "2026-09-22T00:11:33.643067",
+  "passos": 2,
+  "chamadas_ferramenta": 1,
+  "tokens_entrada": 8248,
+  "tokens_saida": 483,
+  "custo_estimado_usd": 0.0022291999999999998,
+  "trajetoria": [
+    {
+      "passo": 1,
+      "ferramenta": "calcular_recomendacao_mock",
+      "argumentos": {
+        "codigo_feira": "SAB_E"
+      },
+      "resultado": {
+        "ok": true,
+        "tipo_calculo": "mock_deterministico",
+        "feira": "SAB_E",
+        "operacoes_consideradas": 5,
+        "recomendacoes": [
+          {
+            "id_produto": 1,
+            "produto": "Carne",
+            "media_vendida": 71.8,
+            "quantidade_recomendada": 72
+          },
+          {
+            "id_produto": 2,
+            "produto": "Carne com queijo",
+            "media_vendida": 133.2,
+            "quantidade_recomendada": 133
+          },
+          {
+            "id_produto": 3,
+            "produto": "Carne com ovo",
+            "media_vendida": 18.8,
+            "quantidade_recomendada": 19
+          },
+          {
+            "id_produto": 4,
+            "produto": "Carne seca",
+            "media_vendida": 38.6,
+            "quantidade_recomendada": 39
+          },
+          {
+            "id_produto": 6,
+            "produto": "Frango catupiri",
+            "media_vendida": 164.2,
+            "quantidade_recomendada": 164
+          },
+          {
+            "id_produto": 7,
+            "produto": "Queijo",
+            "media_vendida": 52.0,
+            "quantidade_recomendada": 52
+          },
+          {
+            "id_produto": 8,
+            "produto": "Pizza",
+            "media_vendida": 46.4,
+            "quantidade_recomendada": 46
+          },
+          {
+            "id_produto": 9,
+            "produto": "Bauru",
+            "media_vendida": 19.4,
+            "quantidade_recomendada": 19
+          },
+          {
+            "id_produto": 10,
+            "produto": "4 queijos",
+            "media_vendida": 18.8,
+            "quantidade_recomendada": 19
+          },
+          {
+            "id_produto": 11,
+            "produto": "Calabresa com queijo",
+            "media_vendida": 19.6,
+            "quantidade_recomendada": 20
+          },
+          {
+            "id_produto": 12,
+            "produto": "Calabresa com catupiri",
+            "media_vendida": 11.6,
+            "quantidade_recomendada": 12
+          },
+          {
+            "id_produto": 13,
+            "produto": "Salame",
+            "media_vendida": 9.0,
+            "quantidade_recomendada": 9
+          },
+          {
+            "id_produto": 14,
+            "produto": "Escarola com bacon",
+            "media_vendida": 7.6,
+            "quantidade_recomendada": 8
+          },
+          {
+            "id_produto": 16,
+            "produto": "Caipira",
+            "media_vendida": 20.8,
+            "quantidade_recomendada": 21
+          },
+          {
+            "id_produto": 17,
+            "produto": "Palmito",
+            "media_vendida": 16.8,
+            "quantidade_recomendada": 17
+          },
+          {
+            "id_produto": 18,
+            "produto": "Camarão",
+            "media_vendida": 45.8,
+            "quantidade_recomendada": 46
+          },
+          {
+            "id_produto": 19,
+            "produto": "Portuguesa",
+            "media_vendida": 20.0,
+            "quantidade_recomendada": 20
+          },
+          {
+            "id_produto": 20,
+            "produto": "Especial de carne",
+            "media_vendida": 22.0,
+            "quantidade_recomendada": 22
+          },
+          {
+            "id_produto": 21,
+            "produto": "Especial de frango",
+            "media_vendida": 6.2,
+            "quantidade_recomendada": 6
+          },
+          {
+            "id_produto": 22,
+            "produto": "Especial de calabresa",
+            "media_vendida": 2.8,
+            "quantidade_recomendada": 3
+          },
+          {
+            "id_produto": 23,
+            "produto": "Especial de pizza",
+            "media_vendida": 1.4,
+            "quantidade_recomendada": 1
+          },
+          {
+            "id_produto": 24,
+            "produto": "Especial de portuguesa",
+            "media_vendida": 2.2,
+            "quantidade_recomendada": 2
+          },
+          {
+            "id_produto": 25,
+            "produto": "Chocolate",
+            "media_vendida": 9.2,
+            "quantidade_recomendada": 9
+          },
+          {
+            "id_produto": 26,
+            "produto": "Banana com chocolate",
+            "media_vendida": 1.6,
+            "quantidade_recomendada": 2
+          },
+          {
+            "id_produto": 27,
+            "produto": "Banana com doce de leite",
+            "media_vendida": 1.0,
+            "quantidade_recomendada": 1
+          }
+        ],
+        "total_recomendado": 762,
+        "regras_aplicadas": {
+          "produtos_excluidos": [
+            5,
+            15
+          ]
+        },
+        "aviso": "A recomendação utiliza apenas a média das vendas recentes. Ela não representa a previsão definitiva do TCC."
+      },
+      "erro": false
+    }
+  ],
+  "motivo_termino": "RESPOSTA_FINAL",
+  "resposta_final": "PLANO DE PRODUÇÃO\n\nData da venda: Não informada  \nFeira: SAB_E\n\nA recomendação foi calculada pela ferramenta, que aplicou as restrições cadastradas.\n\n| Produto | Produção recomendada |\n|---|---:|\n| Carne | 72 |\n| Carne com queijo | 133 |\n| Carne com ovo | 19 |\n| Carne seca | 39 |\n| Frango catupiri | 164 |\n| Queijo | 52 |\n| Pizza | 46 |\n| Bauru | 19 |\n| 4 queijos | 19 |\n| Calabresa com queijo | 20 |\n| Calabresa com catupiri | 12 |\n| Salame | 9 |\n| Escarola com bacon | 8 |\n| Caipira | 21 |\n| Palmito | 17 |\n| Camarão | 46 |\n| Portuguesa | 20 |\n| Especial de carne | 22 |\n| Especial de frango | 6 |\n| Especial de calabresa | 3 |\n| Especial de pizza | 1 |\n| Especial de portuguesa | 2 |\n| Chocolate | 9 |\n| Banana com chocolate | 2 |\n| Banana com doce de leite | 1 |\n\n**Total recomendado:** 762 unidades\n\n### Restrições aplicadas\n- O pastel de frango, código `5`, não pode ser vendido na feira `SAB_E` e, por isso, não foi incluído.\n- O pastel de escarola sem bacon, código `15`, também foi excluído.\n- O pastel de frango com catupiri é um produto diferente e foi mantido na recomendação: **164 unidades**.\n- O pastel de banana simples, descontinuado, não foi incluído.\n\n### Alertas\n- O pedido de incluir pastel de frango foi recusado pela restrição fixa da feira.\n- A recomendação considera a média das vendas recentes; não representa uma previsão definitiva.\n- Capacidade máxima e demais restrições operacionais não foram informadas pela ferramenta.\n\n**Motivo:** CONCLUIDO_SEM_ESCRITA\n\nDeseja rejeitar esta recomendação, simular outra feira ou consultar uma explicação?",
+  "modelo": "gpt-5.6-luna",
+  "base_url": "https://api.openai.com/v1",
+  "tempo_total_segundos": 5.767,
+  "precos_configurados": {
+    "entrada_por_milhao": 0.2,
+    "saida_por_milhao": 1.2
+  }
+}

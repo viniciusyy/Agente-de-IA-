@@ -93,7 +93,9 @@ FERRAMENTAS = [
             "name": "consultar_operacao",
             "description": (
                 "Consulta no MySQL uma operação específica pelo "
-                "seu identificador."
+                "identificador. Deve ser chamada obrigatoriamente sempre "
+                "que o proprietário solicitar uma operação por número, "
+                "inclusive quando o identificador puder não existir."
             ),
             "parameters": {
                 "type": "object",
@@ -116,9 +118,12 @@ FERRAMENTAS = [
         "function": {
             "name": "calcular_recomendacao_mock",
             "description": (
-                "Calcula uma recomendação simplificada e "
-                "determinística pela média das vendas recentes. "
-                "Não utiliza o LLM para calcular quantidades."
+                "Calcula uma recomendação simplificada e determinística "
+                "pela média das vendas recentes. Deve ser chamada sempre "
+                "que o proprietário solicitar uma recomendação, inclusive "
+                "quando o pedido contradizer uma regra da feira. A ferramenta "
+                "aplica as restrições e não utiliza o LLM para calcular "
+                "quantidades."
             ),
             "parameters": {
                 "type": "object",
@@ -621,12 +626,18 @@ class AgentePlanejamento:
             key=lambda item: item["id_produto"]
         )
 
+        total_recomendado = sum(
+            item["quantidade_recomendada"]
+            for item in recomendacoes
+        )
+
         return {
             "ok": True,
             "tipo_calculo": "mock_deterministico",
             "feira": codigo_feira,
             "operacoes_consideradas": len(ids_operacoes),
             "recomendacoes": recomendacoes,
+            "total_recomendado": total_recomendado,
             "regras_aplicadas": {
                 "produtos_excluidos": (
                     sorted(PRODUTOS_PROIBIDOS_FEIRAS_E)

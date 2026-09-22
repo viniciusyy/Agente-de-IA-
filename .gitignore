@@ -27,3 +27,12 @@ __pycache__/
 # ============================================================
 
 .vscode/
+
+# Logs automáticos e intermediários
+logs/execucao_*.json
+
+# Manter os quatro logs oficiais
+!logs/01_caso_simples.json
+!logs/02_caso_divergencia.json
+!logs/03_registro_inexistente.json
+!logs/04_acao_nao_permitida.json
