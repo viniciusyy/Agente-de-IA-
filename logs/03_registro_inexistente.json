@@ -1,36 +1,134 @@
 {
-  "objetivo": "Consulte a operação 999999.",
-  "data_hora_inicio": "2026-09-22T00:24:16.974957",
-  "passos": 2,
-  "chamadas_ferramenta": 1,
-  "tokens_entrada": 7550,
-  "tokens_saida": 96,
-  "custo_estimado_usd": 0.0016252,
-  "trajetoria": [
+  "caso_id": "CASO_03_REGISTRO_INEXISTENTE",
+  "caso_nome": "Operação inexistente",
+  "data_execucao": "2026-10-19T21:56:41.216995",
+  "commit": "00bab3576c181c4ea08360a37714eb49d9ad94b3",
+  "thread_id": "parte2-demo-03-20261019215629895850",
+  "entrada_exata": "Consulte a operação 999999.",
+  "prova_esperada": [
+    "A ferramenta consultar_operacao é chamada.",
+    "O erro da ferramenta é tratado como dado.",
+    "A ausência do registro não é transformada em valores iguais a zero.",
+    "Nenhuma informação é inventada."
+  ],
+  "execucoes": [
     {
-      "passo": 1,
-      "ferramenta": "consultar_operacao",
-      "argumentos": {
-        "id_operacao": 999999
+      "saida": {
+        "status": "precisa_informacao",
+        "resultado": "A operação 999999 não existe no banco de dados.",
+        "fontes": [
+          {
+            "tipo": "sistema",
+            "referencia": "src/prompts/orquestrador_v2.md",
+            "detalhe": "Contrato e limites do agente."
+          }
+        ],
+        "suficiente": false,
+        "motivo": "A consulta retornou REGISTRO_NAO_ENCONTRADO.",
+        "proxima_acao": "Confirme o identificador ou consulte o histórico de uma feira."
       },
-      "resultado": {
-        "ok": false,
-        "erro": {
-          "codigo": "REGISTRO_NAO_ENCONTRADO",
-          "mensagem": "A operação 999999 não existe no banco de dados.",
-          "orientacao": "Peça ao proprietário para confirmar o identificador ou consultar uma feira."
-        }
-      },
-      "erro": true
+      "resposta": "{\n  \"status\": \"precisa_informacao\",\n  \"resultado\": \"A operação 999999 não existe no banco de dados.\",\n  \"fontes\": [\n    {\n      \"tipo\": \"sistema\",\n      \"referencia\": \"src/prompts/orquestrador_v2.md\",\n      \"detalhe\": \"Contrato e limites do agente.\"\n    }\n  ],\n  \"suficiente\": false,\n  \"motivo\": \"A consulta retornou REGISTRO_NAO_ENCONTRADO.\",\n  \"proxima_acao\": \"Confirme o identificador ou consulte o histórico de uma feira.\"\n}",
+      "motivo_termino": "PRECISA_INFORMACAO",
+      "passos": 2,
+      "chamadas_ferramenta": 1,
+      "tokens_entrada": 9025,
+      "tokens_saida": 94,
+      "custo_estimado_usd": 0.0019178,
+      "interrupcao": null,
+      "log": "logs\\execucao_20261019_215641_209239.json",
+      "log_detalhado": {
+        "data_hora": "2026-10-19T21:56:41.209260",
+        "tipo": "nova_entrada",
+        "entrada": {
+          "texto": "Consulte a operação 999999.",
+          "usuario_id": "proprietario",
+          "thread_id": "parte2-demo-03-20261019215629895850"
+        },
+        "modelo": "gpt-5.6-luna",
+        "base_url": "https://api.openai.com/v1",
+        "prompt_versions": {
+          "orquestrador": "orquestrador_v2",
+          "procedural": "procedimento_planejamento_v1"
+        },
+        "parametros": {
+          "graph_recursion_limit": 24,
+          "agent_max_steps": 10,
+          "agent_max_tool_calls": 8,
+          "agent_max_tokens": 12000,
+          "agent_max_time_seconds": 90,
+          "agent_max_cost_usd": 0.15
+        },
+        "saida": {
+          "status": "precisa_informacao",
+          "resultado": "A operação 999999 não existe no banco de dados.",
+          "fontes": [
+            {
+              "tipo": "sistema",
+              "referencia": "src/prompts/orquestrador_v2.md",
+              "detalhe": "Contrato e limites do agente."
+            }
+          ],
+          "suficiente": false,
+          "motivo": "A consulta retornou REGISTRO_NAO_ENCONTRADO.",
+          "proxima_acao": "Confirme o identificador ou consulte o histórico de uma feira."
+        },
+        "interrupcao": null,
+        "motivo_termino": "PRECISA_INFORMACAO",
+        "passos": 2,
+        "chamadas_ferramenta": 1,
+        "tokens_entrada": 9025,
+        "tokens_saida": 94,
+        "custo_estimado_usd": 0.0019178,
+        "trajetoria": [
+          {
+            "no": "preparar_contexto",
+            "fatos_semanticos": 0,
+            "episodios_recuperados": 3
+          },
+          {
+            "no": "chamar_modelo",
+            "modelo": "gpt-5.6-luna",
+            "chamadas": [
+              "consultar_operacao"
+            ],
+            "tokens_entrada": 4466,
+            "tokens_saida": 22
+          },
+          {
+            "no": "executar_ferramentas",
+            "ferramenta": "consultar_operacao",
+            "argumentos": {
+              "id_operacao": 999999
+            },
+            "ok": false,
+            "erro": {
+              "codigo": "REGISTRO_NAO_ENCONTRADO",
+              "mensagem": "A operação 999999 não existe no banco de dados.",
+              "orientacao": "Confirme o identificador ou consulte o histórico de uma feira."
+            }
+          },
+          {
+            "no": "chamar_modelo",
+            "modelo": "gpt-5.6-luna",
+            "chamadas": [],
+            "tokens_entrada": 4559,
+            "tokens_saida": 72
+          },
+          {
+            "no": "validar_saida",
+            "status": "precisa_informacao",
+            "suficiente": false,
+            "normalizado_pelo_codigo": false,
+            "resultado_deterministico": false
+          },
+          {
+            "no": "memorizar_episodio",
+            "gravados": 0,
+            "motivo": "A saída não foi conclusiva e suficiente."
+          }
+        ]
+      }
     }
   ],
-  "motivo_termino": "RESPOSTA_FINAL",
-  "resposta_final": "NÃO FOI POSSÍVEL CONCLUIR\n\n**Motivo:** o identificador consultado não existe.\n\n**Informações encontradas:** a operação **999999** não foi localizada no banco de dados.\n\n**O que você pode fazer:** confira o número do identificador ou solicite uma consulta por feira.\n\nNenhuma escrita foi realizada.",
-  "modelo": "gpt-5.6-luna",
-  "base_url": "https://api.openai.com/v1",
-  "tempo_total_segundos": 3.43,
-  "precos_configurados": {
-    "entrada_por_milhao": 0.2,
-    "saida_por_milhao": 1.2
-  }
+  "extra": {}
 }

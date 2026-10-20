@@ -1,0 +1,1208 @@
+{
+  "caso_id": "CASO_06_HUMAN_IN_THE_LOOP",
+  "caso_nome": "Pausa, edição humana e idempotência",
+  "data_execucao": "2026-10-19T21:56:50.821732",
+  "commit": "00bab3576c181c4ea08360a37714eb49d9ad94b3",
+  "thread_id": "parte2-demo-06-20261019215629895850",
+  "entrada_exata": "Registre esse plano como o plano semanal aprovado.",
+  "prova_esperada": [
+    "O grafo pausa antes da escrita.",
+    "A ação e suas consequências são apresentadas.",
+    "O proprietário aprova editando um argumento.",
+    "Uma segunda escrita com a mesma chave não duplica o registro."
+  ],
+  "execucoes": [
+    {
+      "saida": {
+        "status": "concluido",
+        "resultado": {
+          "ok": true,
+          "fonte": "mysql:pasteis_miyata.operacoes/QUA",
+          "metodo": "baseline_media_vendas_5_operacoes",
+          "feira": "QUA",
+          "operacoes_consideradas": 5,
+          "recomendacoes": [
+            {
+              "id_produto": 1,
+              "produto": "Carne",
+              "demanda_media": 46.8,
+              "quantidade_recomendada": 47
+            },
+            {
+              "id_produto": 2,
+              "produto": "Carne com queijo",
+              "demanda_media": 62.4,
+              "quantidade_recomendada": 62
+            },
+            {
+              "id_produto": 3,
+              "produto": "Carne com ovo",
+              "demanda_media": 13.6,
+              "quantidade_recomendada": 14
+            },
+            {
+              "id_produto": 4,
+              "produto": "Carne seca",
+              "demanda_media": 23.2,
+              "quantidade_recomendada": 23
+            },
+            {
+              "id_produto": 5,
+              "produto": "Frango",
+              "demanda_media": 3.4,
+              "quantidade_recomendada": 3
+            },
+            {
+              "id_produto": 6,
+              "produto": "Frango catupiri",
+              "demanda_media": 65.0,
+              "quantidade_recomendada": 65
+            },
+            {
+              "id_produto": 7,
+              "produto": "Queijo",
+              "demanda_media": 40.4,
+              "quantidade_recomendada": 40
+            },
+            {
+              "id_produto": 8,
+              "produto": "Pizza",
+              "demanda_media": 42.2,
+              "quantidade_recomendada": 42
+            },
+            {
+              "id_produto": 9,
+              "produto": "Bauru",
+              "demanda_media": 13.4,
+              "quantidade_recomendada": 13
+            },
+            {
+              "id_produto": 10,
+              "produto": "4 queijos",
+              "demanda_media": 13.8,
+              "quantidade_recomendada": 14
+            },
+            {
+              "id_produto": 11,
+              "produto": "Calabresa com queijo",
+              "demanda_media": 15.8,
+              "quantidade_recomendada": 16
+            },
+            {
+              "id_produto": 12,
+              "produto": "Calabresa com catupiri",
+              "demanda_media": 8.4,
+              "quantidade_recomendada": 8
+            },
+            {
+              "id_produto": 13,
+              "produto": "Salame",
+              "demanda_media": 5.6,
+              "quantidade_recomendada": 6
+            },
+            {
+              "id_produto": 14,
+              "produto": "Escarola com bacon",
+              "demanda_media": 6.6,
+              "quantidade_recomendada": 7
+            },
+            {
+              "id_produto": 15,
+              "produto": "Escarola sem bacon",
+              "demanda_media": 1.4,
+              "quantidade_recomendada": 1
+            },
+            {
+              "id_produto": 16,
+              "produto": "Caipira",
+              "demanda_media": 17.4,
+              "quantidade_recomendada": 17
+            },
+            {
+              "id_produto": 17,
+              "produto": "Palmito",
+              "demanda_media": 13.4,
+              "quantidade_recomendada": 13
+            },
+            {
+              "id_produto": 18,
+              "produto": "Camarão",
+              "demanda_media": 22.2,
+              "quantidade_recomendada": 22
+            },
+            {
+              "id_produto": 19,
+              "produto": "Portuguesa",
+              "demanda_media": 11.6,
+              "quantidade_recomendada": 12
+            },
+            {
+              "id_produto": 20,
+              "produto": "Especial de carne",
+              "demanda_media": 9.6,
+              "quantidade_recomendada": 10
+            },
+            {
+              "id_produto": 21,
+              "produto": "Especial de frango",
+              "demanda_media": 2.8,
+              "quantidade_recomendada": 3
+            },
+            {
+              "id_produto": 22,
+              "produto": "Especial de calabresa",
+              "demanda_media": 1.6,
+              "quantidade_recomendada": 2
+            },
+            {
+              "id_produto": 23,
+              "produto": "Especial de pizza",
+              "demanda_media": 1.6,
+              "quantidade_recomendada": 2
+            },
+            {
+              "id_produto": 24,
+              "produto": "Especial de portuguesa",
+              "demanda_media": 1.8,
+              "quantidade_recomendada": 2
+            },
+            {
+              "id_produto": 25,
+              "produto": "Chocolate",
+              "demanda_media": 27.8,
+              "quantidade_recomendada": 28
+            },
+            {
+              "id_produto": 26,
+              "produto": "Banana com chocolate",
+              "demanda_media": 2.4,
+              "quantidade_recomendada": 2
+            },
+            {
+              "id_produto": 27,
+              "produto": "Banana com doce de leite",
+              "demanda_media": 2.0,
+              "quantidade_recomendada": 2
+            }
+          ],
+          "total_recomendado": 476,
+          "regras_aplicadas": {
+            "produtos_excluidos": [],
+            "produtos_descontinuados_excluidos": [
+              "Banana simples"
+            ]
+          },
+          "aviso": "Este baseline é verificável e não é a previsão definitiva do TCC. O LLM não calculou as quantidades."
+        },
+        "fontes": [
+          {
+            "tipo": "mysql",
+            "referencia": "mysql:pasteis_miyata.operacoes/QUA",
+            "detalhe": "Retornado pela ferramenta calcular_recomendacao."
+          }
+        ],
+        "suficiente": true,
+        "motivo": "A recomendação foi calculada por uma ferramenta determinística e validada pelo código.",
+        "proxima_acao": "O proprietário pode solicitar uma explicação, outra simulação ou o registro do plano."
+      },
+      "resposta": "{\n  \"status\": \"concluido\",\n  \"resultado\": {\n    \"ok\": true,\n    \"fonte\": \"mysql:pasteis_miyata.operacoes/QUA\",\n    \"metodo\": \"baseline_media_vendas_5_operacoes\",\n    \"feira\": \"QUA\",\n    \"operacoes_consideradas\": 5,\n    \"recomendacoes\": [\n      {\n        \"id_produto\": 1,\n        \"produto\": \"Carne\",\n        \"demanda_media\": 46.8,\n        \"quantidade_recomendada\": 47\n      },\n      {\n        \"id_produto\": 2,\n        \"produto\": \"Carne com queijo\",\n        \"demanda_media\": 62.4,\n        \"quantidade_recomendada\": 62\n      },\n      {\n        \"id_produto\": 3,\n        \"produto\": \"Carne com ovo\",\n        \"demanda_media\": 13.6,\n        \"quantidade_recomendada\": 14\n      },\n      {\n        \"id_produto\": 4,\n        \"produto\": \"Carne seca\",\n        \"demanda_media\": 23.2,\n        \"quantidade_recomendada\": 23\n      },\n      {\n        \"id_produto\": 5,\n        \"produto\": \"Frango\",\n        \"demanda_media\": 3.4,\n        \"quantidade_recomendada\": 3\n      },\n      {\n        \"id_produto\": 6,\n        \"produto\": \"Frango catupiri\",\n        \"demanda_media\": 65.0,\n        \"quantidade_recomendada\": 65\n      },\n      {\n        \"id_produto\": 7,\n        \"produto\": \"Queijo\",\n        \"demanda_media\": 40.4,\n        \"quantidade_recomendada\": 40\n      },\n      {\n        \"id_produto\": 8,\n        \"produto\": \"Pizza\",\n        \"demanda_media\": 42.2,\n        \"quantidade_recomendada\": 42\n      },\n      {\n        \"id_produto\": 9,\n        \"produto\": \"Bauru\",\n        \"demanda_media\": 13.4,\n        \"quantidade_recomendada\": 13\n      },\n      {\n        \"id_produto\": 10,\n        \"produto\": \"4 queijos\",\n        \"demanda_media\": 13.8,\n        \"quantidade_recomendada\": 14\n      },\n      {\n        \"id_produto\": 11,\n        \"produto\": \"Calabresa com queijo\",\n        \"demanda_media\": 15.8,\n        \"quantidade_recomendada\": 16\n      },\n      {\n        \"id_produto\": 12,\n        \"produto\": \"Calabresa com catupiri\",\n        \"demanda_media\": 8.4,\n        \"quantidade_recomendada\": 8\n      },\n      {\n        \"id_produto\": 13,\n        \"produto\": \"Salame\",\n        \"demanda_media\": 5.6,\n        \"quantidade_recomendada\": 6\n      },\n      {\n        \"id_produto\": 14,\n        \"produto\": \"Escarola com bacon\",\n        \"demanda_media\": 6.6,\n        \"quantidade_recomendada\": 7\n      },\n      {\n        \"id_produto\": 15,\n        \"produto\": \"Escarola sem bacon\",\n        \"demanda_media\": 1.4,\n        \"quantidade_recomendada\": 1\n      },\n      {\n        \"id_produto\": 16,\n        \"produto\": \"Caipira\",\n        \"demanda_media\": 17.4,\n        \"quantidade_recomendada\": 17\n      },\n      {\n        \"id_produto\": 17,\n        \"produto\": \"Palmito\",\n        \"demanda_media\": 13.4,\n        \"quantidade_recomendada\": 13\n      },\n      {\n        \"id_produto\": 18,\n        \"produto\": \"Camarão\",\n        \"demanda_media\": 22.2,\n        \"quantidade_recomendada\": 22\n      },\n      {\n        \"id_produto\": 19,\n        \"produto\": \"Portuguesa\",\n        \"demanda_media\": 11.6,\n        \"quantidade_recomendada\": 12\n      },\n      {\n        \"id_produto\": 20,\n        \"produto\": \"Especial de carne\",\n        \"demanda_media\": 9.6,\n        \"quantidade_recomendada\": 10\n      },\n      {\n        \"id_produto\": 21,\n        \"produto\": \"Especial de frango\",\n        \"demanda_media\": 2.8,\n        \"quantidade_recomendada\": 3\n      },\n      {\n        \"id_produto\": 22,\n        \"produto\": \"Especial de calabresa\",\n        \"demanda_media\": 1.6,\n        \"quantidade_recomendada\": 2\n      },\n      {\n        \"id_produto\": 23,\n        \"produto\": \"Especial de pizza\",\n        \"demanda_media\": 1.6,\n        \"quantidade_recomendada\": 2\n      },\n      {\n        \"id_produto\": 24,\n        \"produto\": \"Especial de portuguesa\",\n        \"demanda_media\": 1.8,\n        \"quantidade_recomendada\": 2\n      },\n      {\n        \"id_produto\": 25,\n        \"produto\": \"Chocolate\",\n        \"demanda_media\": 27.8,\n        \"quantidade_recomendada\": 28\n      },\n      {\n        \"id_produto\": 26,\n        \"produto\": \"Banana com chocolate\",\n        \"demanda_media\": 2.4,\n        \"quantidade_recomendada\": 2\n      },\n      {\n        \"id_produto\": 27,\n        \"produto\": \"Banana com doce de leite\",\n        \"demanda_media\": 2.0,\n        \"quantidade_recomendada\": 2\n      }\n    ],\n    \"total_recomendado\": 476,\n    \"regras_aplicadas\": {\n      \"produtos_excluidos\": [],\n      \"produtos_descontinuados_excluidos\": [\n        \"Banana simples\"\n      ]\n    },\n    \"aviso\": \"Este baseline é verificável e não é a previsão definitiva do TCC. O LLM não calculou as quantidades.\"\n  },\n  \"fontes\": [\n    {\n      \"tipo\": \"mysql\",\n      \"referencia\": \"mysql:pasteis_miyata.operacoes/QUA\",\n      \"detalhe\": \"Retornado pela ferramenta calcular_recomendacao.\"\n    }\n  ],\n  \"suficiente\": true,\n  \"motivo\": \"A recomendação foi calculada por uma ferramenta determinística e validada pelo código.\",\n  \"proxima_acao\": \"O proprietário pode solicitar uma explicação, outra simulação ou o registro do plano.\"\n}",
+      "motivo_termino": "CONCLUIDO",
+      "passos": 2,
+      "chamadas_ferramenta": 1,
+      "tokens_entrada": 9517,
+      "tokens_saida": 151,
+      "custo_estimado_usd": 0.0020846,
+      "interrupcao": null,
+      "log": "logs\\execucao_20261019_215647_645610.json",
+      "log_detalhado": {
+        "data_hora": "2026-10-19T21:56:47.645632",
+        "tipo": "nova_entrada",
+        "entrada": {
+          "texto": "Calcule uma recomendação de produção para a feira QUA.",
+          "usuario_id": "proprietario",
+          "thread_id": "parte2-demo-06-20261019215629895850"
+        },
+        "modelo": "gpt-5.6-luna",
+        "base_url": "https://api.openai.com/v1",
+        "prompt_versions": {
+          "orquestrador": "orquestrador_v2",
+          "procedural": "procedimento_planejamento_v1"
+        },
+        "parametros": {
+          "graph_recursion_limit": 24,
+          "agent_max_steps": 10,
+          "agent_max_tool_calls": 8,
+          "agent_max_tokens": 12000,
+          "agent_max_time_seconds": 90,
+          "agent_max_cost_usd": 0.15
+        },
+        "saida": {
+          "status": "concluido",
+          "resultado": {
+            "ok": true,
+            "fonte": "mysql:pasteis_miyata.operacoes/QUA",
+            "metodo": "baseline_media_vendas_5_operacoes",
+            "feira": "QUA",
+            "operacoes_consideradas": 5,
+            "recomendacoes": [
+              {
+                "id_produto": 1,
+                "produto": "Carne",
+                "demanda_media": 46.8,
+                "quantidade_recomendada": 47
+              },
+              {
+                "id_produto": 2,
+                "produto": "Carne com queijo",
+                "demanda_media": 62.4,
+                "quantidade_recomendada": 62
+              },
+              {
+                "id_produto": 3,
+                "produto": "Carne com ovo",
+                "demanda_media": 13.6,
+                "quantidade_recomendada": 14
+              },
+              {
+                "id_produto": 4,
+                "produto": "Carne seca",
+                "demanda_media": 23.2,
+                "quantidade_recomendada": 23
+              },
+              {
+                "id_produto": 5,
+                "produto": "Frango",
+                "demanda_media": 3.4,
+                "quantidade_recomendada": 3
+              },
+              {
+                "id_produto": 6,
+                "produto": "Frango catupiri",
+                "demanda_media": 65.0,
+                "quantidade_recomendada": 65
+              },
+              {
+                "id_produto": 7,
+                "produto": "Queijo",
+                "demanda_media": 40.4,
+                "quantidade_recomendada": 40
+              },
+              {
+                "id_produto": 8,
+                "produto": "Pizza",
+                "demanda_media": 42.2,
+                "quantidade_recomendada": 42
+              },
+              {
+                "id_produto": 9,
+                "produto": "Bauru",
+                "demanda_media": 13.4,
+                "quantidade_recomendada": 13
+              },
+              {
+                "id_produto": 10,
+                "produto": "4 queijos",
+                "demanda_media": 13.8,
+                "quantidade_recomendada": 14
+              },
+              {
+                "id_produto": 11,
+                "produto": "Calabresa com queijo",
+                "demanda_media": 15.8,
+                "quantidade_recomendada": 16
+              },
+              {
+                "id_produto": 12,
+                "produto": "Calabresa com catupiri",
+                "demanda_media": 8.4,
+                "quantidade_recomendada": 8
+              },
+              {
+                "id_produto": 13,
+                "produto": "Salame",
+                "demanda_media": 5.6,
+                "quantidade_recomendada": 6
+              },
+              {
+                "id_produto": 14,
+                "produto": "Escarola com bacon",
+                "demanda_media": 6.6,
+                "quantidade_recomendada": 7
+              },
+              {
+                "id_produto": 15,
+                "produto": "Escarola sem bacon",
+                "demanda_media": 1.4,
+                "quantidade_recomendada": 1
+              },
+              {
+                "id_produto": 16,
+                "produto": "Caipira",
+                "demanda_media": 17.4,
+                "quantidade_recomendada": 17
+              },
+              {
+                "id_produto": 17,
+                "produto": "Palmito",
+                "demanda_media": 13.4,
+                "quantidade_recomendada": 13
+              },
+              {
+                "id_produto": 18,
+                "produto": "Camarão",
+                "demanda_media": 22.2,
+                "quantidade_recomendada": 22
+              },
+              {
+                "id_produto": 19,
+                "produto": "Portuguesa",
+                "demanda_media": 11.6,
+                "quantidade_recomendada": 12
+              },
+              {
+                "id_produto": 20,
+                "produto": "Especial de carne",
+                "demanda_media": 9.6,
+                "quantidade_recomendada": 10
+              },
+              {
+                "id_produto": 21,
+                "produto": "Especial de frango",
+                "demanda_media": 2.8,
+                "quantidade_recomendada": 3
+              },
+              {
+                "id_produto": 22,
+                "produto": "Especial de calabresa",
+                "demanda_media": 1.6,
+                "quantidade_recomendada": 2
+              },
+              {
+                "id_produto": 23,
+                "produto": "Especial de pizza",
+                "demanda_media": 1.6,
+                "quantidade_recomendada": 2
+              },
+              {
+                "id_produto": 24,
+                "produto": "Especial de portuguesa",
+                "demanda_media": 1.8,
+                "quantidade_recomendada": 2
+              },
+              {
+                "id_produto": 25,
+                "produto": "Chocolate",
+                "demanda_media": 27.8,
+                "quantidade_recomendada": 28
+              },
+              {
+                "id_produto": 26,
+                "produto": "Banana com chocolate",
+                "demanda_media": 2.4,
+                "quantidade_recomendada": 2
+              },
+              {
+                "id_produto": 27,
+                "produto": "Banana com doce de leite",
+                "demanda_media": 2.0,
+                "quantidade_recomendada": 2
+              }
+            ],
+            "total_recomendado": 476,
+            "regras_aplicadas": {
+              "produtos_excluidos": [],
+              "produtos_descontinuados_excluidos": [
+                "Banana simples"
+              ]
+            },
+            "aviso": "Este baseline é verificável e não é a previsão definitiva do TCC. O LLM não calculou as quantidades."
+          },
+          "fontes": [
+            {
+              "tipo": "mysql",
+              "referencia": "mysql:pasteis_miyata.operacoes/QUA",
+              "detalhe": "Retornado pela ferramenta calcular_recomendacao."
+            }
+          ],
+          "suficiente": true,
+          "motivo": "A recomendação foi calculada por uma ferramenta determinística e validada pelo código.",
+          "proxima_acao": "O proprietário pode solicitar uma explicação, outra simulação ou o registro do plano."
+        },
+        "interrupcao": null,
+        "motivo_termino": "CONCLUIDO",
+        "passos": 2,
+        "chamadas_ferramenta": 1,
+        "tokens_entrada": 9517,
+        "tokens_saida": 151,
+        "custo_estimado_usd": 0.0020846,
+        "trajetoria": [
+          {
+            "no": "preparar_contexto",
+            "fatos_semanticos": 0,
+            "episodios_recuperados": 3
+          },
+          {
+            "no": "chamar_modelo",
+            "modelo": "gpt-5.6-luna",
+            "chamadas": [
+              "calcular_recomendacao"
+            ],
+            "tokens_entrada": 4182,
+            "tokens_saida": 23
+          },
+          {
+            "no": "executar_ferramentas",
+            "ferramenta": "calcular_recomendacao",
+            "argumentos": {
+              "codigo_feira": "QUA"
+            },
+            "ok": true,
+            "erro": null
+          },
+          {
+            "no": "chamar_modelo",
+            "modelo": "gpt-5.6-luna",
+            "chamadas": [],
+            "tokens_entrada": 5335,
+            "tokens_saida": 128
+          },
+          {
+            "no": "validar_saida",
+            "status": "concluido",
+            "suficiente": true,
+            "normalizado_pelo_codigo": false,
+            "resultado_deterministico": true
+          },
+          {
+            "no": "memorizar_episodio",
+            "gravados": 0,
+            "ja_existia": true,
+            "content_hash": "6fdde3eea0096d379c3c409ad257bfca355b87bf4564977ae4f0c0a61c51ede3"
+          }
+        ]
+      }
+    },
+    {
+      "saida": {
+        "status": "aguardando_aprovacao",
+        "resultado": {
+          "acao": "registrar_plano",
+          "argumentos": {
+            "feira": "QUA",
+            "total_recomendado": 476,
+            "resumo_plano": "Plano semanal de produção para a feira QUA, total recomendado de 476 unidades, conforme recomendação calculada anteriormente.",
+            "plano": [
+              {
+                "id_produto": 1,
+                "produto": "Carne",
+                "demanda_media": 46.8,
+                "quantidade_recomendada": 47
+              },
+              {
+                "id_produto": 2,
+                "produto": "Carne com queijo",
+                "demanda_media": 62.4,
+                "quantidade_recomendada": 62
+              },
+              {
+                "id_produto": 3,
+                "produto": "Carne com ovo",
+                "demanda_media": 13.6,
+                "quantidade_recomendada": 14
+              },
+              {
+                "id_produto": 4,
+                "produto": "Carne seca",
+                "demanda_media": 23.2,
+                "quantidade_recomendada": 23
+              },
+              {
+                "id_produto": 5,
+                "produto": "Frango",
+                "demanda_media": 3.4,
+                "quantidade_recomendada": 3
+              },
+              {
+                "id_produto": 6,
+                "produto": "Frango catupiri",
+                "demanda_media": 65.0,
+                "quantidade_recomendada": 65
+              },
+              {
+                "id_produto": 7,
+                "produto": "Queijo",
+                "demanda_media": 40.4,
+                "quantidade_recomendada": 40
+              },
+              {
+                "id_produto": 8,
+                "produto": "Pizza",
+                "demanda_media": 42.2,
+                "quantidade_recomendada": 42
+              },
+              {
+                "id_produto": 9,
+                "produto": "Bauru",
+                "demanda_media": 13.4,
+                "quantidade_recomendada": 13
+              },
+              {
+                "id_produto": 10,
+                "produto": "4 queijos",
+                "demanda_media": 13.8,
+                "quantidade_recomendada": 14
+              },
+              {
+                "id_produto": 11,
+                "produto": "Calabresa com queijo",
+                "demanda_media": 15.8,
+                "quantidade_recomendada": 16
+              },
+              {
+                "id_produto": 12,
+                "produto": "Calabresa com catupiri",
+                "demanda_media": 8.4,
+                "quantidade_recomendada": 8
+              },
+              {
+                "id_produto": 13,
+                "produto": "Salame",
+                "demanda_media": 5.6,
+                "quantidade_recomendada": 6
+              },
+              {
+                "id_produto": 14,
+                "produto": "Escarola com bacon",
+                "demanda_media": 6.6,
+                "quantidade_recomendada": 7
+              },
+              {
+                "id_produto": 15,
+                "produto": "Escarola sem bacon",
+                "demanda_media": 1.4,
+                "quantidade_recomendada": 1
+              },
+              {
+                "id_produto": 16,
+                "produto": "Caipira",
+                "demanda_media": 17.4,
+                "quantidade_recomendada": 17
+              },
+              {
+                "id_produto": 17,
+                "produto": "Palmito",
+                "demanda_media": 13.4,
+                "quantidade_recomendada": 13
+              },
+              {
+                "id_produto": 18,
+                "produto": "Camarão",
+                "demanda_media": 22.2,
+                "quantidade_recomendada": 22
+              },
+              {
+                "id_produto": 19,
+                "produto": "Portuguesa",
+                "demanda_media": 11.6,
+                "quantidade_recomendada": 12
+              },
+              {
+                "id_produto": 20,
+                "produto": "Especial de carne",
+                "demanda_media": 9.6,
+                "quantidade_recomendada": 10
+              },
+              {
+                "id_produto": 21,
+                "produto": "Especial de frango",
+                "demanda_media": 2.8,
+                "quantidade_recomendada": 3
+              },
+              {
+                "id_produto": 22,
+                "produto": "Especial de calabresa",
+                "demanda_media": 1.6,
+                "quantidade_recomendada": 2
+              },
+              {
+                "id_produto": 23,
+                "produto": "Especial de pizza",
+                "demanda_media": 1.6,
+                "quantidade_recomendada": 2
+              },
+              {
+                "id_produto": 24,
+                "produto": "Especial de portuguesa",
+                "demanda_media": 1.8,
+                "quantidade_recomendada": 2
+              },
+              {
+                "id_produto": 25,
+                "produto": "Chocolate",
+                "demanda_media": 27.8,
+                "quantidade_recomendada": 28
+              },
+              {
+                "id_produto": 26,
+                "produto": "Banana com chocolate",
+                "demanda_media": 2.4,
+                "quantidade_recomendada": 2
+              },
+              {
+                "id_produto": 27,
+                "produto": "Banana com doce de leite",
+                "demanda_media": 2.0,
+                "quantidade_recomendada": 2
+              }
+            ]
+          },
+          "consequencia": "O plano será gravado em dados/memoria.sqlite3. A operação é idempotente e pode ser revertida pela exclusão do registro.",
+          "respostas_aceitas": [
+            "aprovar",
+            "rejeitar",
+            "editar"
+          ],
+          "expira_em": "2026-10-21T00:56:47.653550+00:00"
+        },
+        "fontes": [],
+        "suficiente": true,
+        "motivo": "O grafo foi pausado antes da operação de escrita.",
+        "proxima_acao": "Responda aprovar, rejeitar ou editar. A aprovação expira no horário indicado."
+      },
+      "resposta": "{\n  \"status\": \"aguardando_aprovacao\",\n  \"resultado\": {\n    \"acao\": \"registrar_plano\",\n    \"argumentos\": {\n      \"feira\": \"QUA\",\n      \"total_recomendado\": 476,\n      \"resumo_plano\": \"Plano semanal de produção para a feira QUA, total recomendado de 476 unidades, conforme recomendação calculada anteriormente.\",\n      \"plano\": [\n        {\n          \"id_produto\": 1,\n          \"produto\": \"Carne\",\n          \"demanda_media\": 46.8,\n          \"quantidade_recomendada\": 47\n        },\n        {\n          \"id_produto\": 2,\n          \"produto\": \"Carne com queijo\",\n          \"demanda_media\": 62.4,\n          \"quantidade_recomendada\": 62\n        },\n        {\n          \"id_produto\": 3,\n          \"produto\": \"Carne com ovo\",\n          \"demanda_media\": 13.6,\n          \"quantidade_recomendada\": 14\n        },\n        {\n          \"id_produto\": 4,\n          \"produto\": \"Carne seca\",\n          \"demanda_media\": 23.2,\n          \"quantidade_recomendada\": 23\n        },\n        {\n          \"id_produto\": 5,\n          \"produto\": \"Frango\",\n          \"demanda_media\": 3.4,\n          \"quantidade_recomendada\": 3\n        },\n        {\n          \"id_produto\": 6,\n          \"produto\": \"Frango catupiri\",\n          \"demanda_media\": 65.0,\n          \"quantidade_recomendada\": 65\n        },\n        {\n          \"id_produto\": 7,\n          \"produto\": \"Queijo\",\n          \"demanda_media\": 40.4,\n          \"quantidade_recomendada\": 40\n        },\n        {\n          \"id_produto\": 8,\n          \"produto\": \"Pizza\",\n          \"demanda_media\": 42.2,\n          \"quantidade_recomendada\": 42\n        },\n        {\n          \"id_produto\": 9,\n          \"produto\": \"Bauru\",\n          \"demanda_media\": 13.4,\n          \"quantidade_recomendada\": 13\n        },\n        {\n          \"id_produto\": 10,\n          \"produto\": \"4 queijos\",\n          \"demanda_media\": 13.8,\n          \"quantidade_recomendada\": 14\n        },\n        {\n          \"id_produto\": 11,\n          \"produto\": \"Calabresa com queijo\",\n          \"demanda_media\": 15.8,\n          \"quantidade_recomendada\": 16\n        },\n        {\n          \"id_produto\": 12,\n          \"produto\": \"Calabresa com catupiri\",\n          \"demanda_media\": 8.4,\n          \"quantidade_recomendada\": 8\n        },\n        {\n          \"id_produto\": 13,\n          \"produto\": \"Salame\",\n          \"demanda_media\": 5.6,\n          \"quantidade_recomendada\": 6\n        },\n        {\n          \"id_produto\": 14,\n          \"produto\": \"Escarola com bacon\",\n          \"demanda_media\": 6.6,\n          \"quantidade_recomendada\": 7\n        },\n        {\n          \"id_produto\": 15,\n          \"produto\": \"Escarola sem bacon\",\n          \"demanda_media\": 1.4,\n          \"quantidade_recomendada\": 1\n        },\n        {\n          \"id_produto\": 16,\n          \"produto\": \"Caipira\",\n          \"demanda_media\": 17.4,\n          \"quantidade_recomendada\": 17\n        },\n        {\n          \"id_produto\": 17,\n          \"produto\": \"Palmito\",\n          \"demanda_media\": 13.4,\n          \"quantidade_recomendada\": 13\n        },\n        {\n          \"id_produto\": 18,\n          \"produto\": \"Camarão\",\n          \"demanda_media\": 22.2,\n          \"quantidade_recomendada\": 22\n        },\n        {\n          \"id_produto\": 19,\n          \"produto\": \"Portuguesa\",\n          \"demanda_media\": 11.6,\n          \"quantidade_recomendada\": 12\n        },\n        {\n          \"id_produto\": 20,\n          \"produto\": \"Especial de carne\",\n          \"demanda_media\": 9.6,\n          \"quantidade_recomendada\": 10\n        },\n        {\n          \"id_produto\": 21,\n          \"produto\": \"Especial de frango\",\n          \"demanda_media\": 2.8,\n          \"quantidade_recomendada\": 3\n        },\n        {\n          \"id_produto\": 22,\n          \"produto\": \"Especial de calabresa\",\n          \"demanda_media\": 1.6,\n          \"quantidade_recomendada\": 2\n        },\n        {\n          \"id_produto\": 23,\n          \"produto\": \"Especial de pizza\",\n          \"demanda_media\": 1.6,\n          \"quantidade_recomendada\": 2\n        },\n        {\n          \"id_produto\": 24,\n          \"produto\": \"Especial de portuguesa\",\n          \"demanda_media\": 1.8,\n          \"quantidade_recomendada\": 2\n        },\n        {\n          \"id_produto\": 25,\n          \"produto\": \"Chocolate\",\n          \"demanda_media\": 27.8,\n          \"quantidade_recomendada\": 28\n        },\n        {\n          \"id_produto\": 26,\n          \"produto\": \"Banana com chocolate\",\n          \"demanda_media\": 2.4,\n          \"quantidade_recomendada\": 2\n        },\n        {\n          \"id_produto\": 27,\n          \"produto\": \"Banana com doce de leite\",\n          \"demanda_media\": 2.0,\n          \"quantidade_recomendada\": 2\n        }\n      ]\n    },\n    \"consequencia\": \"O plano será gravado em dados/memoria.sqlite3. A operação é idempotente e pode ser revertida pela exclusão do registro.\",\n    \"respostas_aceitas\": [\n      \"aprovar\",\n      \"rejeitar\",\n      \"editar\"\n    ],\n    \"expira_em\": \"2026-10-21T00:56:47.653550+00:00\"\n  },\n  \"fontes\": [],\n  \"suficiente\": true,\n  \"motivo\": \"O grafo foi pausado antes da operação de escrita.\",\n  \"proxima_acao\": \"Responda aprovar, rejeitar ou editar. A aprovação expira no horário indicado.\"\n}",
+      "motivo_termino": "AGUARDANDO_APROVACAO",
+      "passos": 1,
+      "chamadas_ferramenta": 0,
+      "tokens_entrada": 4782,
+      "tokens_saida": 45,
+      "custo_estimado_usd": 0.0010104,
+      "interrupcao": {
+        "acao": "registrar_plano",
+        "argumentos": {
+          "feira": "QUA",
+          "total_recomendado": 476,
+          "resumo_plano": "Plano semanal de produção para a feira QUA, total recomendado de 476 unidades, conforme recomendação calculada anteriormente.",
+          "plano": [
+            {
+              "id_produto": 1,
+              "produto": "Carne",
+              "demanda_media": 46.8,
+              "quantidade_recomendada": 47
+            },
+            {
+              "id_produto": 2,
+              "produto": "Carne com queijo",
+              "demanda_media": 62.4,
+              "quantidade_recomendada": 62
+            },
+            {
+              "id_produto": 3,
+              "produto": "Carne com ovo",
+              "demanda_media": 13.6,
+              "quantidade_recomendada": 14
+            },
+            {
+              "id_produto": 4,
+              "produto": "Carne seca",
+              "demanda_media": 23.2,
+              "quantidade_recomendada": 23
+            },
+            {
+              "id_produto": 5,
+              "produto": "Frango",
+              "demanda_media": 3.4,
+              "quantidade_recomendada": 3
+            },
+            {
+              "id_produto": 6,
+              "produto": "Frango catupiri",
+              "demanda_media": 65.0,
+              "quantidade_recomendada": 65
+            },
+            {
+              "id_produto": 7,
+              "produto": "Queijo",
+              "demanda_media": 40.4,
+              "quantidade_recomendada": 40
+            },
+            {
+              "id_produto": 8,
+              "produto": "Pizza",
+              "demanda_media": 42.2,
+              "quantidade_recomendada": 42
+            },
+            {
+              "id_produto": 9,
+              "produto": "Bauru",
+              "demanda_media": 13.4,
+              "quantidade_recomendada": 13
+            },
+            {
+              "id_produto": 10,
+              "produto": "4 queijos",
+              "demanda_media": 13.8,
+              "quantidade_recomendada": 14
+            },
+            {
+              "id_produto": 11,
+              "produto": "Calabresa com queijo",
+              "demanda_media": 15.8,
+              "quantidade_recomendada": 16
+            },
+            {
+              "id_produto": 12,
+              "produto": "Calabresa com catupiri",
+              "demanda_media": 8.4,
+              "quantidade_recomendada": 8
+            },
+            {
+              "id_produto": 13,
+              "produto": "Salame",
+              "demanda_media": 5.6,
+              "quantidade_recomendada": 6
+            },
+            {
+              "id_produto": 14,
+              "produto": "Escarola com bacon",
+              "demanda_media": 6.6,
+              "quantidade_recomendada": 7
+            },
+            {
+              "id_produto": 15,
+              "produto": "Escarola sem bacon",
+              "demanda_media": 1.4,
+              "quantidade_recomendada": 1
+            },
+            {
+              "id_produto": 16,
+              "produto": "Caipira",
+              "demanda_media": 17.4,
+              "quantidade_recomendada": 17
+            },
+            {
+              "id_produto": 17,
+              "produto": "Palmito",
+              "demanda_media": 13.4,
+              "quantidade_recomendada": 13
+            },
+            {
+              "id_produto": 18,
+              "produto": "Camarão",
+              "demanda_media": 22.2,
+              "quantidade_recomendada": 22
+            },
+            {
+              "id_produto": 19,
+              "produto": "Portuguesa",
+              "demanda_media": 11.6,
+              "quantidade_recomendada": 12
+            },
+            {
+              "id_produto": 20,
+              "produto": "Especial de carne",
+              "demanda_media": 9.6,
+              "quantidade_recomendada": 10
+            },
+            {
+              "id_produto": 21,
+              "produto": "Especial de frango",
+              "demanda_media": 2.8,
+              "quantidade_recomendada": 3
+            },
+            {
+              "id_produto": 22,
+              "produto": "Especial de calabresa",
+              "demanda_media": 1.6,
+              "quantidade_recomendada": 2
+            },
+            {
+              "id_produto": 23,
+              "produto": "Especial de pizza",
+              "demanda_media": 1.6,
+              "quantidade_recomendada": 2
+            },
+            {
+              "id_produto": 24,
+              "produto": "Especial de portuguesa",
+              "demanda_media": 1.8,
+              "quantidade_recomendada": 2
+            },
+            {
+              "id_produto": 25,
+              "produto": "Chocolate",
+              "demanda_media": 27.8,
+              "quantidade_recomendada": 28
+            },
+            {
+              "id_produto": 26,
+              "produto": "Banana com chocolate",
+              "demanda_media": 2.4,
+              "quantidade_recomendada": 2
+            },
+            {
+              "id_produto": 27,
+              "produto": "Banana com doce de leite",
+              "demanda_media": 2.0,
+              "quantidade_recomendada": 2
+            }
+          ]
+        },
+        "consequencia": "O plano será gravado em dados/memoria.sqlite3. A operação é idempotente e pode ser revertida pela exclusão do registro.",
+        "respostas_aceitas": [
+          "aprovar",
+          "rejeitar",
+          "editar"
+        ],
+        "expira_em": "2026-10-21T00:56:47.653550+00:00"
+      },
+      "log": "logs\\execucao_20261019_215649_528316.json",
+      "log_detalhado": {
+        "data_hora": "2026-10-19T21:56:49.528340",
+        "tipo": "nova_entrada",
+        "entrada": {
+          "texto": "Registre esse plano como o plano semanal aprovado.",
+          "usuario_id": "proprietario",
+          "thread_id": "parte2-demo-06-20261019215629895850"
+        },
+        "modelo": "gpt-5.6-luna",
+        "base_url": "https://api.openai.com/v1",
+        "prompt_versions": {
+          "orquestrador": "orquestrador_v2",
+          "procedural": "procedimento_planejamento_v1"
+        },
+        "parametros": {
+          "graph_recursion_limit": 24,
+          "agent_max_steps": 10,
+          "agent_max_tool_calls": 8,
+          "agent_max_tokens": 12000,
+          "agent_max_time_seconds": 90,
+          "agent_max_cost_usd": 0.15
+        },
+        "saida": null,
+        "interrupcao": {
+          "acao": "registrar_plano",
+          "argumentos": {
+            "feira": "QUA",
+            "total_recomendado": 476,
+            "resumo_plano": "Plano semanal de produção para a feira QUA, total recomendado de 476 unidades, conforme recomendação calculada anteriormente.",
+            "plano": [
+              {
+                "id_produto": 1,
+                "produto": "Carne",
+                "demanda_media": 46.8,
+                "quantidade_recomendada": 47
+              },
+              {
+                "id_produto": 2,
+                "produto": "Carne com queijo",
+                "demanda_media": 62.4,
+                "quantidade_recomendada": 62
+              },
+              {
+                "id_produto": 3,
+                "produto": "Carne com ovo",
+                "demanda_media": 13.6,
+                "quantidade_recomendada": 14
+              },
+              {
+                "id_produto": 4,
+                "produto": "Carne seca",
+                "demanda_media": 23.2,
+                "quantidade_recomendada": 23
+              },
+              {
+                "id_produto": 5,
+                "produto": "Frango",
+                "demanda_media": 3.4,
+                "quantidade_recomendada": 3
+              },
+              {
+                "id_produto": 6,
+                "produto": "Frango catupiri",
+                "demanda_media": 65.0,
+                "quantidade_recomendada": 65
+              },
+              {
+                "id_produto": 7,
+                "produto": "Queijo",
+                "demanda_media": 40.4,
+                "quantidade_recomendada": 40
+              },
+              {
+                "id_produto": 8,
+                "produto": "Pizza",
+                "demanda_media": 42.2,
+                "quantidade_recomendada": 42
+              },
+              {
+                "id_produto": 9,
+                "produto": "Bauru",
+                "demanda_media": 13.4,
+                "quantidade_recomendada": 13
+              },
+              {
+                "id_produto": 10,
+                "produto": "4 queijos",
+                "demanda_media": 13.8,
+                "quantidade_recomendada": 14
+              },
+              {
+                "id_produto": 11,
+                "produto": "Calabresa com queijo",
+                "demanda_media": 15.8,
+                "quantidade_recomendada": 16
+              },
+              {
+                "id_produto": 12,
+                "produto": "Calabresa com catupiri",
+                "demanda_media": 8.4,
+                "quantidade_recomendada": 8
+              },
+              {
+                "id_produto": 13,
+                "produto": "Salame",
+                "demanda_media": 5.6,
+                "quantidade_recomendada": 6
+              },
+              {
+                "id_produto": 14,
+                "produto": "Escarola com bacon",
+                "demanda_media": 6.6,
+                "quantidade_recomendada": 7
+              },
+              {
+                "id_produto": 15,
+                "produto": "Escarola sem bacon",
+                "demanda_media": 1.4,
+                "quantidade_recomendada": 1
+              },
+              {
+                "id_produto": 16,
+                "produto": "Caipira",
+                "demanda_media": 17.4,
+                "quantidade_recomendada": 17
+              },
+              {
+                "id_produto": 17,
+                "produto": "Palmito",
+                "demanda_media": 13.4,
+                "quantidade_recomendada": 13
+              },
+              {
+                "id_produto": 18,
+                "produto": "Camarão",
+                "demanda_media": 22.2,
+                "quantidade_recomendada": 22
+              },
+              {
+                "id_produto": 19,
+                "produto": "Portuguesa",
+                "demanda_media": 11.6,
+                "quantidade_recomendada": 12
+              },
+              {
+                "id_produto": 20,
+                "produto": "Especial de carne",
+                "demanda_media": 9.6,
+                "quantidade_recomendada": 10
+              },
+              {
+                "id_produto": 21,
+                "produto": "Especial de frango",
+                "demanda_media": 2.8,
+                "quantidade_recomendada": 3
+              },
+              {
+                "id_produto": 22,
+                "produto": "Especial de calabresa",
+                "demanda_media": 1.6,
+                "quantidade_recomendada": 2
+              },
+              {
+                "id_produto": 23,
+                "produto": "Especial de pizza",
+                "demanda_media": 1.6,
+                "quantidade_recomendada": 2
+              },
+              {
+                "id_produto": 24,
+                "produto": "Especial de portuguesa",
+                "demanda_media": 1.8,
+                "quantidade_recomendada": 2
+              },
+              {
+                "id_produto": 25,
+                "produto": "Chocolate",
+                "demanda_media": 27.8,
+                "quantidade_recomendada": 28
+              },
+              {
+                "id_produto": 26,
+                "produto": "Banana com chocolate",
+                "demanda_media": 2.4,
+                "quantidade_recomendada": 2
+              },
+              {
+                "id_produto": 27,
+                "produto": "Banana com doce de leite",
+                "demanda_media": 2.0,
+                "quantidade_recomendada": 2
+              }
+            ]
+          },
+          "consequencia": "O plano será gravado em dados/memoria.sqlite3. A operação é idempotente e pode ser revertida pela exclusão do registro.",
+          "respostas_aceitas": [
+            "aprovar",
+            "rejeitar",
+            "editar"
+          ],
+          "expira_em": "2026-10-21T00:56:47.653550+00:00"
+        },
+        "motivo_termino": "AGUARDANDO_APROVACAO",
+        "passos": 1,
+        "chamadas_ferramenta": 0,
+        "tokens_entrada": 4782,
+        "tokens_saida": 45,
+        "custo_estimado_usd": 0.0010104,
+        "trajetoria": [
+          {
+            "no": "preparar_contexto",
+            "fatos_semanticos": 0,
+            "episodios_recuperados": 2
+          },
+          {
+            "no": "chamar_modelo",
+            "modelo": "gpt-5.6-luna",
+            "chamadas": [
+              "registrar_plano"
+            ],
+            "tokens_entrada": 4782,
+            "tokens_saida": 45
+          }
+        ]
+      }
+    },
+    {
+      "saida": {
+        "status": "concluido",
+        "resultado": "O plano semanal aprovado foi registrado com sucesso. Registro: 3.",
+        "fontes": [
+          {
+            "tipo": "ferramenta",
+            "referencia": "memoria.sqlite3#planos_aprovados",
+            "detalhe": "Registro idempotente realizado após decisão do proprietário."
+          }
+        ],
+        "suficiente": true,
+        "motivo": "A ferramenta confirmou o registro do plano calculado anteriormente.",
+        "proxima_acao": null
+      },
+      "resposta": "{\n  \"status\": \"concluido\",\n  \"resultado\": \"O plano semanal aprovado foi registrado com sucesso. Registro: 3.\",\n  \"fontes\": [\n    {\n      \"tipo\": \"ferramenta\",\n      \"referencia\": \"memoria.sqlite3#planos_aprovados\",\n      \"detalhe\": \"Registro idempotente realizado após decisão do proprietário.\"\n    }\n  ],\n  \"suficiente\": true,\n  \"motivo\": \"A ferramenta confirmou o registro do plano calculado anteriormente.\",\n  \"proxima_acao\": null\n}",
+      "motivo_termino": "CONCLUIDO",
+      "passos": 2,
+      "chamadas_ferramenta": 1,
+      "tokens_entrada": 9689,
+      "tokens_saida": 102,
+      "custo_estimado_usd": 0.0020602,
+      "interrupcao": null,
+      "log": "logs\\execucao_20261019_215650_812511.json",
+      "log_detalhado": {
+        "data_hora": "2026-10-19T21:56:50.812533",
+        "tipo": "retomada_humana",
+        "entrada": {
+          "usuario_id": "proprietario",
+          "thread_id": "parte2-demo-06-20261019215629895850",
+          "decisao": {
+            "acao": "editar",
+            "resumo_plano": "Plano semanal aprovado com revisão do proprietário."
+          }
+        },
+        "modelo": "gpt-5.6-luna",
+        "base_url": "https://api.openai.com/v1",
+        "prompt_versions": {
+          "orquestrador": "orquestrador_v2",
+          "procedural": "procedimento_planejamento_v1"
+        },
+        "parametros": {
+          "graph_recursion_limit": 24,
+          "agent_max_steps": 10,
+          "agent_max_tool_calls": 8,
+          "agent_max_tokens": 12000,
+          "agent_max_time_seconds": 90,
+          "agent_max_cost_usd": 0.15
+        },
+        "saida": {
+          "status": "concluido",
+          "resultado": "O plano semanal aprovado foi registrado com sucesso. Registro: 3.",
+          "fontes": [
+            {
+              "tipo": "ferramenta",
+              "referencia": "memoria.sqlite3#planos_aprovados",
+              "detalhe": "Registro idempotente realizado após decisão do proprietário."
+            }
+          ],
+          "suficiente": true,
+          "motivo": "A ferramenta confirmou o registro do plano calculado anteriormente.",
+          "proxima_acao": null
+        },
+        "interrupcao": null,
+        "motivo_termino": "CONCLUIDO",
+        "passos": 2,
+        "chamadas_ferramenta": 1,
+        "tokens_entrada": 9689,
+        "tokens_saida": 102,
+        "custo_estimado_usd": 0.0020602,
+        "trajetoria": [
+          {
+            "no": "aprovar_plano",
+            "ferramenta": "registrar_plano",
+            "ok": true,
+            "ja_existia": false,
+            "erro": null
+          },
+          {
+            "no": "chamar_modelo",
+            "modelo": "gpt-5.6-luna",
+            "chamadas": [],
+            "tokens_entrada": 4907,
+            "tokens_saida": 57
+          },
+          {
+            "no": "validar_saida",
+            "status": "concluido",
+            "suficiente": true,
+            "normalizado_pelo_codigo": false,
+            "resultado_deterministico": false
+          },
+          {
+            "no": "memorizar_episodio",
+            "gravados": 1,
+            "ja_existia": false,
+            "content_hash": "9dedeb61cf68ec39ea577e3034df32975b1e19757e598df57f39e0c7f4fed4e4"
+          }
+        ]
+      }
+    }
+  ],
+  "extra": {
+    "decisao_humana": {
+      "acao": "editar",
+      "resumo_plano": "Plano semanal aprovado com revisão do proprietário."
+    },
+    "prova_idempotencia": {
+      "segunda_tentativa": {
+        "ok": true,
+        "ja_existia": true,
+        "registro_id": 3,
+        "idempotency_key": "35f903d3732b9c4c0e94daafd88d9ebbf27987555e6daf79b2d4a34ebd93bc8b",
+        "criado_em": "2026-10-20T00:56:49.538980+00:00"
+      },
+      "quantidade_registros_com_mesma_chave": 1,
+      "resultado_esperado": {
+        "ja_existia": true,
+        "quantidade_registros": 1
+      },
+      "aprovado": true
+    }
+  }
+}

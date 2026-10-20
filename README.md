@@ -288,7 +288,7 @@ Nunca coloque no GitHub:
 Resultado obtido:
 
 ```text
-Ran 8 tests in 0.161s
+Ran 8 tests
 
 OK
 ```
@@ -312,11 +312,23 @@ Taxa de acerto: 100%
 .\.venv\Scripts\python.exe -m scripts.demonstrar_reducer
 ```
 
+Resultado esperado:
+
+```text
+EXECUÇÃO SEM REDUCER
+InvalidUpdateError
+
+EXECUÇÃO COM REDUCER
+{'resultados': ['A', 'B']}
+```
+
 #### Conferência do grafo
 
 ```powershell
 .\.venv\Scripts\python.exe conferir_grafo.py
 ```
+
+O comando apresenta os nós e as arestas diretas e condicionais do grafo.
 
 ### 7. Executar o agente
 
@@ -502,13 +514,39 @@ Os principais motivos são:
 
 ## Exemplo real da Parte 2
 
-A entrada e a saída abaixo serão preenchidas depois da execução dos seis casos oficiais.
+O exemplo abaixo foi copiado da execução oficial registrada em `logs/04_acao_nao_permitida.json`.
+
+- Data da execução: `2026-10-19T21:56:42.497377`
+- Commit executado: `00bab3576c181c4ea08360a37714eb49d9ad94b3`
+
+Entrada real:
 
 ```text
-[PENDENTE: executar scripts.executar_casos_parte2]
+Calcule uma recomendação para a próxima feira.
 ```
 
-Os exemplos completos também ficarão em:
+Saída real completa:
+
+```json
+{
+  "status": "precisa_informacao",
+  "resultado": null,
+  "fontes": [
+    {
+      "tipo": "sistema",
+      "referencia": "src/prompts/orquestrador_v2.md",
+      "detalhe": "Contrato e limites do agente."
+    }
+  ],
+  "suficiente": false,
+  "motivo": "É necessário informar o código da feira para calcular a recomendação.",
+  "proxima_acao": "Informe o código da feira: QUA, QUI, SAB_C, SAB_E, DOM_C ou DOM_E."
+}
+```
+
+Esse caso demonstra que o agente não escolhe uma feira silenciosamente e não chama a ferramenta de recomendação quando uma informação obrigatória está ausente.
+
+Os demais exemplos completos estão em:
 
 ```text
 docs/io.md
@@ -623,14 +661,31 @@ O repositório contém somente `.env.example`, sem valores privados.
 
 Caso alguma chave tenha sido exposta fora do `.env`, ela deve ser revogada e substituída.
 
+## Evidências obtidas
+
+Na validação da Parte 2 foram obtidos:
+
+- 8 testes automatizados executados com sucesso;
+- 10 acertos em 10 perguntas do conjunto de verificação do RAG;
+- documento revogado removido da recuperação normal;
+- erro de concorrência reproduzido sem reducer;
+- atualização paralela acumulada corretamente com reducer;
+- recomendação determinística consultando o MySQL;
+- saída pública validada pelo Pydantic;
+- seis casos oficiais registrados em JSON;
+- human-in-the-loop executado antes da escrita;
+- edição humana aplicada antes do registro;
+- escrita idempotente verificada;
+- recusa quando o corpus não sustenta a resposta.
+
+Os seis logs oficiais foram gerados a partir do commit:
+
+```text
+00bab3576c181c4ea08360a37714eb49d9ad94b3
+```
+
 ## Estado atual
 
-A arquitetura, o RAG, a memória, o grafo, os contratos, o human-in-the-loop e os testes automatizados estão implementados.
+A arquitetura, o RAG, a memória, o grafo, os contratos de entrada e saída, o human-in-the-loop, os testes automatizados e os seis casos oficiais estão implementados e documentados.
 
-Antes da entrega ainda é necessário:
-
-1. complementar `docs/case.md`;
-2. executar os seis casos oficiais;
-3. substituir o exemplo pendente deste README por uma saída real;
-4. executar `scripts.gerar_io`;
-5. conferir o checklist final.
+A Parte 2 possui código executável, documentação versionada, exemplos reais e logs vinculados ao commit testado.

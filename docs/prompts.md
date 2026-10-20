@@ -126,7 +126,7 @@ foi retirada da versão 2 do prompt. O idioma já é induzido:
 
 O experimento será considerado aprovado se os seis casos reais permanecerem em português e respeitarem o mesmo contrato de saída.
 
-**Resultado da execução real:** `[PREENCHER APÓS EXECUTAR OS SEIS CASOS]`.
+**Resultado da execução real: aprovado.** Os seis casos oficiais executados em 19 de outubro de 2026 permaneceram integralmente em português brasileiro e respeitaram o contrato validado de saída. Não foi observada mudança de idioma após a remoção da frase. As evidências estão nos arquivos `logs/01_caso_simples.json` até `logs/06_human_in_the_loop.json`, gerados a partir do commit `00bab3576c181c4ea08360a37714eb49d9ad94b3`.
 
 Se algum caso mudar de idioma, a instrução será restaurada na versão 3. Caso todos permaneçam em português, ela continuará removida, reduzindo tokens em todas as chamadas.
 

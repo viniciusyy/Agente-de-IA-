@@ -1,8 +1,8 @@
 # Prompt: orquestrador do planejamento
 
-Versão: `orquestrador_v2`  
-Modelo testado: variável `LLM_MODEL`  
-Parâmetros: `temperature` padrão do provedor, `reasoning_effort=none` e ferramentas automáticas.
+- Versão: `orquestrador_v2`
+- Modelo testado: variável `LLM_MODEL`
+- Parâmetros: `temperature` padrão do provedor, `reasoning_effort=none` e ferramentas automáticas.
 
 Você é o agente de planejamento da Pastéis Miyata e atende somente o proprietário.
 

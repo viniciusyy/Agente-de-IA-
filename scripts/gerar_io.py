@@ -10,27 +10,15 @@ from pathlib import Path
 
 
 RAIZ = Path(__file__).resolve().parents[1]
+DOCUMENTO = RAIZ / "docs" / "io.md"
 
-DOCUMENTO = (
-    RAIZ
-    / "docs"
-    / "io.md"
-)
-
-MARCADOR_INICIO = (
-    "<!-- INICIO_EXEMPLOS_REAIS -->"
-)
-
-MARCADOR_FIM = (
-    "<!-- FIM_EXEMPLOS_REAIS -->"
-)
+MARCADOR_INICIO = "<!-- INICIO_EXEMPLOS_REAIS -->"
+MARCADOR_FIM = "<!-- FIM_EXEMPLOS_REAIS -->"
 
 
 CASOS = [
     {
-        "arquivo": (
-            "01_caso_simples.json"
-        ),
+        "arquivo": "01_caso_simples.json",
         "titulo": "Caminho feliz",
         "leitura": (
             "Leia `status=concluido`, "
@@ -39,9 +27,7 @@ CASOS = [
         ),
     },
     {
-        "arquivo": (
-            "04_acao_nao_permitida.json"
-        ),
+        "arquivo": "04_acao_nao_permitida.json",
         "titulo": "Entrada incompleta",
         "leitura": (
             "Leia `status=precisa_informacao`, "
@@ -50,9 +36,7 @@ CASOS = [
         ),
     },
     {
-        "arquivo": (
-            "05_pergunta_fora_corpus.json"
-        ),
+        "arquivo": "05_pergunta_fora_corpus.json",
         "titulo": "Recusa fora do corpus",
         "leitura": (
             "Leia `status=recusado`, "
@@ -67,13 +51,9 @@ def carregar_saida(
     arquivo: str,
 ) -> tuple[dict, dict]:
     """
-    Carrega o log oficial e a última saída do caso.
+    Carrega o log oficial e a última saída validada do caso.
     """
-    caminho = (
-        RAIZ
-        / "logs"
-        / arquivo
-    )
+    caminho = RAIZ / "logs" / arquivo
 
     if not caminho.exists():
         raise FileNotFoundError(
@@ -81,24 +61,17 @@ def carregar_saida(
         )
 
     log = json.loads(
-        caminho.read_text(
-            encoding="utf-8"
-        )
+        caminho.read_text(encoding="utf-8")
     )
 
-    execucoes = log.get(
-        "execucoes",
-        [],
-    )
+    execucoes = log.get("execucoes", [])
 
     if not execucoes:
         raise ValueError(
             f"O log {arquivo} não possui execuções."
         )
 
-    saida = execucoes[-1].get(
-        "saida"
-    )
+    saida = execucoes[-1].get("saida")
 
     if not saida:
         raise ValueError(
@@ -122,9 +95,9 @@ def montar_secao(
     linhas = [
         f"### {caso['titulo']}",
         "",
-        f"Data: `{log['data_execucao']}`  ",
-        f"Commit: `{log['commit']}`  ",
-        f"Log: `logs/{caso['arquivo']}`",
+        f"- Data: `{log['data_execucao']}`",
+        f"- Commit: `{log['commit']}`",
+        f"- Log: `logs/{caso['arquivo']}`",
         "",
         "Entrada exata:",
         "",
@@ -148,26 +121,35 @@ def montar_secao(
     return "\n".join(linhas)
 
 
+def remover_espacos_finais(
+    conteudo: str,
+) -> str:
+    """
+    Remove espaços no final das linhas e mantém uma quebra final.
+    """
+    linhas = [
+        linha.rstrip()
+        for linha in conteudo.splitlines()
+    ]
+
+    return "\n".join(linhas) + "\n"
+
+
 def main() -> None:
     if not DOCUMENTO.exists():
         raise FileNotFoundError(
             "docs/io.md ainda não existe. "
-            "Crie o documento no bloco de "
-            "documentação antes de executar "
-            "este script."
+            "Crie o documento de contratos antes "
+            "de executar este script."
         )
 
-    conteudo_atual = (
-        DOCUMENTO.read_text(
-            encoding="utf-8"
-        )
+    conteudo_atual = DOCUMENTO.read_text(
+        encoding="utf-8"
     )
 
     if (
-        MARCADOR_INICIO
-        not in conteudo_atual
-        or MARCADOR_FIM
-        not in conteudo_atual
+        MARCADOR_INICIO not in conteudo_atual
+        or MARCADOR_FIM not in conteudo_atual
     ):
         raise ValueError(
             "Os marcadores de exemplos reais "
@@ -179,11 +161,9 @@ def main() -> None:
         for caso in CASOS
     ]
 
-    antes, restante = (
-        conteudo_atual.split(
-            MARCADOR_INICIO,
-            1,
-        )
+    antes, restante = conteudo_atual.split(
+        MARCADOR_INICIO,
+        1,
     )
 
     _, depois = restante.split(
@@ -199,6 +179,10 @@ def main() -> None:
         + "\n\n"
         + MARCADOR_FIM
         + depois
+    )
+
+    novo_conteudo = remover_espacos_finais(
+        novo_conteudo
     )
 
     DOCUMENTO.write_text(

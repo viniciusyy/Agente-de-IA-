@@ -1,0 +1,130 @@
+{
+  "caso_id": "CASO_05_FORA_DO_CORPUS",
+  "caso_nome": "Pergunta fora do corpus",
+  "data_execucao": "2026-10-19T21:56:44.873025",
+  "commit": "00bab3576c181c4ea08360a37714eb49d9ad94b3",
+  "thread_id": "parte2-demo-05-20261019215629895850",
+  "entrada_exata": "Qual é o fornecedor da massa e o prazo de entrega combinado?",
+  "prova_esperada": [
+    "O agente consulta o conhecimento disponível.",
+    "O corpus não sustenta a resposta.",
+    "A saída possui suficiência negativa.",
+    "O agente informa qual conhecimento está ausente."
+  ],
+  "execucoes": [
+    {
+      "saida": {
+        "status": "recusado",
+        "resultado": null,
+        "fontes": [
+          {
+            "tipo": "sistema",
+            "referencia": "src/prompts/orquestrador_v2.md",
+            "detalhe": "Contrato e limites do agente."
+          }
+        ],
+        "suficiente": false,
+        "motivo": "Nenhum documento vigente do corpus sustenta a identificação do fornecedor da massa ou do prazo de entrega combinado.",
+        "proxima_acao": "Forneça um documento vigente ou registre essas informações no corpus da Pastéis Miyata."
+      },
+      "resposta": "{\n  \"status\": \"recusado\",\n  \"resultado\": null,\n  \"fontes\": [\n    {\n      \"tipo\": \"sistema\",\n      \"referencia\": \"src/prompts/orquestrador_v2.md\",\n      \"detalhe\": \"Contrato e limites do agente.\"\n    }\n  ],\n  \"suficiente\": false,\n  \"motivo\": \"Nenhum documento vigente do corpus sustenta a identificação do fornecedor da massa ou do prazo de entrega combinado.\",\n  \"proxima_acao\": \"Forneça um documento vigente ou registre essas informações no corpus da Pastéis Miyata.\"\n}",
+      "motivo_termino": "RECUSADO",
+      "passos": 2,
+      "chamadas_ferramenta": 1,
+      "tokens_entrada": 6375,
+      "tokens_saida": 98,
+      "custo_estimado_usd": 0.0013926,
+      "interrupcao": null,
+      "log": "logs\\execucao_20261019_215644_864184.json",
+      "log_detalhado": {
+        "data_hora": "2026-10-19T21:56:44.864210",
+        "tipo": "nova_entrada",
+        "entrada": {
+          "texto": "Qual é o fornecedor da massa e o prazo de entrega combinado?",
+          "usuario_id": "proprietario",
+          "thread_id": "parte2-demo-05-20261019215629895850"
+        },
+        "modelo": "gpt-5.6-luna",
+        "base_url": "https://api.openai.com/v1",
+        "prompt_versions": {
+          "orquestrador": "orquestrador_v2",
+          "procedural": "procedimento_planejamento_v1"
+        },
+        "parametros": {
+          "graph_recursion_limit": 24,
+          "agent_max_steps": 10,
+          "agent_max_tool_calls": 8,
+          "agent_max_tokens": 12000,
+          "agent_max_time_seconds": 90,
+          "agent_max_cost_usd": 0.15
+        },
+        "saida": {
+          "status": "recusado",
+          "resultado": null,
+          "fontes": [
+            {
+              "tipo": "sistema",
+              "referencia": "src/prompts/orquestrador_v2.md",
+              "detalhe": "Contrato e limites do agente."
+            }
+          ],
+          "suficiente": false,
+          "motivo": "Nenhum documento vigente do corpus sustenta a identificação do fornecedor da massa ou do prazo de entrega combinado.",
+          "proxima_acao": "Forneça um documento vigente ou registre essas informações no corpus da Pastéis Miyata."
+        },
+        "interrupcao": null,
+        "motivo_termino": "RECUSADO",
+        "passos": 2,
+        "chamadas_ferramenta": 1,
+        "tokens_entrada": 6375,
+        "tokens_saida": 98,
+        "custo_estimado_usd": 0.0013926,
+        "trajetoria": [
+          {
+            "no": "preparar_contexto",
+            "fatos_semanticos": 0,
+            "episodios_recuperados": 0
+          },
+          {
+            "no": "chamar_modelo",
+            "modelo": "gpt-5.6-luna",
+            "chamadas": [
+              "buscar_conhecimento"
+            ],
+            "tokens_entrada": 3141,
+            "tokens_saida": 26
+          },
+          {
+            "no": "executar_ferramentas",
+            "ferramenta": "buscar_conhecimento",
+            "argumentos": {
+              "consulta": "fornecedor da massa e prazo de entrega combinado"
+            },
+            "ok": true,
+            "erro": null
+          },
+          {
+            "no": "chamar_modelo",
+            "modelo": "gpt-5.6-luna",
+            "chamadas": [],
+            "tokens_entrada": 3234,
+            "tokens_saida": 72
+          },
+          {
+            "no": "validar_saida",
+            "status": "recusado",
+            "suficiente": false,
+            "normalizado_pelo_codigo": false,
+            "resultado_deterministico": false
+          },
+          {
+            "no": "memorizar_episodio",
+            "gravados": 0,
+            "motivo": "A saída não foi conclusiva e suficiente."
+          }
+        ]
+      }
+    }
+  ],
+  "extra": {}
+}
