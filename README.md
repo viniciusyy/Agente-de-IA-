@@ -10,122 +10,212 @@ O proprietário da Pastéis Miyata precisa definir quanto produzir de cada tipo 
 
 ## Sobre o projeto
 
-Este projeto apresenta um agente simples desenvolvido para a Parte 1 da disciplina de Agentes de IA com LLMs.
+Este repositório apresenta a evolução do mesmo sistema nas Partes 1 e 2 da disciplina de Agentes de IA com LLMs.
 
-O sistema é utilizado exclusivamente pelo proprietário da Pastéis Miyata. O agente recebe solicitações em linguagem natural, identifica o objetivo do proprietário, decide quais ferramentas utilizar e apresenta os resultados de forma organizada.
+O sistema é utilizado exclusivamente pelo proprietário da Pastéis Miyata.
 
-Nesta primeira versão, o agente pode:
+Na Parte 2, o agente passou a ser implementado como um grafo com LangGraph. O sistema recebe solicitações em linguagem natural, recupera memória e conhecimento, seleciona ferramentas, consulta o MySQL e devolve uma saída validada.
 
-- consultar operações reais armazenadas no MySQL;
-- consultar o histórico de uma feira;
-- calcular uma recomendação mock baseada na média das vendas recentes;
-- aplicar regras fixas das feiras;
-- registrar um plano mock após confirmação explícita;
-- informar quando uma solicitação está fora do escopo;
-- registrar a trajetória completa de cada execução.
+A versão atual possui:
 
-O modelo de linguagem não calcula livremente as quantidades. Consultas, médias, restrições e totais são processados por código Python e pelo banco MySQL.
+- entrada em texto livre;
+- saída validada por Pydantic;
+- grafo com nós e arestas condicionais;
+- consultas estruturadas ao MySQL;
+- RAG textual sobre documentos privados da pastelaria;
+- memória de curto e longo prazo;
+- checkpoints persistentes por conversa;
+- controle da janela de contexto;
+- orçamento de passos, ferramentas, tokens, tempo e custo;
+- detector de laço;
+- human-in-the-loop antes do registro de um plano;
+- retomada, edição, rejeição e expiração da aprovação;
+- escrita idempotente;
+- logs com trajetória e motivo de término.
 
-## Limitações da primeira versão
+O modelo de linguagem atua como orquestrador. Ele interpreta a solicitação e escolhe ferramentas, mas não calcula livremente as quantidades.
 
-Este é um agente simples criado para provar que a arquitetura e as ferramentas são implementáveis.
+As consultas, médias, restrições e totalizações são executadas por código Python e pelo banco MySQL.
 
-Nesta versão, o sistema:
+## Usuário autorizado
 
-- ainda não utiliza os modelos definitivos de previsão do TCC;
-- ainda não executa a otimização por Simplex;
-- não controla estoque de ingredientes;
-- não cria listas de compras;
-- não inicia nenhuma atividade física de produção;
-- não altera os registros históricos do MySQL;
-- não substitui a decisão do proprietário;
-- não deve ser utilizado por outros perfis de usuário.
+O único usuário autorizado é o proprietário da Pastéis Miyata.
 
-A recomendação atual é uma simulação determinística baseada na média das últimas vendas registradas.
+```text
+AGENT_USER_ID=proprietario
+```
 
-## Tecnologias utilizadas
+O proprietário:
 
-- Python;
-- biblioteca `openai`;
-- API da OpenAI;
-- modelo `gpt-5.6-luna`;
-- MySQL;
-- `mysql-connector-python`;
-- `python-dotenv`;
-- Git e GitHub.
+- inicia as solicitações;
+- informa dados ausentes;
+- consulta resultados;
+- solicita simulações;
+- aprova ou rejeita o registro de planos;
+- pode editar o resumo antes da escrita;
+- permanece responsável pela decisão final.
 
-Não é necessário utilizar SQLite, pois a integração com software tradicional é realizada diretamente com o banco MySQL da Pastéis Miyata.
+## Arquitetura resumida
+
+```text
+texto livre
+    |
+    v
+preparar contexto e recuperar memórias
+    |
+    v
+modelo decide responder ou chamar ferramenta
+    |
+    +--> MySQL
+    |
+    +--> RAG textual
+    |
+    +--> cálculo determinístico
+    |
+    +--> memória
+    |
+    +--> aprovação humana antes da escrita
+    |
+    v
+saída Pydantic validada
+    |
+    v
+memória episódica, quando aplicável
+```
+
+O MySQL continua sendo o banco operacional da Pastéis Miyata.
+
+O SQLite não substitui o MySQL. Ele é utilizado localmente somente para:
+
+- checkpoints do LangGraph;
+- memória semântica;
+- memória episódica;
+- planos aprovados.
+
+Não é necessário instalar um servidor SQLite, pois o suporte é fornecido pela biblioteca padrão do Python e pelo pacote de checkpoint do LangGraph.
+
+## Ferramentas
+
+| Ferramenta | Função | Tipo |
+|---|---|---|
+| `consultar_historico` | Consulta no MySQL as operações recentes de uma feira | Leitura |
+| `consultar_operacao` | Consulta no MySQL uma operação pelo identificador | Leitura |
+| `buscar_conhecimento` | Recupera regras e informações do corpus | Leitura |
+| `calcular_recomendacao` | Calcula um baseline determinístico pela média das vendas recentes | Leitura e cálculo |
+| `salvar_preferencia` | Versiona uma preferência explicitamente declarada | Escrita idempotente |
+| `registrar_plano` | Solicita aprovação humana e registra o plano | Escrita idempotente |
 
 ## Estrutura do projeto
 
 ```text
 .
 ├── dados/
-│   └── casos_demonstracao.json
+│   ├── corpus/
+│   │   ├── 01_regras_feiras.md
+│   │   ├── 02_glossario_dados.md
+│   │   ├── 03_processo_planejamento.md
+│   │   ├── 04_produtos_status.md
+│   │   ├── 05_limites_sistema.md
+│   │   └── 99_regras_feiras_revogado.md
+│   ├── casos_demonstracao.json
+│   └── casos_demonstracao_parte2.json
 ├── docs/
+│   ├── arquitetura.md
 │   ├── case.md
 │   ├── fontes.md
-│   └── modelos.md
+│   ├── grafo.md
+│   ├── humano.md
+│   ├── io.md
+│   ├── memoria.md
+│   ├── modelos.md
+│   ├── prompts.md
+│   └── rag.md
 ├── exercicios/
 │   ├── aula-05-arquitetura.md
-│   └── aula-06-base-de-conhecimento.md
+│   ├── aula-06-base-de-conhecimento.md
+│   └── aula-11-avaliacao.md
 ├── logs/
 │   ├── 01_caso_simples.json
 │   ├── 02_caso_divergencia.json
 │   ├── 03_registro_inexistente.json
-│   └── 04_acao_nao_permitida.json
+│   ├── 04_acao_nao_permitida.json
+│   ├── 05_pergunta_fora_corpus.json
+│   └── 06_human_in_the_loop.json
 ├── prompts/
 │   └── agente_planejamento_v1.md
+├── scripts/
+│   ├── demonstrar_reducer.py
+│   ├── executar_casos_parte2.py
+│   ├── gerar_io.py
+│   └── verificar_rag.py
 ├── src/
+│   ├── prompts/
+│   │   ├── orquestrador_v2.md
+│   │   └── procedimento_planejamento_v1.md
 │   ├── agent.py
 │   ├── config.py
 │   ├── database.py
-│   └── main.py
+│   ├── domain.py
+│   ├── graph.py
+│   ├── main.py
+│   ├── memory.py
+│   ├── rag.py
+│   └── schemas.py
+├── tests/
+│   └── test_parte2.py
 ├── .env.example
 ├── .gitignore
+├── conferir_grafo.py
 ├── README.md
 └── requirements.txt
 ```
 
-# Como rodar
+A pasta `prompts/` da raiz preserva o prompt utilizado na Parte 1.
 
-## 1. Pré-requisitos
+Os prompts executáveis da Parte 2 ficam em:
+
+```text
+src/prompts/
+```
+
+## Como rodar
+
+### 1. Pré-requisitos
 
 Antes de executar o projeto, é necessário ter:
 
-- Python instalado;
+- Python 3.11 ou superior;
+- Git;
 - MySQL em execução;
 - banco `pasteis_miyata` criado;
 - tabelas e registros utilizados pelo projeto;
-- uma chave válida da API da OpenAI;
-- créditos disponíveis na conta da API.
+- chave válida da API;
+- créditos disponíveis no provedor configurado.
 
 A assinatura do ChatGPT e os créditos da API são serviços separados.
 
-## 2. Clonar o repositório
+### 2. Clonar o repositório
 
 ```powershell
 git clone https://github.com/viniciusyy/Agente-de-IA-.git
 cd Agente-de-IA-
 ```
 
-Caso o projeto já esteja no computador, basta abrir sua pasta no terminal.
+Caso o repositório já esteja no computador, abra a pasta do projeto no terminal.
 
-## 3. Criar o ambiente virtual
-
-No PowerShell:
+### 3. Criar o ambiente virtual
 
 ```powershell
 python -m venv .venv
 ```
 
-## 4. Instalar as dependências
+### 4. Instalar as dependências
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-## 5. Criar o arquivo `.env`
+### 5. Criar o arquivo `.env`
 
 Copie o arquivo de exemplo:
 
@@ -133,231 +223,414 @@ Copie o arquivo de exemplo:
 Copy-Item .env.example .env
 ```
 
-Depois, abra o `.env` e informe localmente:
-
-- a chave da API da OpenAI;
-- o endereço e a porta do MySQL;
-- o nome do banco;
-- o usuário e a senha do banco.
+Depois, abra o `.env` e preencha os valores locais.
 
 Exemplo de estrutura:
 
 ```env
-LLM_BASE_URL=https://api.openai.com/v1
+# Modelo
 OPENAI_API_KEY=
+LLM_BASE_URL=https://api.openai.com/v1
 LLM_MODEL=gpt-5.6-luna
-
 LLM_INPUT_PRICE_PER_MILLION=0.20
 LLM_OUTPUT_PRICE_PER_MILLION=1.20
+LLM_MAX_OUTPUT_TOKENS=700
 
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=pasteis_miyata
-DB_USER=
-DB_PASSWORD=
+# Banco MySQL
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_DATABASE=pasteis_miyata
+MYSQL_USER=
+MYSQL_PASSWORD=
 
-AGENT_MAX_STEPS=8
-AGENT_MAX_TOOL_CALLS=6
-AGENT_MAX_TOKENS=9000
-AGENT_MAX_SECONDS=60
-AGENT_MAX_COST_USD=0.10
+# Orçamento
+AGENT_MAX_STEPS=10
+AGENT_MAX_TOOL_CALLS=8
+AGENT_MAX_TOKENS=12000
+AGENT_MAX_TIME_SECONDS=90
+AGENT_MAX_COST_USD=0.15
+GRAPH_RECURSION_LIMIT=24
+LOOP_REPEAT_LIMIT=3
+CONVERSATION_MAX_TURNS=6
+
+# RAG, memória e aprovação
+RAG_MAX_RESULTS=3
+RAG_MIN_SCORE=0.001
+MEMORY_EPISODE_HALF_LIFE_DAYS=90
+APPROVAL_TIMEOUT_HOURS=24
+CHECKPOINT_DATABASE=dados/checkpoints.sqlite3
+MEMORY_DATABASE=dados/memoria.sqlite3
+CORPUS_DIRECTORY=dados/corpus
+LOG_DIRECTORY=logs
+
+# Identidade
+AGENT_USER_ID=proprietario
+AGENT_THREAD_ID=proprietario-principal
 ```
 
-A chave da API e a senha do MySQL não devem ser colocadas no `.env.example`, no código ou no GitHub.
+O código também aceita os aliases `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` e `DB_PASSWORD`.
 
-## 6. Executar o agente
+Nunca coloque no GitHub:
+
+- `.env`;
+- chave da API;
+- senha do MySQL;
+- outras credenciais.
+
+### 6. Executar as verificações locais
+
+#### Testes automatizados
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+Resultado obtido:
+
+```text
+Ran 8 tests in 0.161s
+
+OK
+```
+
+#### Avaliação do RAG
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.verificar_rag
+```
+
+Resultado obtido:
+
+```text
+10 acertos em 10 perguntas
+Taxa de acerto: 100%
+```
+
+#### Demonstração do reducer
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.demonstrar_reducer
+```
+
+#### Conferência do grafo
+
+```powershell
+.\.venv\Scripts\python.exe conferir_grafo.py
+```
+
+### 7. Executar o agente
 
 ```powershell
 .\.venv\Scripts\python.exe -m src.main
 ```
 
-Quando a execução funcionar, o sistema exibirá:
+O início esperado é:
 
 ```text
-AGENTE SIMPLES DE PLANEJAMENTO — PASTÉIS MIYATA
+========================================================================
+AGENTE DE PLANEJAMENTO — PASTÉIS MIYATA — PARTE 2
+========================================================================
 Usuário autorizado: proprietário
+Usuário técnico: proprietario
+Conversa (thread_id): proprietario-principal
+Entrada: texto livre em português. Digite 'sair' para encerrar.
 ```
 
-Também será realizado um teste de conexão com o MySQL.
+O programa também testa a conexão com o MySQL.
 
-# Como usar
+## Como usar
 
-O proprietário inicia a interação digitando uma solicitação em linguagem natural.
+O proprietário digita uma solicitação em linguagem natural.
 
-Exemplos:
+### Consultar histórico
 
 ```text
 Consulte as últimas cinco operações da feira QUA.
 ```
+
+### Consultar uma operação
 
 ```text
 Consulte a operação 101.
 ```
 
-```text
-Calcule uma recomendação para a feira SAB_E.
-```
+### Consultar uma regra
 
 ```text
-Calcule uma recomendação para a feira SAB_E, mas inclua pastel de frango.
+Qual regra vale para pastel de frango na SAB_E?
 ```
 
-Para encerrar:
+### Calcular uma recomendação
+
+```text
+Calcule uma recomendação de produção para a feira QUA.
+```
+
+### Solicitar o registro do último plano
+
+Depois de calcular uma recomendação na mesma conversa:
+
+```text
+Registre esse plano como o plano semanal aprovado.
+```
+
+### Informar uma preferência
+
+```text
+Minha prioridade padrão é reduzir sobras.
+```
+
+### Encerrar
 
 ```text
 sair
 ```
 
-## O que o sistema faz com a solicitação
+## Contrato da saída
 
-O agente:
+Toda resposta pública segue o objeto `SaidaAgente`.
 
-1. interpreta o pedido do proprietário;
-2. verifica se a solicitação pertence ao escopo;
-3. identifica se alguma informação está ausente;
-4. escolhe uma ferramenta quando necessário;
-5. executa consultas ou cálculos por código;
-6. aplica as regras fixas do negócio;
-7. apresenta o resultado;
-8. registra a trajetória em um arquivo JSON.
+Exemplo estrutural:
 
-## Como interpretar a saída
+```json
+{
+  "status": "concluido",
+  "resultado": {},
+  "fontes": [],
+  "suficiente": true,
+  "motivo": "A solicitação foi concluída.",
+  "proxima_acao": null
+}
+```
 
-Além da resposta principal, cada execução apresenta um resumo:
+Os status possíveis são:
+
+| Status | Significado |
+|---|---|
+| `concluido` | A solicitação foi concluída |
+| `precisa_informacao` | O proprietário precisa informar algum dado |
+| `recusado` | A solicitação está fora do escopo ou não possui fonte suficiente |
+| `aguardando_aprovacao` | O grafo está pausado antes de uma escrita |
+| `erro` | A execução terminou com erro validado |
+
+Uma recusa também é uma saída válida. O agente não inventa uma resposta quando o banco, as ferramentas ou o corpus não sustentam a informação.
+
+## Aprovação humana
+
+Quando o modelo solicita `registrar_plano`, o grafo para antes da escrita.
+
+O terminal apresenta:
+
+- ação;
+- argumentos;
+- feira;
+- quantidades;
+- total;
+- resumo;
+- consequência;
+- prazo.
+
+O proprietário escolhe:
 
 ```text
+[A]provar, [R]ejeitar ou [E]ditar?
+```
+
+### Aprovar
+
+Digite:
+
+```text
+A
+```
+
+### Rejeitar
+
+Digite:
+
+```text
+R
+```
+
+### Editar o resumo
+
+Digite:
+
+```text
+E
+```
+
+Depois, informe o novo resumo.
+
+Se o programa for encerrado durante a pausa, o checkpoint mantém a aprovação pendente. Ao iniciar novamente com a mesma `thread_id`, o sistema apresenta a decisão pendente.
+
+Se a aprovação não for retomada dentro de 24 horas, ela expira e nenhuma escrita é realizada.
+
+A repetição da mesma escrita não cria dois registros.
+
+## Como interpretar a execução
+
+Cada execução apresenta:
+
+```text
+SAÍDA VALIDADA
+RESUMO DA EXECUÇÃO
 Motivo da parada
-Passos executados
-Ferramentas chamadas
+Passos
+Ferramentas
 Tokens de entrada
 Tokens de saída
 Custo estimado
-Caminho do log
+Log
 ```
 
-Os principais motivos de parada são:
+Os principais motivos são:
 
 | Motivo | Significado |
 |---|---|
-| `RESPOSTA_FINAL` | O agente terminou normalmente |
-| `LIMITE_DE_PASSOS` | O orçamento máximo de passos foi atingido |
-| `LIMITE_DE_TOKENS` | O orçamento máximo de tokens foi atingido |
-| `LIMITE_DE_TEMPO` | O tempo máximo da execução foi atingido |
-| `LIMITE_DE_CUSTO` | O custo máximo configurado foi atingido |
-| `ERRO_DO_MODELO` | O provedor ou o modelo retornou um erro |
+| `CONCLUIDO` | Resultado concluído |
+| `PRECISA_INFORMACAO` | Dados obrigatórios estão ausentes |
+| `RECUSADO` | Solicitação não atendida com segurança |
+| `AGUARDANDO_APROVACAO` | Grafo pausado antes da escrita |
+| `LIMITE_DE_PASSOS` | Limite de passos atingido |
+| `LIMITE_DE_FERRAMENTAS` | Limite de ferramentas atingido |
+| `LIMITE_DE_TOKENS` | Limite de tokens atingido |
+| `LIMITE_DE_TEMPO` | Limite de tempo atingido |
+| `LIMITE_DE_CUSTO` | Limite de custo atingido |
+| `LACO_DETECTADO` | A mesma decisão foi repetida |
+| `ERRO_DO_MODELO` | O provedor ou modelo retornou erro |
 
-# Exemplo real de execução
+## Exemplo real da Parte 2
 
-A entrada e a saída abaixo foram copiadas da execução registrada em `logs/01_caso_simples.json`.
-
-## Entrada
-
-```text
-Consulte as últimas cinco operações da feira QUA.
-```
-
-## Saída
+A entrada e a saída abaixo serão preenchidas depois da execução dos seis casos oficiais.
 
 ```text
-CONSULTA AO HISTÓRICO
-
-Filtros utilizados:
-- Feira: QUA
-- Últimas operações: 5
-
-Resultado:
-
-| Operação | Produção | Venda | Produzido | Vendido | Sobra | Feriado |
-|---:|---|---|---:|---:|---:|---|
-| 101 | 01/09/2026 | 02/09/2026 | 510 | 510 | 0 | Não |
-| 94 | 25/08/2026 | 26/08/2026 | 533 | 397 | 136 | Não |
-| 88 | 18/08/2026 | 19/08/2026 | 534 | 488 | 46 | Não |
-| 81 | 11/08/2026 | 12/08/2026 | 533 | 501 | 32 | Não |
-| 75 | 04/08/2026 | 05/08/2026 | 531 | 492 | 39 | Não |
-
-Resumo:
-- Total produzido: 2.641 unidades
-- Total vendido: 2.388 unidades
-- Total de sobras: 253 unidades
-- Média produzida por operação: 528,2 unidades
-- Média vendida por operação: 477,6 unidades
-- Média de sobra por operação: 50,6 unidades
-- Maior sobra: 136 unidades, na operação 94
-
-Produtos com maiores sobras registradas:
-- Queijo: até 29 unidades
-- Carne: até 28 unidades
-- Pizza: até 22 unidades
-- Carne com queijo: até 18 unidades
-- Frango catupiri: até 12 unidades
-
-Alertas:
-- A operação 101 não teve sobra.
-- A operação 94 apresentou sobra significativamente maior que as demais.
-- Os registros detalhados por produto foram consolidados.
+[PENDENTE: executar scripts.executar_casos_parte2]
 ```
 
-## Resumo real da execução
+Os exemplos completos também ficarão em:
 
 ```text
-Motivo da parada: RESPOSTA_FINAL
-Passos executados: 2
-Ferramentas chamadas: 1
-Tokens de entrada: 7535
-Tokens de saída: 476
-Custo estimado: US$ 0.00207820
+docs/io.md
 ```
 
-# Ferramentas do agente
+## Casos oficiais da Parte 2
 
-| Ferramenta | Função | Tipo | Reversível |
-|---|---|---|---|
-| `consultar_historico` | Consulta operações recentes de determinada feira no MySQL | Leitura | Sim |
-| `consultar_operacao` | Consulta uma operação pelo identificador | Leitura | Sim |
-| `calcular_recomendacao_mock` | Calcula uma recomendação pela média das vendas recentes | Leitura e cálculo | Sim |
-| `registrar_plano_mock` | Registra um plano mock após confirmação explícita | Escrita | Sim |
+Os seis casos são definidos em:
 
-A ferramenta de escrita não é executada sem confirmação explícita do proprietário.
+```text
+dados/casos_demonstracao_parte2.json
+```
 
-# Regras do domínio aplicadas
-
-O agente respeita, entre outras, as seguintes regras:
-
-- as feiras válidas são `QUA`, `QUI`, `SAB_C`, `SAB_E`, `DOM_C` e `DOM_E`;
-- `SAB_E` e `DOM_E` não comercializam pastel de frango, produto de código `5`;
-- `SAB_E` e `DOM_E` não comercializam pastel de escarola sem bacon, produto de código `15`;
-- o pastel de banana simples está temporariamente descontinuado;
-- quantidade vendida é calculada por `produzida - sobra`;
-- uma operação inexistente deve ser tratada como erro de ferramenta, sem derrubar o programa;
-- nenhuma quantidade pode ser inventada pelo modelo;
-- nenhum plano é registrado sem confirmação explícita do proprietário.
-
-# Casos demonstrados
-
-Os quatro casos obrigatórios estão registrados em `logs/`:
-
-| Caso | Solicitação | Resultado esperado |
+| Caso | Solicitação | O que demonstra |
 |---|---|---|
-| Caso simples | Consultar as últimas operações da feira `QUA` | Consulta o MySQL e apresenta o histórico |
-| Divergência | Solicitar pastel de frango para `SAB_E` | Aplica a restrição e exclui o produto |
-| Registro inexistente | Consultar a operação `999999` | Informa que o registro não existe |
-| Ação não permitida | Solicitar lista mensal de ingredientes | Recusa a ação sem chamar ferramentas |
+| Caminho feliz | Recomendação para `QUA` | MySQL, cálculo determinístico e saída validada |
+| Divergência | Pedir Frango para `SAB_E` | Recuperação e aplicação da regra |
+| Registro inexistente | Consultar operação `999999` | Erro de ferramenta tratado como dado |
+| Entrada incompleta | Pedir a próxima feira sem identificá-la | O agente pergunta em vez de escolher |
+| Fora do corpus | Perguntar fornecedor e prazo | Recusa por falta de conhecimento |
+| Human-in-the-loop | Registrar plano calculado | Pausa, edição humana e idempotência |
 
-# Segurança
+## Gerar os seis logs oficiais
 
-Os seguintes dados não devem ser enviados ao GitHub:
+Antes da execução, o repositório precisa estar sem alterações pendentes. Isso permite registrar no log o commit exato testado.
 
-- arquivo `.env`;
-- chave da API;
-- senha do MySQL;
-- credenciais pessoais;
-- ambiente virtual `.venv`;
-- logs intermediários.
+Confira:
 
-O repositório contém apenas o `.env.example`, sem valores privados.
+```powershell
+git status
+```
 
-# Encerramento
+Depois execute:
 
-Esta versão demonstra que o modelo consegue interpretar solicitações do proprietário, selecionar ferramentas, consultar o MySQL, aplicar regras do negócio, tratar erros e respeitar limites de execução.
+```powershell
+.\.venv\Scripts\python.exe -m scripts.executar_casos_parte2
+```
 
-A integração com os modelos definitivos de previsão e com a otimização por Simplex pertence às próximas etapas do projeto e não faz parte deste agente simples.
+O comando gera:
+
+```text
+logs/01_caso_simples.json
+logs/02_caso_divergencia.json
+logs/03_registro_inexistente.json
+logs/04_acao_nao_permitida.json
+logs/05_pergunta_fora_corpus.json
+logs/06_human_in_the_loop.json
+```
+
+Cada log registra:
+
+- entrada;
+- saída;
+- modelo;
+- versão dos prompts;
+- parâmetros;
+- trajetória;
+- ferramentas;
+- fontes;
+- tokens;
+- custo;
+- motivo de término;
+- commit utilizado.
+
+Depois, atualize automaticamente os exemplos reais:
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.gerar_io
+```
+
+## Documentação
+
+| Documento | Conteúdo |
+|---|---|
+| `docs/case.md` | Problema, usuários, negócio e complemento do domínio |
+| `docs/modelos.md` | Comparação e escolha do modelo |
+| `docs/fontes.md` | Fontes consultadas |
+| `docs/io.md` | Contratos de entrada e saída e exemplos reais |
+| `docs/prompts.md` | Plano de prompt engineering |
+| `docs/arquitetura.md` | Arquitetura e nível de autonomia |
+| `docs/rag.md` | Corpus, recuperação e medição |
+| `docs/memoria.md` | Checkpoint e memórias do agente |
+| `docs/grafo.md` | Topologia, padrões, estado e reducers |
+| `docs/humano.md` | Pausa, retomada, expiração e idempotência |
+
+## Limitações
+
+Esta versão:
+
+- é utilizada somente pelo proprietário;
+- ainda utiliza um baseline pela média das cinco operações recentes;
+- ainda não utiliza os modelos definitivos de previsão do TCC;
+- ainda não executa a otimização por Simplex;
+- não gera SQL livre pelo modelo;
+- não altera os registros históricos do MySQL;
+- não considera sobra zero como prova de falta de produto;
+- não registra plano sem confirmação humana.
+
+## Segurança
+
+Não devem ser enviados ao repositório:
+
+- `.env`;
+- chaves de API;
+- senhas do MySQL;
+- bancos locais `*.sqlite3`;
+- ambiente virtual;
+- logs automáticos intermediários;
+- credenciais pessoais.
+
+O repositório contém somente `.env.example`, sem valores privados.
+
+Caso alguma chave tenha sido exposta fora do `.env`, ela deve ser revogada e substituída.
+
+## Estado atual
+
+A arquitetura, o RAG, a memória, o grafo, os contratos, o human-in-the-loop e os testes automatizados estão implementados.
+
+Antes da entrega ainda é necessário:
+
+1. complementar `docs/case.md`;
+2. executar os seis casos oficiais;
+3. substituir o exemplo pendente deste README por uma saída real;
+4. executar `scripts.gerar_io`;
+5. conferir o checklist final.

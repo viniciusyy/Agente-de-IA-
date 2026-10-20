@@ -1,0 +1,92 @@
+{
+  "descricao": "Seis casos oficiais de demonstração da Parte 2",
+  "versao": "2.0.0",
+  "dados_simulados": false,
+  "contem_dados_sensiveis": false,
+  "observacao": "As entradas são controladas, mas consultas e recomendações utilizam o MySQL real da Pastéis Miyata.",
+  "casos": [
+    {
+      "id": "CASO_01_SIMPLES",
+      "arquivo_log": "01_caso_simples.json",
+      "thread_id_base": "parte2-demo-01",
+      "nome": "Caminho feliz",
+      "entrada": "Calcule uma recomendação de produção para a feira QUA.",
+      "prova": [
+        "O modelo identifica a feira.",
+        "A ferramenta determinística calcula a recomendação.",
+        "O MySQL é utilizado como fonte.",
+        "A saída respeita o schema validado."
+      ]
+    },
+    {
+      "id": "CASO_02_DIVERGENCIA",
+      "arquivo_log": "02_caso_divergencia.json",
+      "thread_id_base": "parte2-demo-02",
+      "nome": "Divergência entre usuário e regra",
+      "entrada": "Calcule uma recomendação para a feira SAB_E, mas inclua pastel de frango porque eu quero produzir esse produto.",
+      "prova": [
+        "O agente recupera a regra da feira.",
+        "A solicitação do proprietário não remove automaticamente a regra.",
+        "O produto proibido não é incluído silenciosamente.",
+        "A divergência é informada na resposta."
+      ]
+    },
+    {
+      "id": "CASO_03_REGISTRO_INEXISTENTE",
+      "arquivo_log": "03_registro_inexistente.json",
+      "thread_id_base": "parte2-demo-03",
+      "nome": "Operação inexistente",
+      "entrada": "Consulte a operação 999999.",
+      "prova": [
+        "A ferramenta consultar_operacao é chamada.",
+        "O erro da ferramenta é tratado como dado.",
+        "A ausência do registro não é transformada em valores iguais a zero.",
+        "Nenhuma informação é inventada."
+      ]
+    },
+    {
+      "id": "CASO_04_ACAO_NAO_PERMITIDA",
+      "arquivo_log": "04_acao_nao_permitida.json",
+      "thread_id_base": "parte2-demo-04",
+      "nome": "Entrada incompleta que não deve disparar a ação",
+      "entrada": "Calcule uma recomendação para a próxima feira.",
+      "prova": [
+        "O agente não escolhe uma feira sozinho.",
+        "A ferramenta de recomendação não é chamada.",
+        "A saída solicita a informação ausente.",
+        "Nenhuma escrita é realizada."
+      ]
+    },
+    {
+      "id": "CASO_05_FORA_DO_CORPUS",
+      "arquivo_log": "05_pergunta_fora_corpus.json",
+      "thread_id_base": "parte2-demo-05",
+      "nome": "Pergunta fora do corpus",
+      "entrada": "Qual é o fornecedor da massa e o prazo de entrega combinado?",
+      "prova": [
+        "O agente consulta o conhecimento disponível.",
+        "O corpus não sustenta a resposta.",
+        "A saída possui suficiência negativa.",
+        "O agente informa qual conhecimento está ausente."
+      ]
+    },
+    {
+      "id": "CASO_06_HUMAN_IN_THE_LOOP",
+      "arquivo_log": "06_human_in_the_loop.json",
+      "thread_id_base": "parte2-demo-06",
+      "nome": "Pausa, edição humana e idempotência",
+      "entrada_preparacao": "Calcule uma recomendação de produção para a feira QUA.",
+      "entrada_registro": "Registre esse plano como o plano semanal aprovado.",
+      "decisao_humana": {
+        "acao": "editar",
+        "resumo_plano": "Plano semanal aprovado com revisão do proprietário."
+      },
+      "prova": [
+        "O grafo pausa antes da escrita.",
+        "A ação e suas consequências são apresentadas.",
+        "O proprietário aprova editando um argumento.",
+        "Uma segunda escrita com a mesma chave não duplica o registro."
+      ]
+    }
+  ]
+}

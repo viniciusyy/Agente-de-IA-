@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
@@ -5,7 +7,7 @@ from typing import Any
 import mysql.connector
 from mysql.connector import Error
 
-from src.config import settings
+from src.config import ErroConfiguracao, settings
 
 
 FEIRAS_VALIDAS = {
@@ -18,58 +20,11 @@ FEIRAS_VALIDAS = {
 }
 
 
-def conectar():
-    """
-    Abre uma conexão com o banco MySQL da Pastéis Miyata.
-
-    Esta função não é uma ferramenta do agente. Ela é utilizada
-    internamente pelas funções de consulta.
-    """
-    return mysql.connector.connect(
-        host=settings.mysql_host,
-        port=settings.mysql_port,
-        database=settings.mysql_database,
-        user=settings.mysql_user,
-        password=settings.mysql_password,
-        connection_timeout=10,
-    )
-
-
-def serializar_valor(valor: Any) -> Any:
-    """
-    Converte valores do MySQL para formatos que podem ser
-    transformados em JSON e enviados ao modelo.
-    """
-    if isinstance(valor, (date, datetime)):
-        return valor.isoformat()
-
-    if isinstance(valor, Decimal):
-        return float(valor)
-
-    return valor
-
-
-def serializar_linhas(linhas: list[dict]) -> list[dict]:
-    return [
-        {
-            chave: serializar_valor(valor)
-            for chave, valor in linha.items()
-        }
-        for linha in linhas
-    ]
-
-
 def erro_como_dado(
     codigo: str,
     mensagem: str,
     orientacao: str,
 ) -> dict:
-    """
-    Retorna o erro como dado estruturado.
-
-    Isso permite que o modelo compreenda o problema e tente
-    corrigir a solicitação sem derrubar o programa.
-    """
     return {
         "ok": False,
         "erro": {
@@ -80,10 +35,42 @@ def erro_como_dado(
     }
 
 
+def _serializar(valor: Any) -> Any:
+    if isinstance(valor, (date, datetime)):
+        return valor.isoformat()
+
+    if isinstance(valor, Decimal):
+        return float(valor)
+
+    return valor
+
+
+def _serializar_linhas(
+    linhas: list[dict],
+) -> list[dict]:
+    return [
+        {
+            chave: _serializar(valor)
+            for chave, valor in linha.items()
+        }
+        for linha in linhas
+    ]
+
+
+def conectar():
+    settings.validar_mysql()
+
+    return mysql.connector.connect(
+        host=settings.mysql_host,
+        port=settings.mysql_port,
+        database=settings.mysql_database,
+        user=settings.mysql_user,
+        password=settings.mysql_password,
+        connection_timeout=10,
+    )
+
+
 def testar_conexao() -> dict:
-    """
-    Verifica se o banco está acessível.
-    """
     conexao = None
 
     try:
@@ -92,59 +79,79 @@ def testar_conexao() -> dict:
         if conexao.is_connected():
             return {
                 "ok": True,
-                "mensagem": "Conexão com o MySQL realizada com sucesso.",
+                "mensagem": (
+                    "Conexão com o MySQL realizada "
+                    "com sucesso."
+                ),
                 "banco": settings.mysql_database,
             }
 
         return erro_como_dado(
-            codigo="CONEXAO_INATIVA",
-            mensagem="A conexão foi criada, mas não está ativa.",
-            orientacao="Verifique a disponibilidade do MySQL.",
+            "CONEXAO_INATIVA",
+            "A conexão foi criada, mas não está ativa.",
+            "Verifique a disponibilidade do MySQL.",
         )
 
-    except Error as erro:
+    except (Error, ErroConfiguracao) as erro:
         return erro_como_dado(
-            codigo="ERRO_DE_CONEXAO",
-            mensagem=str(erro),
-            orientacao=(
-                "Verifique se o MySQL está iniciado e confira "
-                "as variáveis MYSQL_HOST, MYSQL_PORT, "
-                "MYSQL_DATABASE, MYSQL_USER e MYSQL_PASSWORD."
+            "ERRO_DE_CONEXAO",
+            str(erro),
+            (
+                "Inicie o MySQL e confira as variáveis "
+                "DB_* do arquivo .env."
             ),
         )
 
     finally:
-        if conexao is not None and conexao.is_connected():
+        if (
+            conexao is not None
+            and conexao.is_connected()
+        ):
             conexao.close()
+
+
+def _validar_feira(
+    codigo_feira: str,
+) -> str | dict:
+    codigo = codigo_feira.strip().upper()
+
+    if codigo not in FEIRAS_VALIDAS:
+        return erro_como_dado(
+            "FEIRA_INVALIDA",
+            f"A feira '{codigo}' não é válida.",
+            (
+                "Use QUA, QUI, SAB_C, SAB_E, "
+                "DOM_C ou DOM_E."
+            ),
+        )
+
+    return codigo
 
 
 def consultar_historico(
     codigo_feira: str,
     limite_operacoes: int = 5,
 ) -> dict:
-    """
-    Ferramenta de leitura.
+    codigo_ou_erro = _validar_feira(
+        codigo_feira
+    )
 
-    Consulta os produtos registrados nas operações mais recentes
-    de uma feira. Não altera nenhuma informação do banco.
-    """
-    codigo_feira = codigo_feira.strip().upper()
+    if isinstance(codigo_ou_erro, dict):
+        return codigo_ou_erro
 
-    if codigo_feira not in FEIRAS_VALIDAS:
+    codigo = codigo_ou_erro
+
+    if not 1 <= limite_operacoes <= 10:
         return erro_como_dado(
-            codigo="FEIRA_INVALIDA",
-            mensagem=f"A feira '{codigo_feira}' não é válida.",
-            orientacao=(
-                "Utilize um destes códigos: "
-                + ", ".join(sorted(FEIRAS_VALIDAS))
+            "LIMITE_INVALIDO",
+            (
+                "O limite deve estar entre "
+                "1 e 10 operações."
             ),
-        )
-
-    if limite_operacoes < 1 or limite_operacoes > 10:
-        return erro_como_dado(
-            codigo="LIMITE_INVALIDO",
-            mensagem="O limite deve estar entre 1 e 10 operações.",
-            orientacao="Informe um número inteiro entre 1 e 10.",
+            (
+                "Informe um número inteiro "
+                "entre 1 e 10."
+            ),
         )
 
     consulta = """
@@ -201,13 +208,15 @@ def consultar_historico(
 
     try:
         conexao = conectar()
-        cursor = conexao.cursor(dictionary=True)
+        cursor = conexao.cursor(
+            dictionary=True
+        )
 
         cursor.execute(
             consulta,
             (
-                codigo_feira,
-                codigo_feira,
+                codigo,
+                codigo,
                 limite_operacoes,
             ),
         )
@@ -216,32 +225,36 @@ def consultar_historico(
 
         if not linhas:
             return erro_como_dado(
-                codigo="HISTORICO_NAO_ENCONTRADO",
-                mensagem=(
-                    f"Não foram encontradas operações para "
-                    f"a feira {codigo_feira}."
+                "HISTORICO_NAO_ENCONTRADO",
+                (
+                    "Não foram encontradas operações "
+                    f"para a feira {codigo}."
                 ),
-                orientacao=(
-                    "Confirme o código da feira ou consulte "
-                    "outra feira."
+                (
+                    "Confirme o código da feira ou "
+                    "consulte outra feira."
                 ),
             )
 
         return {
             "ok": True,
-            "feira": codigo_feira,
+            "fonte": (
+                "mysql:"
+                f"{settings.mysql_database}"
+                f".operacoes/{codigo}"
+            ),
+            "feira": codigo,
             "quantidade_registros": len(linhas),
-            "dados": serializar_linhas(linhas),
+            "dados": _serializar_linhas(linhas),
         }
 
-    except Error as erro:
+    except (Error, ErroConfiguracao) as erro:
         return erro_como_dado(
-            codigo="ERRO_NA_CONSULTA",
-            mensagem=str(erro),
-            orientacao=(
-                "Verifique a conexão e confirme se as tabelas "
-                "feiras, operacoes, produtos e "
-                "registros_producao possuem as colunas esperadas."
+            "ERRO_NA_CONSULTA",
+            str(erro),
+            (
+                "Verifique a conexão e a estrutura "
+                "das tabelas do MySQL."
             ),
         )
 
@@ -249,23 +262,27 @@ def consultar_historico(
         if cursor is not None:
             cursor.close()
 
-        if conexao is not None and conexao.is_connected():
+        if (
+            conexao is not None
+            and conexao.is_connected()
+        ):
             conexao.close()
 
 
-def consultar_operacao(id_operacao: int) -> dict:
-    """
-    Ferramenta de leitura.
-
-    Consulta uma operação específica pelo identificador.
-    Também será utilizada para demonstrar o caso de registro
-    inexistente exigido no trabalho.
-    """
+def consultar_operacao(
+    id_operacao: int,
+) -> dict:
     if id_operacao <= 0:
         return erro_como_dado(
-            codigo="IDENTIFICADOR_INVALIDO",
-            mensagem="O identificador da operação deve ser positivo.",
-            orientacao="Informe um id_operacao maior que zero.",
+            "IDENTIFICADOR_INVALIDO",
+            (
+                "O identificador deve "
+                "ser positivo."
+            ),
+            (
+                "Informe um id_operacao "
+                "maior que zero."
+            ),
         )
 
     consulta = """
@@ -298,38 +315,50 @@ def consultar_operacao(id_operacao: int) -> dict:
 
     try:
         conexao = conectar()
-        cursor = conexao.cursor(dictionary=True)
+        cursor = conexao.cursor(
+            dictionary=True
+        )
 
-        cursor.execute(consulta, (id_operacao,))
+        cursor.execute(
+            consulta,
+            (id_operacao,),
+        )
+
         linhas = cursor.fetchall()
 
         if not linhas:
             return erro_como_dado(
-                codigo="REGISTRO_NAO_ENCONTRADO",
-                mensagem=(
-                    f"A operação {id_operacao} não existe "
-                    "no banco de dados."
+                "REGISTRO_NAO_ENCONTRADO",
+                (
+                    f"A operação {id_operacao} "
+                    "não existe no banco de dados."
                 ),
-                orientacao=(
-                    "Peça ao proprietário para confirmar o "
-                    "identificador ou consultar uma feira."
+                (
+                    "Confirme o identificador ou "
+                    "consulte o histórico de uma feira."
                 ),
             )
 
         return {
             "ok": True,
+            "fonte": (
+                "mysql:"
+                f"{settings.mysql_database}"
+                ".operacoes/"
+                f"{id_operacao}"
+            ),
             "id_operacao": id_operacao,
             "quantidade_registros": len(linhas),
-            "dados": serializar_linhas(linhas),
+            "dados": _serializar_linhas(linhas),
         }
 
-    except Error as erro:
+    except (Error, ErroConfiguracao) as erro:
         return erro_como_dado(
-            codigo="ERRO_NA_CONSULTA",
-            mensagem=str(erro),
-            orientacao=(
-                "Verifique a conexão e a estrutura das tabelas "
-                "do banco MySQL."
+            "ERRO_NA_CONSULTA",
+            str(erro),
+            (
+                "Verifique a conexão e a estrutura "
+                "das tabelas do MySQL."
             ),
         )
 
@@ -337,5 +366,8 @@ def consultar_operacao(id_operacao: int) -> dict:
         if cursor is not None:
             cursor.close()
 
-        if conexao is not None and conexao.is_connected():
+        if (
+            conexao is not None
+            and conexao.is_connected()
+        ):
             conexao.close()

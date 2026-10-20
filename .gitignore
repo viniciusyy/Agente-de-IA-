@@ -20,19 +20,33 @@ env/
 
 __pycache__/
 *.py[cod]
-*$py.class
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 
 # ============================================================
 # VS CODE
 # ============================================================
 
 .vscode/
+.idea/
 
 # Logs automáticos e intermediários
 logs/execucao_*.json
+
+# Estado local e credenciais indiretas
+dados/*.sqlite3
+dados/*.sqlite3-*
+
+# Logs gerados automaticamente
+logs/execucao_*.json
+logs/planos_aprovados.jso
 
 # Manter os quatro logs oficiais
 !logs/01_caso_simples.json
 !logs/02_caso_divergencia.json
 !logs/03_registro_inexistente.json
 !logs/04_acao_nao_permitida.json
+!logs/05_pergunta_fora_corpus.json
+!logs/06_human_in_the_loop.json

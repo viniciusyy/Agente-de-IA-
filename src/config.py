@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -7,81 +9,56 @@ from dotenv import load_dotenv
 
 RAIZ_PROJETO = Path(__file__).resolve().parents[1]
 CAMINHO_ENV = RAIZ_PROJETO / ".env"
-
 load_dotenv(CAMINHO_ENV)
 
 
 class ErroConfiguracao(Exception):
-    """Erro causado por variável de ambiente ausente ou inválida."""
+    """Erro de configuração que pode ser explicado ao proprietário."""
 
 
-def obter_variavel(
-    nome_principal: str,
-    *nomes_alternativos: str,
-    padrao: str | None = None,
-    obrigatoria: bool = False,
-) -> str:
-    """
-    Procura uma variável pelo nome principal e depois pelos aliases.
-    """
-    nomes = (nome_principal, *nomes_alternativos)
-
-    for nome in nomes:
-        valor = os.getenv(nome)
-
+def _texto(nome: str, *alternativos: str, padrao: str = "") -> str:
+    for candidato in (nome, *alternativos):
+        valor = os.getenv(candidato)
         if valor is not None and valor.strip():
             return valor.strip()
-
-    if obrigatoria:
-        nomes_texto = " ou ".join(nomes)
-
-        raise ErroConfiguracao(
-            f"Variável obrigatória não encontrada: {nomes_texto}. "
-            f"Verifique o arquivo {CAMINHO_ENV}."
-        )
-
-    return padrao or ""
+    return padrao
 
 
-def obter_inteiro(
-    nome: str,
-    padrao: int,
-    minimo: int = 1,
-) -> int:
-    valor_texto = os.getenv(nome, str(padrao))
+def _inteiro(nome: str, padrao: int, minimo: int = 0) -> int:
+    bruto = os.getenv(nome, str(padrao)).strip()
 
     try:
-        valor = int(valor_texto)
+        valor = int(bruto)
     except ValueError as erro:
         raise ErroConfiguracao(
-            f"A variável {nome} deve conter um número inteiro."
+            f"{nome} deve ser um número inteiro."
         ) from erro
 
     if valor < minimo:
         raise ErroConfiguracao(
-            f"A variável {nome} deve ser maior ou igual a {minimo}."
+            f"{nome} deve ser maior ou igual a {minimo}."
         )
 
     return valor
 
 
-def obter_decimal(
+def _decimal(
     nome: str,
     padrao: float,
     minimo: float = 0.0,
 ) -> float:
-    valor_texto = os.getenv(nome, str(padrao))
+    bruto = os.getenv(nome, str(padrao)).strip()
 
     try:
-        valor = float(valor_texto)
+        valor = float(bruto)
     except ValueError as erro:
         raise ErroConfiguracao(
-            f"A variável {nome} deve conter um número decimal."
+            f"{nome} deve ser um número decimal."
         ) from erro
 
     if valor < minimo:
         raise ErroConfiguracao(
-            f"A variável {nome} deve ser maior ou igual a {minimo}."
+            f"{nome} deve ser maior ou igual a {minimo}."
         )
 
     return valor
@@ -89,94 +66,226 @@ def obter_decimal(
 
 @dataclass(frozen=True)
 class Settings:
-    # Configuração do modelo
+    # Modelo de linguagem
     openai_api_key: str
     llm_base_url: str
     llm_model: str
+    llm_input_price_per_million: float
+    llm_output_price_per_million: float
+    llm_max_output_tokens: int
 
-    # Configuração do MySQL
+    # MySQL
     mysql_host: str
     mysql_port: int
     mysql_database: str
     mysql_user: str
     mysql_password: str
 
-    # Orçamento do agente
+    # Grafo e orçamentos
     agent_max_steps: int
     agent_max_tool_calls: int
     agent_max_tokens: int
     agent_max_time_seconds: int
     agent_max_cost_usd: float
+    graph_recursion_limit: int
+    loop_repeat_limit: int
+    conversation_max_turns: int
 
-    # Logs
-    log_directory: str
+    # Persistência
+    checkpoint_database: Path
+    memory_database: Path
+    corpus_directory: Path
+    log_directory: Path
+    approval_timeout_hours: int
+    memory_episode_half_life_days: int
+    rag_max_results: int
+    rag_min_score: float
+
+    # Identificação do único usuário autorizado
+    default_user_id: str
+    default_thread_id: str
+
+    def validar_modelo(self) -> None:
+        ausentes = []
+
+        if not self.openai_api_key:
+            ausentes.append("OPENAI_API_KEY")
+
+        if not self.llm_model:
+            ausentes.append("LLM_MODEL")
+
+        if ausentes:
+            raise ErroConfiguracao(
+                "Variáveis obrigatórias para chamar o modelo: "
+                + ", ".join(ausentes)
+            )
+
+    def validar_mysql(self) -> None:
+        ausentes = []
+
+        if not self.mysql_database:
+            ausentes.append("DB_NAME")
+
+        if not self.mysql_user:
+            ausentes.append("DB_USER")
+
+        if ausentes:
+            raise ErroConfiguracao(
+                "Variáveis obrigatórias para consultar o MySQL: "
+                + ", ".join(ausentes)
+            )
 
 
 def carregar_configuracoes() -> Settings:
     return Settings(
-        openai_api_key=obter_variavel(
-            "OPENAI_API_KEY",
-            obrigatoria=True,
-        ),
-        llm_base_url=obter_variavel(
+        openai_api_key=_texto("OPENAI_API_KEY"),
+        llm_base_url=_texto(
             "LLM_BASE_URL",
             padrao="https://api.openai.com/v1",
         ),
-        llm_model=obter_variavel(
-            "LLM_MODEL",
-            obrigatoria=True,
+        llm_model=_texto("LLM_MODEL"),
+        llm_input_price_per_million=_decimal(
+            "LLM_INPUT_PRICE_PER_MILLION",
+            0.0,
         ),
-        mysql_host=obter_variavel(
+        llm_output_price_per_million=_decimal(
+            "LLM_OUTPUT_PRICE_PER_MILLION",
+            0.0,
+        ),
+        llm_max_output_tokens=_inteiro(
+            "LLM_MAX_OUTPUT_TOKENS",
+            700,
+            1,
+        ),
+        mysql_host=_texto(
             "MYSQL_HOST",
             "DB_HOST",
             padrao="localhost",
         ),
-        mysql_port=int(
-            obter_variavel(
-                "MYSQL_PORT",
-                "DB_PORT",
-                padrao="3306",
-            )
+        mysql_port=_inteiro(
+            "MYSQL_PORT",
+            int(_texto("DB_PORT", padrao="3306")),
+            1,
         ),
-        mysql_database=obter_variavel(
+        mysql_database=_texto(
             "MYSQL_DATABASE",
             "DB_NAME",
-            obrigatoria=True,
         ),
-        mysql_user=obter_variavel(
+        mysql_user=_texto(
             "MYSQL_USER",
             "DB_USER",
-            obrigatoria=True,
         ),
-        mysql_password=obter_variavel(
+        mysql_password=_texto(
             "MYSQL_PASSWORD",
             "DB_PASSWORD",
-            obrigatoria=True,
         ),
-        agent_max_steps=obter_inteiro(
+        agent_max_steps=_inteiro(
             "AGENT_MAX_STEPS",
-            padrao=8,
+            10,
+            1,
         ),
-        agent_max_tool_calls=obter_inteiro(
+        agent_max_tool_calls=_inteiro(
             "AGENT_MAX_TOOL_CALLS",
-            padrao=6,
+            8,
+            1,
         ),
-        agent_max_tokens=obter_inteiro(
+        agent_max_tokens=_inteiro(
             "AGENT_MAX_TOKENS",
-            padrao=9000,
+            12_000,
+            1,
         ),
-        agent_max_time_seconds=obter_inteiro(
+        agent_max_time_seconds=_inteiro(
             "AGENT_MAX_TIME_SECONDS",
-            padrao=60,
+            _inteiro(
+                "AGENT_MAX_SECONDS",
+                90,
+                1,
+            ),
+            1,
         ),
-        agent_max_cost_usd=obter_decimal(
+        agent_max_cost_usd=_decimal(
             "AGENT_MAX_COST_USD",
-            padrao=0.10,
-            minimo=0.001,
+            0.15,
+            0.001,
         ),
-        log_directory=obter_variavel(
-            "LOG_DIRECTORY",
-            padrao=str(RAIZ_PROJETO / "logs"),
+        graph_recursion_limit=_inteiro(
+            "GRAPH_RECURSION_LIMIT",
+            24,
+            2,
+        ),
+        loop_repeat_limit=_inteiro(
+            "LOOP_REPEAT_LIMIT",
+            3,
+            2,
+        ),
+        conversation_max_turns=_inteiro(
+            "CONVERSATION_MAX_TURNS",
+            6,
+            1,
+        ),
+        checkpoint_database=Path(
+            _texto(
+                "CHECKPOINT_DATABASE",
+                padrao=str(
+                    RAIZ_PROJETO
+                    / "dados"
+                    / "checkpoints.sqlite3"
+                ),
+            )
+        ),
+        memory_database=Path(
+            _texto(
+                "MEMORY_DATABASE",
+                padrao=str(
+                    RAIZ_PROJETO
+                    / "dados"
+                    / "memoria.sqlite3"
+                ),
+            )
+        ),
+        corpus_directory=Path(
+            _texto(
+                "CORPUS_DIRECTORY",
+                padrao=str(
+                    RAIZ_PROJETO
+                    / "dados"
+                    / "corpus"
+                ),
+            )
+        ),
+        log_directory=Path(
+            _texto(
+                "LOG_DIRECTORY",
+                padrao=str(RAIZ_PROJETO / "logs"),
+            )
+        ),
+        approval_timeout_hours=_inteiro(
+            "APPROVAL_TIMEOUT_HOURS",
+            24,
+            1,
+        ),
+        memory_episode_half_life_days=_inteiro(
+            "MEMORY_EPISODE_HALF_LIFE_DAYS",
+            90,
+            1,
+        ),
+        rag_max_results=_inteiro(
+            "RAG_MAX_RESULTS",
+            3,
+            1,
+        ),
+        rag_min_score=_decimal(
+            "RAG_MIN_SCORE",
+            0.001,
+            0.0,
+        ),
+        default_user_id=_texto(
+            "AGENT_USER_ID",
+            padrao="proprietario",
+        ),
+        default_thread_id=_texto(
+            "AGENT_THREAD_ID",
+            padrao="proprietario-principal",
         ),
     )
 

@@ -788,3 +788,99 @@ Se a qualidade dos dados não for suficiente para uma previsão confiável, o si
 - apoio à decisão do proprietário.
 
 Assim, o projeto ainda entrega valor sem depender de uma previsão autônoma perfeita.
+
+## 2.12 Complemento do case — aprendizado do domínio na Parte 2
+
+### Vocabulário do domínio
+
+A implementação da Parte 2 mostrou que alguns termos possuem significados específicos dentro da Pastéis Miyata:
+
+- **Operação**: realização de uma feira em uma data específica; não representa um produto.
+- **Produzido**: quantidade preparada para determinada operação.
+- **Sobra**: quantidade que retornou sem ser vendida.
+- **Vendido**: quantidade calculada por `produzido - sobra`.
+- **Feiras C e E**: locais diferentes, mesmo quando as feiras acontecem no mesmo dia.
+- **Recomendação**: resultado calculado para apoiar o planejamento.
+- **Plano**: recomendação organizada que ainda depende da decisão do proprietário.
+- **Plano aprovado**: registro persistente autorizado pelo proprietário; não significa que a produção física foi iniciada.
+- **Checkpoint**: estado técnico utilizado para retomar uma conversa ou aprovação pendente.
+- **Memória**: informação selecionada que pode ser utilizada em conversas futuras.
+
+Esse vocabulário não deve ser inferido somente pelo conhecimento geral do modelo. Os significados são documentados no corpus, enquanto os registros numéricos permanecem no MySQL.
+
+### Regras não óbvias
+
+A Parte 2 confirmou que `SAB_E` e `DOM_E` não são somente identificadores geográficos. Essas feiras possuem restrições próprias de produtos.
+
+Nas duas feiras não são comercializados:
+
+- pastel de Frango, código `5`;
+- pastel de Escarola sem bacon, código `15`.
+
+Produtos com nomes semelhantes não devem ser tratados como se fossem o mesmo item. Por exemplo:
+
+- Frango;
+- Frango com catupiri;
+- Especial de frango.
+
+A proibição do produto Frango não implica a proibição automática dos outros produtos.
+
+O pastel de Banana simples permanece temporariamente descontinuado. Essa condição é diferente de uma proibição permanente e poderá mudar futuramente.
+
+### Limitação da sobra igual a zero
+
+Uma sobra igual a zero não permite concluir se:
+
+- a produção foi exatamente suficiente;
+- o produto terminou antes do encerramento da feira;
+- existiram clientes que deixaram de comprar.
+
+O banco atual não registra o horário em que cada produto termina. Portanto, o agente não pode tratar sobra zero como prova de ausência de falta nem calcular vendas perdidas com segurança.
+
+Essa limitação afeta tanto a previsão quanto a avaliação do sistema.
+
+### Separação das fontes de verdade
+
+O sistema possui três fontes principais:
+
+| Fonte | Responsabilidade |
+|---|---|
+| MySQL | Operações, datas, produção, venda, sobra, feira e produto |
+| Corpus Markdown | Regras, exceções, significados, processo e limites |
+| Proprietário | Contexto temporário, divergências não documentadas e aprovação |
+
+O SQLite não substitui essas fontes. Ele é utilizado somente para checkpoints, memória e planos aprovados.
+
+Quando as fontes entram em conflito, o agente não resolve silenciosamente:
+
+- regras críticas implementadas em código prevalecem sobre pedidos incompatíveis;
+- documentos revogados não participam da recuperação normal;
+- uma informação operacional não documentada deve ser confirmada pelo proprietário;
+- um registro inexistente não é transformado em valores iguais a zero.
+
+### Processo operacional detalhado
+
+O planejamento foi separado nas seguintes decisões verificáveis:
+
+1. identificar o objetivo do proprietário;
+2. identificar feira, operação ou informação necessária;
+3. perguntar somente os dados essenciais ausentes;
+4. consultar registros numéricos no MySQL;
+5. consultar o corpus quando a decisão depender de regra;
+6. executar o cálculo fora do modelo de linguagem;
+7. aplicar restrições determinísticas;
+8. validar a suficiência e o contrato da resposta;
+9. apresentar o resultado ao proprietário;
+10. interromper o grafo antes do registro;
+11. registrar somente depois de uma decisão humana válida.
+
+A execução física da produção continua fora do agente.
+
+### Aprendizado sobre recuperação
+
+A implementação mostrou que nem toda informação deve utilizar RAG.
+
+Consultas como:
+
+```text
+Consulte a operação 101.

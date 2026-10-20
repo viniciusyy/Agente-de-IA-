@@ -1,126 +1,277 @@
+from __future__ import annotations
+
 import json
 
 from src.agent import AgentePlanejamento
+from src.config import settings
 from src.database import testar_conexao
 
 
 def mostrar_resultado(resultado: dict) -> None:
     """
-    Mostra a resposta do agente e um resumo técnico da execução.
+    Apresenta a saída validada e os dados da execução no terminal.
     """
-    print("\n" + "=" * 70)
-    print("RESPOSTA DO AGENTE")
-    print("=" * 70)
-    print(resultado["resposta"])
+    print("\n" + "=" * 72)
+    print("SAÍDA VALIDADA")
+    print("=" * 72)
 
-    print("\n" + "-" * 70)
-    print("RESUMO DA EXECUÇÃO")
-    print("-" * 70)
-    print(f"Motivo da parada: {resultado['motivo_termino']}")
-    print(f"Passos executados: {resultado['passos']}")
-    print(
-        "Ferramentas chamadas: "
-        f"{resultado['chamadas_ferramenta']}"
-    )
-    print(f"Tokens de entrada: {resultado['tokens_entrada']}")
-    print(f"Tokens de saída: {resultado['tokens_saida']}")
-    print(
-        "Custo estimado: US$ "
-        f"{resultado['custo_estimado_usd']:.8f}"
-    )
-    print(f"Log salvo em: {resultado['log']}")
-    print("=" * 70)
-
-
-def verificar_banco() -> bool:
-    """
-    Testa a conexão antes de iniciar o atendimento.
-
-    Uma falha não encerra obrigatoriamente o programa porque o erro
-    do banco também precisa poder ser observado durante os testes.
-    """
-    print("\nVerificando conexão com o MySQL...")
-
-    resultado = testar_conexao()
-
-    if resultado.get("ok"):
-        print(resultado["mensagem"])
-        print(f"Banco selecionado: {resultado['banco']}")
-        return True
-
-    print("Não foi possível conectar ao MySQL.")
     print(
         json.dumps(
-            resultado,
+            resultado["saida"],
             ensure_ascii=False,
             indent=2,
         )
     )
 
-    return False
+    print("\n" + "-" * 72)
+    print("RESUMO DA EXECUÇÃO")
+    print("-" * 72)
+
+    print(
+        f"Motivo da parada: "
+        f"{resultado['motivo_termino']}"
+    )
+
+    print(
+        f"Passos: "
+        f"{resultado['passos']}"
+    )
+
+    print(
+        f"Ferramentas: "
+        f"{resultado['chamadas_ferramenta']}"
+    )
+
+    print(
+        f"Tokens de entrada: "
+        f"{resultado['tokens_entrada']}"
+    )
+
+    print(
+        f"Tokens de saída: "
+        f"{resultado['tokens_saida']}"
+    )
+
+    print(
+        "Custo estimado: "
+        f"US$ {resultado['custo_estimado_usd']:.8f}"
+    )
+
+    print(
+        f"Log: {resultado['log']}"
+    )
+
+
+def pedir_decisao(
+    pendente: dict,
+) -> dict:
+    """
+    Mostra a ação pendente e solicita uma decisão do proprietário.
+    """
+    print("\n" + "!" * 72)
+    print("APROVAÇÃO HUMANA NECESSÁRIA")
+    print("!" * 72)
+
+    print(
+        json.dumps(
+            pendente,
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
+
+    escolha = input(
+        "\n[A]provar, [R]ejeitar ou [E]ditar? "
+    ).strip().lower()
+
+    if escolha in {
+        "a",
+        "aprovar",
+    }:
+        return {
+            "acao": "aprovar",
+        }
+
+    if escolha in {
+        "e",
+        "editar",
+    }:
+        resumo = input(
+            "Novo resumo do plano "
+            "(Enter mantém o atual): "
+        ).strip()
+
+        decisao: dict = {
+            "acao": "editar",
+        }
+
+        if resumo:
+            decisao["resumo_plano"] = resumo
+
+        return decisao
+
+    # Qualquer resposta diferente das opções aceitas é tratada
+    # como rejeição segura.
+    return {
+        "acao": "rejeitar",
+    }
+
+
+def resolver_interrupcao(
+    agente: AgentePlanejamento,
+    resultado: dict,
+) -> dict:
+    """
+    Resolve interrupções sucessivas, caso o grafo tenha mais de
+    um ponto de aprovação.
+    """
+    while resultado.get("interrupcao"):
+        decisao = pedir_decisao(
+            resultado["interrupcao"]
+        )
+
+        resultado = agente.retomar(
+            decisao
+        )
+
+        mostrar_resultado(
+            resultado
+        )
+
+    return resultado
 
 
 def main() -> None:
-    print("=" * 70)
-    print("AGENTE SIMPLES DE PLANEJAMENTO — PASTÉIS MIYATA")
-    print("=" * 70)
-    print("Usuário autorizado: proprietário")
-    print("Digite uma solicitação em linguagem natural.")
-    print("Digite 'sair' para encerrar.")
-    print()
+    """
+    Interface de terminal do agente da Parte 2.
+    """
+    print("=" * 72)
     print(
-        "Aviso: esta versão utiliza uma recomendação mock baseada "
-        "na média das vendas recentes."
+        "AGENTE DE PLANEJAMENTO — "
+        "PASTÉIS MIYATA — PARTE 2"
     )
+    print("=" * 72)
+
     print(
-        "Ela ainda não executa os modelos de previsão e o Simplex "
-        "do TCC."
+        "Usuário autorizado: proprietário"
     )
 
-    verificar_banco()
+    print(
+        f"Usuário técnico: "
+        f"{settings.default_user_id}"
+    )
 
-    try:
-        agente = AgentePlanejamento()
+    print(
+        f"Conversa (thread_id): "
+        f"{settings.default_thread_id}"
+    )
 
-    except Exception as erro:
-        print("\nNão foi possível iniciar o agente.")
-        print(f"Motivo: {erro}")
-        return
+    print(
+        "Entrada: texto livre em português. "
+        "Digite 'sair' para encerrar."
+    )
+
+    print(
+        "As quantidades são calculadas por uma ferramenta "
+        "determinística; o modelo interpreta, recupera "
+        "conhecimento e orquestra as ferramentas."
+    )
+
+    resultado_banco = testar_conexao()
+
+    mensagem_banco = resultado_banco.get(
+        "mensagem",
+        resultado_banco.get(
+            "erro",
+            {},
+        ).get(
+            "mensagem",
+            "Não foi possível verificar o MySQL.",
+        ),
+    )
+
+    print(
+        "\n" + mensagem_banco
+    )
+
+    agente = AgentePlanejamento()
+
+    # Como o LangGraph utiliza checkpoint, uma aprovação pode
+    # continuar pendente mesmo depois de fechar o terminal.
+    pendente = (
+        agente.obter_aprovacao_pendente()
+    )
+
+    if pendente:
+        print(
+            "\nExiste uma aprovação pendente "
+            "nesta conversa."
+        )
+
+        decisao = pedir_decisao(
+            pendente
+        )
+
+        resultado = agente.retomar(
+            decisao
+        )
+
+        mostrar_resultado(
+            resultado
+        )
+
+        resolver_interrupcao(
+            agente,
+            resultado,
+        )
 
     while True:
-        print()
-        solicitacao = input("Proprietário: ").strip()
+        texto = input(
+            "\nProprietário: "
+        ).strip()
 
-        if solicitacao.lower() in {
+        if texto.lower() in {
             "sair",
             "encerrar",
             "fechar",
         }:
-            print("\nAgente encerrado pelo proprietário.")
+            print(
+                "Agente encerrado pelo proprietário."
+            )
             break
 
-        if not solicitacao:
+        if not texto:
             print(
-                "Digite uma solicitação ou utilize 'sair' "
-                "para encerrar."
+                "Digite uma solicitação ou utilize "
+                "'sair' para encerrar."
             )
             continue
 
         try:
-            resultado = agente.executar(solicitacao)
-            mostrar_resultado(resultado)
+            resultado = agente.executar(
+                texto
+            )
+
+            mostrar_resultado(
+                resultado
+            )
+
+            resolver_interrupcao(
+                agente,
+                resultado,
+            )
 
         except KeyboardInterrupt:
-            print("\n\nExecução interrompida pelo proprietário.")
+            print(
+                "\nExecução interrompida "
+                "pelo proprietário."
+            )
             break
 
         except Exception as erro:
-            print("\nOcorreu um erro inesperado.")
-            print(f"Tipo: {type(erro).__name__}")
-            print(f"Detalhes: {erro}")
             print(
-                "A solicitação não foi concluída. "
-                "Verifique a configuração e tente novamente."
+                "\nErro não recuperado: "
+                f"{type(erro).__name__}: {erro}"
             )
 
 
