@@ -689,3 +689,531 @@ Os seis logs oficiais foram gerados a partir do commit:
 A arquitetura, o RAG, a memória, o grafo, os contratos de entrada e saída, o human-in-the-loop, os testes automatizados e os seis casos oficiais estão implementados e documentados.
 
 A Parte 2 possui código executável, documentação versionada, exemplos reais e logs vinculados ao commit testado.
+
+
+## Como executar o projeto com Docker
+
+Este guia explica como executar a versão acadêmica do **Agente de Planejamento de Produção — Pastéis Miyata** em outro computador, sem depender do ambiente utilizado durante o desenvolvimento.
+
+O projeto utiliza dois contêineres Docker:
+
+- **App:** executa o agente de IA desenvolvido em Python e LangGraph.
+- **DB:** executa o MySQL 8.0.46 com uma cópia independente do banco de dados da pastelaria.
+
+Com essa configuração, não é necessário instalar Python, MySQL ou as bibliotecas do projeto separadamente.
+
+> **Observação:** a versão atual do agente realiza consultas, recuperação de conhecimento e recomendações por meio de cálculos determinísticos. Ela ainda não incorpora os modelos definitivos de previsão de demanda e a otimização por Simplex desenvolvidos no TCC.
+
+### 1. Pré-requisitos
+
+Para executar o projeto, é necessário:
+
+- Windows com [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e em execução.
+- Docker configurado para utilizar contêineres Linux, com WSL 2 quando aplicável.
+- [Git](https://git-scm.com/) instalado ou o repositório baixado em formato ZIP.
+- Conexão com a internet para baixar as imagens Docker e acessar a API do modelo.
+- Chave de API válida e acesso ao modelo configurado.
+- Arquivo `01-demo.sql` disponibilizado separadamente pelo responsável do projeto.
+
+**Não é necessário instalar:**
+
+- Python;
+- MySQL Server;
+- MySQL Workbench;
+- bibliotecas Python manualmente.
+
+Todos esses componentes necessários à execução da aplicação são preparados pelo Docker.
+
+### 2. Clonar o repositório
+
+Abra o PowerShell no Windows e execute:
+
+```powershell
+git clone https://github.com/viniciusyy/Agente-de-IA-.git
+```
+
+Entre na pasta do projeto:
+
+```powershell
+cd Agente-de-IA-
+```
+
+Caso o repositório já esteja baixado, basta abrir o terminal na pasta principal do projeto.
+
+A estrutura principal deverá conter:
+
+```text
+Agente-de-IA-/
+├── docker/
+│   └── mysql-init/
+├── docs/
+├── src/
+├── dados/
+├── logs/
+├── Dockerfile
+├── compose.yaml
+├── .dockerignore
+├── .env.example
+├── .gitignore
+├── requirements.txt
+└── README.md
+```
+
+### 3. Adicionar o banco de dados de demonstração
+
+O sistema utiliza uma cópia independente do banco de dados original da Pastéis Miyata.
+
+O arquivo SQL deve ser solicitado ao responsável pelo projeto e colocado no seguinte diretório:
+
+```text
+Agente-de-IA-/docker/mysql-init/01-demo.sql
+```
+
+Se as pastas `docker` e `mysql-init` não existirem, elas deverão ser criadas.
+
+O banco de demonstração utilizado nos testes contém:
+
+| Informação | Valor |
+|---|---|
+| Banco de dados | `pasteis_miyata` |
+| Versão MySQL | 8.0.46 |
+| Tabelas | 6 |
+| Registros de produção | 3.634 |
+| Data do snapshot | 03/11/2026 |
+
+As tabelas presentes são:
+
+- `categorias`
+- `feiras`
+- `operacoes`
+- `produtos`
+- `produtos_feiras`
+- `registros_producao`
+
+**Importante:** o arquivo deve estar na pasta indicada antes da primeira inicialização do MySQL no Docker.
+
+O banco utilizado no Docker é independente do banco operacional original e não recebe atualizações automaticamente.
+
+### 4. Configurar as variáveis de ambiente
+
+Na pasta principal do projeto, execute:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Esse comando criará o arquivo `.env` a partir das configurações de exemplo.
+
+Abra o arquivo `.env` e configure a chave de API e o modelo de linguagem.
+
+Exemplo:
+
+```dotenv
+# MODELO DE LINGUAGEM
+
+LLM_BASE_URL=https://api.openai.com/v1
+OPENAI_API_KEY=COLOQUE_SUA_CHAVE_AQUI
+LLM_MODEL=COLOQUE_O_MODELO_DISPONIVEL_AQUI
+```
+
+Em seguida, configure as credenciais exclusivas do MySQL de demonstração:
+
+```dotenv
+# MYSQL DOCKER - AMBIENTE DE DEMONSTRACAO
+
+DEMO_MYSQL_ROOT_PASSWORD=ESCOLHA_UMA_SENHA_FORTE
+DEMO_MYSQL_USER=agente_demo
+DEMO_MYSQL_PASSWORD=ESCOLHA_OUTRA_SENHA_FORTE
+```
+
+Substitua os valores de exemplo por credenciais válidas e mantenha as demais configurações existentes no arquivo.
+
+O `compose.yaml` configura automaticamente a conexão entre o agente e o banco MySQL utilizando o nome do serviço `db`.
+
+**Atenção:**
+
+- Nunca publique o arquivo `.env` no GitHub.
+- Não compartilhe sua chave de API.
+- A utilização da API pode gerar custos.
+- A assinatura do ChatGPT não fornece automaticamente créditos para utilização da API.
+
+### 5. Verificar a configuração do Docker
+
+Abra o Docker Desktop e confirme que ele está em execução.
+
+Em seguida, no terminal do projeto, execute:
+
+```powershell
+docker --version
+docker compose version
+```
+
+Os comandos devem apresentar as versões instaladas.
+
+Para validar o arquivo `compose.yaml`, execute:
+
+```powershell
+docker compose config --quiet
+```
+
+Se não aparecer nenhum erro, a configuração foi validada.
+
+### 6. Iniciar o MySQL no Docker
+
+Com o Docker Desktop aberto, execute:
+
+```powershell
+docker compose up -d db
+```
+
+Esse comando inicia o contêiner MySQL responsável pelo banco de demonstração.
+
+Na primeira execução, o Docker realizará automaticamente:
+
+1. Download da imagem MySQL, caso necessário.
+2. Criação do contêiner do banco.
+3. Criação do volume para persistência dos dados.
+4. Criação do banco `pasteis_miyata`.
+5. Importação do arquivo `01-demo.sql`, desde que o volume esteja vazio.
+
+Para verificar o estado do banco:
+
+```powershell
+docker compose ps
+```
+
+O serviço `db` deverá apresentar um status semelhante a:
+
+```text
+Up ... (healthy)
+```
+
+Esse status indica que o servidor MySQL está funcionando.
+
+### 7. Construir a imagem do agente
+
+Após iniciar o MySQL, execute:
+
+```powershell
+docker compose build app
+```
+
+O Docker realizará as seguintes operações:
+
+1. Preparação do ambiente Python 3.11.
+2. Instalação das dependências presentes no `requirements.txt`.
+3. Cópia dos arquivos do projeto.
+4. Construção da imagem responsável pela execução do agente.
+
+Entre as principais tecnologias utilizadas estão:
+
+- Python;
+- LangGraph;
+- OpenAI API;
+- Pydantic;
+- MySQL Connector;
+- SQLite;
+- recuperação textual de conhecimento (RAG).
+
+O comando deverá apresentar uma mensagem semelhante a:
+
+```text
+Image agente-de-ia--app Built
+```
+
+Isso indica que a imagem foi construída com sucesso.
+
+### 8. Testar a conexão com o banco de dados
+
+Antes de iniciar o agente, recomenda-se verificar se a aplicação Python consegue acessar o MySQL.
+
+Execute:
+
+```powershell
+docker compose run --rm app python -c "from src.database import testar_conexao; print(testar_conexao())"
+```
+
+O resultado esperado é:
+
+```text
+{
+  'ok': True,
+  'mensagem': 'Conexão com o MySQL realizada com sucesso.',
+  'banco': 'pasteis_miyata'
+}
+```
+
+Esse resultado confirma que:
+
+- o contêiner Python está funcionando;
+- o MySQL está acessível;
+- as credenciais estão corretas;
+- a aplicação consegue consultar o banco de demonstração.
+
+#### Verificar os registros importados
+
+Para acessar o MySQL do Docker:
+
+```powershell
+docker compose exec db mysql -u agente_demo -p pasteis_miyata
+```
+
+Digite a senha configurada em `DEMO_MYSQL_PASSWORD`.
+
+No terminal do MySQL, execute:
+
+```sql
+SHOW TABLES;
+```
+
+Para verificar a quantidade de registros:
+
+```sql
+SELECT COUNT(*) AS total_registros
+FROM registros_producao;
+```
+
+Na cópia utilizada durante os testes, o resultado obtido foi:
+
+```text
++-----------------+
+| total_registros |
++-----------------+
+|            3634 |
++-----------------+
+```
+
+Caso outra versão do banco seja disponibilizada, a quantidade de registros poderá ser diferente.
+
+Para sair do MySQL:
+
+```sql
+exit;
+```
+
+### 9. Executar o agente de IA
+
+Com o banco de dados funcionando e a imagem construída, execute:
+
+```powershell
+docker compose run --rm app
+```
+
+O sistema deverá apresentar a interface do agente:
+
+```text
+========================================================================
+AGENTE DE PLANEJAMENTO — PASTÉIS MIYATA — PARTE 2
+========================================================================
+
+Usuário autorizado: proprietário
+Usuário técnico: proprietario
+Conversa (thread_id): proprietario-principal
+
+Entrada: texto livre em português.
+Digite 'sair' para encerrar.
+
+Conexão com o MySQL realizada com sucesso.
+
+Proprietário:
+```
+
+Nesse momento, o agente estará pronto para receber solicitações em linguagem natural.
+
+O modelo de linguagem interpreta a solicitação e seleciona as ferramentas necessárias. As consultas e os cálculos são realizados pelo código Python, e não diretamente pelo LLM.
+
+### 10. Exemplos de utilização
+
+#### Exemplo 1 — Consultar histórico de uma feira
+
+```text
+Consulte as últimas cinco operações da feira QUA.
+```
+
+O agente deverá consultar os registros disponíveis no MySQL e apresentar os resultados.
+
+#### Exemplo 2 — Consultar uma operação específica
+
+```text
+Consulte a operação 101.
+```
+
+O agente deverá buscar os dados correspondentes à operação informada.
+
+#### Exemplo 3 — Consultar regras da pastelaria
+
+```text
+Qual regra vale para pastel de frango na SAB_E?
+```
+
+O agente deverá consultar as informações disponíveis na base de conhecimento e identificar as restrições comerciais aplicáveis.
+
+#### Exemplo 4 — Solicitar uma recomendação
+
+```text
+Calcule uma recomendação de produção para a feira QUA.
+```
+
+O agente deverá consultar o histórico necessário e acionar a ferramenta de cálculo determinístico.
+
+#### Exemplo 5 — Testar o tratamento de registros inexistentes
+
+```text
+Consulte a operação 999999.
+```
+
+O sistema deverá identificar que a operação não existe e apresentar uma resposta apropriada, sem inventar registros.
+
+#### Exemplo 6 — Solicitar aprovação humana
+
+Após calcular uma recomendação:
+
+```text
+Registre esse plano como o plano semanal aprovado.
+```
+
+O agente poderá interromper a execução para solicitar uma decisão humana.
+
+As opções são:
+
+```text
+[A]provar, [R]ejeitar ou [E]ditar?
+```
+
+- `A`: aprova o registro.
+- `R`: rejeita o registro.
+- `E`: permite editar o resumo antes do registro.
+
+A aprovação humana é obrigatória para as operações de escrita que exigem autorização.
+
+O registro de planos é realizado na persistência local SQLite, sem alterar o histórico operacional do MySQL.
+
+### 11. Encerrar o agente
+
+Para encerrar a interação, digite:
+
+```text
+sair
+```
+
+O sistema finalizará a interface de maneira controlada.
+
+Para desligar os serviços Docker, execute no PowerShell:
+
+```powershell
+docker compose down
+```
+
+Esse comando interrompe e remove os contêineres do projeto, preservando os volumes de dados.
+
+**Importante:** não utilize `docker compose down -v` como rotina, pois a opção `-v` também remove os volumes persistentes, incluindo o banco de demonstração e o estado do agente.
+
+### 12. Executar novamente
+
+Após a configuração inicial, não é necessário reinstalar as dependências ou reconstruir a imagem a cada execução.
+
+Abra o Docker Desktop, entre na pasta do projeto e execute:
+
+```powershell
+docker compose run --rm app
+```
+
+O Docker iniciará o serviço de banco necessário, caso ele esteja parado.
+
+Para encerrar:
+
+```text
+sair
+```
+
+E, se desejar desligar os serviços restantes:
+
+```powershell
+docker compose down
+```
+
+### 13. Problemas comuns
+
+| Problema | Possível solução |
+|---|---|
+| Docker não é reconhecido | Verificar a instalação do Docker Desktop e reiniciar o terminal. |
+| Docker Desktop não inicia | Verificar os requisitos de virtualização e WSL 2. |
+| Banco apresenta erro de conexão | Confirmar que o contêiner MySQL está funcionando. |
+| Banco não possui tabelas | Verificar se `01-demo.sql` foi disponibilizado antes da primeira inicialização do volume. |
+| Acesso negado ao MySQL | Conferir as credenciais configuradas no `.env`. |
+| Chave da API inválida | Verificar `OPENAI_API_KEY` e o acesso ao modelo. |
+| Modelo indisponível | Configurar um modelo válido em `LLM_MODEL`. |
+| Erro 401 ou 429 na API | Conferir autenticação, saldo e limites de utilização do provedor. |
+| Agente não recebe solicitações | Executar a aplicação de forma interativa utilizando `docker compose run --rm app`. |
+
+Para consultar os logs do MySQL:
+
+```powershell
+docker compose logs --tail 100 db
+```
+
+Para consultar o estado dos serviços:
+
+```powershell
+docker compose ps
+```
+
+### 14. Segurança dos dados
+
+O ambiente Docker foi preparado para permitir a execução acadêmica do agente sem fornecer acesso ao banco operacional original.
+
+As seguintes medidas devem ser observadas:
+
+- O banco de demonstração deve ser disponibilizado separadamente e revisado antes da entrega.
+- O arquivo `.env` não deve ser publicado no GitHub.
+- Chaves de API e senhas não devem ser incluídas no código-fonte.
+- Os arquivos SQLite locais devem permanecer fora do controle de versão.
+- A cópia do MySQL contém um snapshot dos dados, sem sincronização automática com o banco original.
+- As operações de demonstração não devem modificar registros históricos do banco operacional.
+
+O identificador `proprietario` utilizado no agente representa o perfil configurado para demonstração e não constitui um sistema completo de autenticação.
+
+### 15. Resumo dos comandos
+
+Para uma primeira instalação:
+
+```powershell
+# Clonar o repositório
+git clone https://github.com/viniciusyy/Agente-de-IA-.git
+
+# Entrar na pasta do projeto
+cd Agente-de-IA-
+
+# Criar arquivo de configuração
+Copy-Item .env.example .env
+
+# Configurar o .env e adicionar
+# docker/mysql-init/01-demo.sql
+
+# Validar o Docker Compose
+docker compose config --quiet
+
+# Iniciar o MySQL
+docker compose up -d db
+
+# Construir a imagem Python
+docker compose build app
+
+# Testar a conexão
+docker compose run --rm app python -c "from src.database import testar_conexao; print(testar_conexao())"
+
+# Executar o agente
+docker compose run --rm app
+```
+
+Para as próximas execuções:
+
+```powershell
+docker compose run --rm app
+```
+
+Para desligar:
+
+```powershell
+docker compose down
+```

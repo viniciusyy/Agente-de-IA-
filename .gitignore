@@ -50,3 +50,6 @@ logs/planos_aprovados.jso
 !logs/04_acao_nao_permitida.json
 !logs/05_pergunta_fora_corpus.json
 !logs/06_human_in_the_loop.json
+
+# Banco de demonstracao - nao publicar dados reais
+docker/mysql-init/*.sql

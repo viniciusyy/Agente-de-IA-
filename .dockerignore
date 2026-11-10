@@ -1,0 +1,11 @@
+.venv/
+venv/
+.git/
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+dados/*.sqlite3
+dados/*.sqlite3-*
+logs/
+docker/mysql-init/
