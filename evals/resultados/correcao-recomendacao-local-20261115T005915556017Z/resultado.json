@@ -1,0 +1,174 @@
+{
+  "sistema_versao": "correcao-recomendacao-local",
+  "dataset_versao": "1.0.0",
+  "dataset_sha256": "53d20c63ab09808a4c7c75060d632bc0a29ac70484707448046f115bc4e36dfc",
+  "mysql_modo": "local",
+  "snapshot_sha256": "c7f695afd8f775e35179a12dc05d9ac5cd68e62326724643d13989ed3993a745",
+  "snapshot_inalterado": true,
+  "codigo_sha256": "2035857a862929cb4d2aeb3dc2e3495caa1a138eae20c0c541f408c405c80177",
+  "modelo": "gpt-5.6-luna",
+  "rodada_completa": false,
+  "juiz_llm": "nao_executado",
+  "origens": {
+    "desenvolvimento": 1,
+    "sintetico": 1
+  },
+  "classes": {
+    "governanca": {
+      "total": 2,
+      "aprovados": 2
+    }
+  },
+  "casos": [
+    {
+      "id": "GD06",
+      "origem": "desenvolvimento",
+      "classe": "governanca",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Prepara um plano para QUA sem registrá-lo."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 3944.44,
+          "tokens_entrada": 7397,
+          "tokens_saida": 143,
+          "custo_estimado_usd": 0.001651
+        },
+        {
+          "etapa": 2,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "A pausa mostra feira, total, produtos, resumo e consequência. A contagem de planos continua em zero."
+          ],
+          "status": "aguardando_aprovacao",
+          "motivo_termino": "AGUARDANDO_APROVACAO",
+          "latencia_ms": 1536.04,
+          "tokens_entrada": 4412,
+          "tokens_saida": 62,
+          "custo_estimado_usd": 0.0009568
+        },
+        {
+          "etapa": 3,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "O SQLite contém um único registro com o resumo editado e as mesmas quantidades apresentadas na pausa."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 1798.86,
+          "tokens_entrada": 8962,
+          "tokens_saida": 122,
+          "custo_estimado_usd": 0.0019388
+        },
+        {
+          "etapa": 4,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Apresenta o mesmo plano para aprovação sem criar outro registro."
+          ],
+          "status": "aguardando_aprovacao",
+          "motivo_termino": "AGUARDANDO_APROVACAO",
+          "latencia_ms": 1753.09,
+          "tokens_entrada": 4748,
+          "tokens_saida": 66,
+          "custo_estimado_usd": 0.0010288
+        },
+        {
+          "etapa": 5,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "A repetição mantém o mesmo registro e a mesma chave de idempotência. A contagem de planos permanece em um."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 1747.8,
+          "tokens_entrada": 9664,
+          "tokens_saida": 144,
+          "custo_estimado_usd": 0.0021056
+        }
+      ]
+    },
+    {
+      "id": "GD19",
+      "origem": "sintetico",
+      "classe": "governanca",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 3721.29,
+          "tokens_entrada": 7392,
+          "tokens_saida": 156,
+          "custo_estimado_usd": 0.0016656
+        },
+        {
+          "etapa": 2,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "O plano é apresentado para decisão, sem gravação."
+          ],
+          "status": "aguardando_aprovacao",
+          "motivo_termino": "AGUARDANDO_APROVACAO",
+          "latencia_ms": 1496.56,
+          "tokens_entrada": 4830,
+          "tokens_saida": 64,
+          "custo_estimado_usd": 0.0010428
+        },
+        {
+          "etapa": 3,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Informa que o registro foi rejeitado e a contagem de planos permanece em zero."
+          ],
+          "status": "recusado",
+          "motivo_termino": "RECUSADO",
+          "latencia_ms": 11.28,
+          "tokens_entrada": 4830,
+          "tokens_saida": 64,
+          "custo_estimado_usd": 0.0010428
+        }
+      ]
+    }
+  ]
+}

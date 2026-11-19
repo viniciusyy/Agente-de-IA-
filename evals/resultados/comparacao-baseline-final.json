@@ -1,0 +1,94 @@
+{
+  "tipo": "comparacao_automatica_de_rodadas",
+  "dataset_versao": "1.0.0",
+  "dataset_sha256": "53d20c63ab09808a4c7c75060d632bc0a29ac70484707448046f115bc4e36dfc",
+  "snapshot_sha256": "c7f695afd8f775e35179a12dc05d9ac5cd68e62326724643d13989ed3993a745",
+  "mysql_modo": "local",
+  "origens": {
+    "desenvolvimento": 8,
+    "sintetico": 12
+  },
+  "rodada_a": {
+    "sistema_versao": "baseline-local",
+    "codigo_sha256": "4272072f85e6790b6c39c7a1d73282725972935aa7465fe381115dbb844148c6",
+    "modelo": "gpt-5.6-luna"
+  },
+  "rodada_b": {
+    "sistema_versao": "regressao-final-local",
+    "codigo_sha256": "86f313e4cae41861fbd172b7a41d10dc2600c05d06a691c85495353d9fe8a8f4",
+    "modelo": "gpt-5.6-luna"
+  },
+  "classes": [
+    {
+      "classe": "conhecimento",
+      "total": 3,
+      "acertos_a": 2,
+      "acertos_b": 3,
+      "taxa_a_pct": 66.67,
+      "taxa_b_pct": 100.0,
+      "delta_pp": 33.33
+    },
+    {
+      "classe": "esclarecimento",
+      "total": 3,
+      "acertos_a": 3,
+      "acertos_b": 3,
+      "taxa_a_pct": 100.0,
+      "taxa_b_pct": 100.0,
+      "delta_pp": 0.0
+    },
+    {
+      "classe": "governanca",
+      "total": 4,
+      "acertos_a": 3,
+      "acertos_b": 4,
+      "taxa_a_pct": 75.0,
+      "taxa_b_pct": 100.0,
+      "delta_pp": 25.0
+    },
+    {
+      "classe": "historico",
+      "total": 4,
+      "acertos_a": 4,
+      "acertos_b": 4,
+      "taxa_a_pct": 100.0,
+      "taxa_b_pct": 100.0,
+      "delta_pp": 0.0
+    },
+    {
+      "classe": "memoria",
+      "total": 2,
+      "acertos_a": 2,
+      "acertos_b": 2,
+      "taxa_a_pct": 100.0,
+      "taxa_b_pct": 100.0,
+      "delta_pp": 0.0
+    },
+    {
+      "classe": "planejamento",
+      "total": 4,
+      "acertos_a": 2,
+      "acertos_b": 4,
+      "taxa_a_pct": 50.0,
+      "taxa_b_pct": 100.0,
+      "delta_pp": 50.0
+    }
+  ],
+  "geral": {
+    "classe": "GERAL",
+    "total": 20,
+    "acertos_a": 16,
+    "acertos_b": 20,
+    "taxa_a_pct": 80.0,
+    "taxa_b_pct": 100.0,
+    "delta_pp": 20.0
+  },
+  "melhoraram": [
+    "GD02",
+    "GD10",
+    "GD14",
+    "GD19"
+  ],
+  "pioraram": [],
+  "juiz_calibracao": null
+}

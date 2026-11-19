@@ -23,10 +23,12 @@ class EntradaAgente(BaseModel):
         min_length=1,
         max_length=4_000,
     )
+
     usuario_id: str = Field(
         min_length=1,
         max_length=80,
     )
+
     thread_id: str = Field(
         min_length=1,
         max_length=120,
@@ -57,6 +59,7 @@ class FonteResposta(BaseModel):
         "usuario",
         "sistema",
     ]
+
     referencia: str
     detalhe: str = ""
 
@@ -65,8 +68,7 @@ class SaidaAgente(BaseModel):
     """
     Objeto devolvido ao chamador.
 
-    Recusas, erros e pedidos de informação também seguem
-    este contrato.
+    Recusas, erros e pedidos de informação também seguem este contrato.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -79,12 +81,7 @@ class SaidaAgente(BaseModel):
         "erro",
     ]
 
-    resultado: (
-        str
-        | dict[str, Any]
-        | list[Any]
-        | None
-    )
+    resultado: str | dict[str, Any] | list[Any] | None
 
     fontes: list[FonteResposta] = Field(
         default_factory=list
@@ -101,8 +98,7 @@ class SaidaAgente(BaseModel):
             and not self.motivo.strip()
         ):
             raise ValueError(
-                "Uma saída insuficiente precisa declarar "
-                "o motivo."
+                "Uma saída insuficiente precisa declarar o motivo."
             )
 
         if (
@@ -110,8 +106,7 @@ class SaidaAgente(BaseModel):
             and self.proxima_acao is None
         ):
             raise ValueError(
-                "A pausa precisa explicar como o humano "
-                "responde."
+                "A pausa precisa explicar como o humano responde."
             )
 
         return self
@@ -127,7 +122,11 @@ class DecisaoHumana(BaseModel):
         "expirar",
     ]
 
-    resumo_plano: str | None = None
+    resumo_plano: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=600,
+    )
 
 
 class DocumentoRecuperado(BaseModel):
@@ -154,9 +153,7 @@ class ResultadoRecuperacao(BaseModel):
     suficiente: bool
     consulta: str
 
-    forma: Literal[
-        "busca_textual"
-    ] = "busca_textual"
+    forma: Literal["busca_textual"] = "busca_textual"
 
     resultados: list[DocumentoRecuperado] = Field(
         default_factory=list

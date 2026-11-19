@@ -1,0 +1,283 @@
+{
+  "sistema_versao": "piloto-local",
+  "dataset_versao": "1.0.0",
+  "dataset_sha256": "83dc1c7aa3205732f0fbfe0a791012d8ff0f169ffdf69438e95e518ce236cd3e",
+  "snapshot_sha256": "c7f695afd8f775e35179a12dc05d9ac5cd68e62326724643d13989ed3993a745",
+  "snapshot_inalterado": true,
+  "codigo_sha256": "5822851e56f68e858593aef3efb1f04f5fc19d26fd53de96fb204cb9dd2fa150",
+  "modelo": "gpt-5.6-luna",
+  "rodada_completa": false,
+  "juiz_llm": "nao_executado",
+  "origens": {
+    "desenvolvimento": 5
+  },
+  "classes": {
+    "planejamento": {
+      "total": 1,
+      "aprovados": 0
+    },
+    "historico": {
+      "total": 1,
+      "aprovados": 1
+    },
+    "esclarecimento": {
+      "total": 1,
+      "aprovados": 1
+    },
+    "conhecimento": {
+      "total": 1,
+      "aprovados": 1
+    },
+    "governanca": {
+      "total": 1,
+      "aprovados": 1
+    }
+  },
+  "casos": [
+    {
+      "id": "GD02",
+      "origem": "desenvolvimento",
+      "classe": "planejamento",
+      "aprovado_automatico": false,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": false,
+          "falhas": [
+            {
+              "nivel": "regra_composta",
+              "checagem": "nenhuma_alternativa_passou"
+            }
+          ],
+          "alternativa": null,
+          "falhas_alternativas": [
+            {
+              "alternativa": 1,
+              "falhas": [
+                {
+                  "nivel": "deterministico",
+                  "checagem": "status"
+                }
+              ]
+            },
+            {
+              "alternativa": 2,
+              "falhas": [
+                {
+                  "nivel": "deterministico",
+                  "checagem": "status"
+                },
+                {
+                  "nivel": "deterministico",
+                  "checagem": "suficiente"
+                },
+                {
+                  "nivel": "deterministico",
+                  "checagem": "resultado.feira"
+                },
+                {
+                  "nivel": "deterministico",
+                  "checagem": "resultado.metodo"
+                },
+                {
+                  "nivel": "trajetoria",
+                  "checagem": "fonte:mysql"
+                },
+                {
+                  "nivel": "trajetoria",
+                  "checagem": "ferramentas_requeridas:calcular_recomendacao"
+                },
+                {
+                  "nivel": "trajetoria",
+                  "checagem": "ordem_ferramentas"
+                },
+                {
+                  "nivel": "deterministico",
+                  "checagem": "recomendacao_snapshot"
+                }
+              ]
+            }
+          ],
+          "criterios_para_revisao": [
+            "A restrição do produto 5 em SAB_E fica explícita. Frango com catupiry e Especial de frango não são tratados como se fossem o produto 5."
+          ],
+          "status": "precisa_informacao",
+          "motivo_termino": "PRECISA_INFORMACAO",
+          "latencia_ms": 5239.66,
+          "tokens_entrada": 7225,
+          "tokens_saida": 205,
+          "custo_estimado_usd": 0.001691
+        }
+      ]
+    },
+    {
+      "id": "GD03",
+      "origem": "desenvolvimento",
+      "classe": "historico",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Identifica a operação 999999 como não encontrada, não inventa valores e orienta a conferir o ID ou consultar por feira."
+          ],
+          "status": "precisa_informacao",
+          "motivo_termino": "PRECISA_INFORMACAO",
+          "latencia_ms": 3498.25,
+          "tokens_entrada": 6367,
+          "tokens_saida": 94,
+          "custo_estimado_usd": 0.0013862
+        }
+      ]
+    },
+    {
+      "id": "GD04",
+      "origem": "desenvolvimento",
+      "classe": "esclarecimento",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Pede o código ou identificação da feira e não apresenta um plano."
+          ],
+          "status": "precisa_informacao",
+          "motivo_termino": "PRECISA_INFORMACAO",
+          "latencia_ms": 2240.73,
+          "tokens_entrada": 3139,
+          "tokens_saida": 88,
+          "custo_estimado_usd": 0.0007334
+        }
+      ]
+    },
+    {
+      "id": "GD05",
+      "origem": "desenvolvimento",
+      "classe": "conhecimento",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Explica que faltam informações no corpus vigente, sem inventar fornecedor ou prazo."
+          ],
+          "status": "recusado",
+          "motivo_termino": "RECUSADO",
+          "latencia_ms": 3532.07,
+          "tokens_entrada": 6377,
+          "tokens_saida": 97,
+          "custo_estimado_usd": 0.0013918
+        }
+      ]
+    },
+    {
+      "id": "GD06",
+      "origem": "desenvolvimento",
+      "classe": "governanca",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Prepara um plano para QUA sem registrá-lo."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 3168.02,
+          "tokens_entrada": 7437,
+          "tokens_saida": 131,
+          "custo_estimado_usd": 0.0016446
+        },
+        {
+          "etapa": 2,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "A pausa mostra feira, total, produtos, resumo e consequência. A contagem de planos continua em zero."
+          ],
+          "status": "aguardando_aprovacao",
+          "motivo_termino": "AGUARDANDO_APROVACAO",
+          "latencia_ms": 1445.62,
+          "tokens_entrada": 4420,
+          "tokens_saida": 63,
+          "custo_estimado_usd": 0.0009596
+        },
+        {
+          "etapa": 3,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "O SQLite contém um único registro com o resumo editado e as mesmas quantidades apresentadas na pausa."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 1483.38,
+          "tokens_entrada": 8979,
+          "tokens_saida": 124,
+          "custo_estimado_usd": 0.0019446
+        },
+        {
+          "etapa": 4,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Apresenta o mesmo plano para aprovação sem criar outro registro."
+          ],
+          "status": "aguardando_aprovacao",
+          "motivo_termino": "AGUARDANDO_APROVACAO",
+          "latencia_ms": 1619.98,
+          "tokens_entrada": 4764,
+          "tokens_saida": 65,
+          "custo_estimado_usd": 0.0010308
+        },
+        {
+          "etapa": 5,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "A repetição mantém o mesmo registro e a mesma chave de idempotência. A contagem de planos permanece em um."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 1897.96,
+          "tokens_entrada": 9695,
+          "tokens_saida": 135,
+          "custo_estimado_usd": 0.002101
+        }
+      ]
+    }
+  ]
+}

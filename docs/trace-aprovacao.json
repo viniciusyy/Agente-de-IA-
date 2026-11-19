@@ -1,0 +1,133 @@
+{
+  "versao": "obs-v1-9393b1db60fb",
+  "coorte": "avaliacao",
+  "rodada": "rodada-1",
+  "caso": "GD06",
+  "aprovacao_id": "abc5098a97ce18d0c11df191c7e676e7fd0753554cfd9f4beca9c2b68751401e",
+  "calculo": {
+    "trace_id": "0x61ff95d251c6c9b84b5a4e73a09cca01",
+    "modelo_configurado": "gpt-5.6-luna",
+    "prompts": {
+      "orquestrador": {
+        "versao": "orquestrador_v2",
+        "sha256": "5b49d8cb120321cbaf1aa4e1afcf1bca262f92a2c44530e3bddea21fe90f0441"
+      },
+      "procedimento": {
+        "versao": "procedimento_planejamento_v1",
+        "sha256": "5529d18aa7c38ac859efa15570641c1d4c01d3e7a00b824e64b05b4f910ce254"
+      }
+    },
+    "modelos_observados": [
+      {
+        "gen_ai.provider.name": "openai",
+        "gen_ai.request.model": "gpt-5.6-luna",
+        "gen_ai.response.model": "gpt-5.6-luna"
+      },
+      {
+        "gen_ai.provider.name": "openai",
+        "gen_ai.request.model": "gpt-5.6-luna",
+        "gen_ai.response.model": "gpt-5.6-luna"
+      }
+    ],
+    "ferramenta": "calcular_recomendacao",
+    "argumentos": {
+      "codigo_feira": "QUA"
+    },
+    "termino_utc": "2026-11-19T00:51:37.647124Z",
+    "resultado": {
+      "feira": "QUA",
+      "metodo": "baseline_media_vendas_5_operacoes",
+      "operacoes_consideradas": 5,
+      "total_recomendado": 518
+    },
+    "itens_coincidem_com_proposta": true
+  },
+  "pausa": {
+    "trace_id": "0x4f70e51bea9b0afdd002e7e3ab8601bd",
+    "modelo_configurado": "gpt-5.6-luna",
+    "prompts": {
+      "orquestrador": {
+        "versao": "orquestrador_v2",
+        "sha256": "5b49d8cb120321cbaf1aa4e1afcf1bca262f92a2c44530e3bddea21fe90f0441"
+      },
+      "procedimento": {
+        "versao": "procedimento_planejamento_v1",
+        "sha256": "5529d18aa7c38ac859efa15570641c1d4c01d3e7a00b824e64b05b4f910ce254"
+      }
+    },
+    "modelos_observados": [
+      {
+        "gen_ai.provider.name": "openai",
+        "gen_ai.request.model": "gpt-5.6-luna",
+        "gen_ai.response.model": "gpt-5.6-luna"
+      }
+    ],
+    "rota": "orquestracao",
+    "feiras_mencionadas": [],
+    "solicitada_em_utc": "2026-11-19T00:51:42.150235Z",
+    "expira_em_utc": "2026-11-20T00:51:40.408534+00:00",
+    "perfil_plano": {
+      "feira": "QUA",
+      "total_recomendado": 518,
+      "total_itens": 27
+    },
+    "motivo_termino": "AGUARDANDO_APROVACAO",
+    "sem_tentativa_de_registro_na_pausa": true
+  },
+  "retomada": {
+    "trace_id": "0xaf290634378e816c3996281e4888b967",
+    "modelo_configurado": "gpt-5.6-luna",
+    "prompts": {
+      "orquestrador": {
+        "versao": "orquestrador_v2",
+        "sha256": "5b49d8cb120321cbaf1aa4e1afcf1bca262f92a2c44530e3bddea21fe90f0441"
+      },
+      "procedimento": {
+        "versao": "procedimento_planejamento_v1",
+        "sha256": "5529d18aa7c38ac859efa15570641c1d4c01d3e7a00b824e64b05b4f910ce254"
+      }
+    },
+    "modelos_observados": [
+      {
+        "gen_ai.provider.name": "openai",
+        "gen_ai.request.model": "gpt-5.6-luna",
+        "gen_ai.response.model": "gpt-5.6-luna"
+      }
+    ],
+    "decidida_em_utc": "2026-11-19T00:51:42.167696Z",
+    "acao": "editar",
+    "identidade_tecnica_prefixo": "064850df4c7b",
+    "ferramenta": "registrar_plano",
+    "tentativa_iniciada_em_utc": "2026-11-19T00:51:42.167774Z",
+    "evento_escrita_em_utc": "2026-11-19T00:51:42.171440Z",
+    "argumentos": {
+      "feira": "QUA",
+      "total_recomendado": 518
+    },
+    "desfecho": "ok",
+    "registro_id": 1,
+    "ja_existia": false,
+    "saida": {
+      "status": "concluido",
+      "suficiente": true,
+      "normalizada": false,
+      "campos": {},
+      "motivo_termino": "CONCLUIDO"
+    }
+  },
+  "contexto_recuperado": {
+    "memoria_recuperada": [
+      {
+        "trace_id": "0x61ff95d251c6c9b84b5a4e73a09cca01",
+        "chaves": [],
+        "episodios_prefixos": []
+      },
+      {
+        "trace_id": "0x4f70e51bea9b0afdd002e7e3ab8601bd",
+        "chaves": [],
+        "episodios_prefixos": []
+      }
+    ],
+    "documentos_rag": []
+  }
+}

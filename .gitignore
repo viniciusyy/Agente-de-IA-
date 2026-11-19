@@ -53,3 +53,6 @@ logs/planos_aprovados.jso
 
 # Banco de demonstracao - nao publicar dados reais
 docker/mysql-init/*.sql
+
+# Traces brutos de observabilidade
+/logs/traces/

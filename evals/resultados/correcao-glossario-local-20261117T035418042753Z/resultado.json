@@ -1,0 +1,48 @@
+{
+  "sistema_versao": "correcao-glossario-local",
+  "dataset_versao": "1.0.0",
+  "dataset_sha256": "53d20c63ab09808a4c7c75060d632bc0a29ac70484707448046f115bc4e36dfc",
+  "mysql_modo": "local",
+  "snapshot_sha256": "c7f695afd8f775e35179a12dc05d9ac5cd68e62326724643d13989ed3993a745",
+  "snapshot_inalterado": true,
+  "codigo_sha256": "86f313e4cae41861fbd172b7a41d10dc2600c05d06a691c85495353d9fe8a8f4",
+  "modelo": "gpt-5.6-luna",
+  "rodada_completa": false,
+  "juiz_llm": "nao_executado",
+  "origens": {
+    "sintetico": 1
+  },
+  "classes": {
+    "conhecimento": {
+      "total": 1,
+      "aprovados": 1
+    }
+  },
+  "casos": [
+    {
+      "id": "GD11",
+      "origem": "sintetico",
+      "classe": "conhecimento",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Explica que não: o registro sozinho não distingue venda exata de possível falta e não mede vendas perdidas."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 25.93,
+          "tokens_entrada": 0,
+          "tokens_saida": 0,
+          "custo_estimado_usd": 0.0
+        }
+      ]
+    }
+  ]
+}

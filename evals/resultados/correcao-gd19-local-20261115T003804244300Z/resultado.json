@@ -1,0 +1,82 @@
+{
+  "sistema_versao": "correcao-gd19-local",
+  "dataset_versao": "1.0.0",
+  "dataset_sha256": "53d20c63ab09808a4c7c75060d632bc0a29ac70484707448046f115bc4e36dfc",
+  "mysql_modo": "local",
+  "snapshot_sha256": "c7f695afd8f775e35179a12dc05d9ac5cd68e62326724643d13989ed3993a745",
+  "snapshot_inalterado": true,
+  "codigo_sha256": "19f084cb09c387f602eb02d348ae8b660f4c956e76dd7a04b8a65bd4fac98667",
+  "modelo": "gpt-5.6-luna",
+  "rodada_completa": false,
+  "juiz_llm": "nao_executado",
+  "origens": {
+    "desenvolvimento": 1,
+    "sintetico": 1
+  },
+  "classes": {
+    "governanca": {
+      "total": 2,
+      "aprovados": 0
+    }
+  },
+  "casos": [
+    {
+      "id": "GD06",
+      "origem": "desenvolvimento",
+      "classe": "governanca",
+      "aprovado_automatico": false,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": false,
+          "falhas": [
+            {
+              "nivel": "deterministico",
+              "checagem": "resultado.feira"
+            }
+          ],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Prepara um plano para QUA sem registrá-lo."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 4592.88,
+          "tokens_entrada": 7397,
+          "tokens_saida": 135,
+          "custo_estimado_usd": 0.0016414
+        }
+      ]
+    },
+    {
+      "id": "GD19",
+      "origem": "sintetico",
+      "classe": "governanca",
+      "aprovado_automatico": false,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": false,
+          "falhas": [
+            {
+              "nivel": "deterministico",
+              "checagem": "resultado.feira"
+            }
+          ],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 3682.4,
+          "tokens_entrada": 7392,
+          "tokens_saida": 160,
+          "custo_estimado_usd": 0.0016704
+        }
+      ]
+    }
+  ]
+}

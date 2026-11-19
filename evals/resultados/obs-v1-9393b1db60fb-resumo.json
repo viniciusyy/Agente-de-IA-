@@ -1,0 +1,799 @@
+{
+  "metadados": {
+    "sistema_versao": "obs-v1-9393b1db60fb",
+    "codigo_sha256": "9393b1db60fb02b8c4fd5dff9d895ee223a7bba95a783f821612798c73af2a0e",
+    "dataset_versao": "1.0.0",
+    "dataset_sha256": "53d20c63ab09808a4c7c75060d632bc0a29ac70484707448046f115bc4e36dfc",
+    "snapshot_sha256": "c7f695afd8f775e35179a12dc05d9ac5cd68e62326724643d13989ed3993a745",
+    "mysql_modo": "local",
+    "modelo": "gpt-5.6-luna"
+  },
+  "coorte": "avaliacao",
+  "janela_inicio_utc": "2026-11-12T00:56:40.243810+00:00",
+  "janela_fim_utc": "2026-11-19T00:56:40.243810+00:00",
+  "primeiro_termino_utc": "2026-11-19T00:51:10.620905+00:00",
+  "cobertura": [
+    {
+      "rodada": 1,
+      "casos": 20,
+      "aprovados_verificador": 20,
+      "etapas_executadas": 26,
+      "raizes": 26
+    },
+    {
+      "rodada": 2,
+      "casos": 20,
+      "aprovados_verificador": 20,
+      "etapas_executadas": 26,
+      "raizes": 26
+    }
+  ],
+  "latencia_agente": {
+    "todas": {
+      "n": 52,
+      "p50_ms": 2728.739,
+      "p95_ms": 5898.808
+    },
+    "nova_entrada": {
+      "n": 46,
+      "p50_ms": 3399.928,
+      "p95_ms": 5898.808
+    },
+    "retomada_humana": {
+      "n": 6,
+      "p50_ms": 1585.498,
+      "p95_ms": 2280.586
+    }
+  },
+  "latencia_spans_filhos": {
+    "chat": {
+      "n": 64,
+      "p50_ms": 2181.485,
+      "p95_ms": 3719.207
+    },
+    "execute_tool": {
+      "n": 32,
+      "p50_ms": 10.847,
+      "p95_ms": 33.035
+    }
+  },
+  "slo_p95_ate_15s_na_amostra": true,
+  "qualidade_termino": {
+    "validas": 46,
+    "boas": 46,
+    "ruins": 0,
+    "pausas_excluidas": 6,
+    "cancelamentos_excluidos": 0,
+    "normalizadas": 0,
+    "com_erro_tecnico": 0,
+    "sli_pct": 100.0,
+    "orcamento_ruins": 2,
+    "consumo_orcamento_pct": 0.0,
+    "slo_95_pct_na_amostra": true
+  },
+  "custo_usd": {
+    "raizes_com_custo_completo": 52,
+    "raizes_com_custo_incompleto": 0,
+    "subtotal_conhecido": 0.0546314,
+    "media_entre_completas": 0.0010506038,
+    "maximo_conhecido": 0.0020364,
+    "acima_de_0_01": 0,
+    "precos_entrada_saida_por_milhao": [
+      [
+        0.2,
+        1.2
+      ]
+    ]
+  },
+  "uso_modelo": {
+    "chamadas": 64,
+    "com_uso": 64,
+    "entrada": 243901,
+    "saida": 4876
+  },
+  "espera_por_aprovacao": {
+    "n": 6,
+    "p50_ms": 17.463,
+    "p95_ms": 18.641,
+    "solicitacoes_sem_decisao_medida": 0,
+    "decisoes_sem_solicitacao_medida": 0
+  },
+  "motivos_termino": [
+    {
+      "categoria": "aguardando_humano",
+      "motivo": "AGUARDANDO_APROVACAO",
+      "n": 6,
+      "pct": 11.54
+    },
+    {
+      "categoria": "pediu_esclarecimento",
+      "motivo": "PRECISA_INFORMACAO",
+      "n": 10,
+      "pct": 19.23
+    },
+    {
+      "categoria": "recusou",
+      "motivo": "RECUSADO",
+      "n": 10,
+      "pct": 19.23
+    },
+    {
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "n": 26,
+      "pct": 50.0
+    }
+  ],
+  "ferramentas_observadas": {
+    "buscar_conhecimento": {
+      "chamadas": 8,
+      "desfechos": {
+        "ok": 6,
+        "sem_dados": 2
+      },
+      "erro_pct": 0.0
+    },
+    "calcular_recomendacao": {
+      "chamadas": 10,
+      "desfechos": {
+        "ok": 10
+      },
+      "erro_pct": 0.0
+    },
+    "consultar_historico": {
+      "chamadas": 4,
+      "desfechos": {
+        "ok": 4
+      },
+      "erro_pct": 0.0
+    },
+    "consultar_operacao": {
+      "chamadas": 4,
+      "desfechos": {
+        "sem_dados": 2,
+        "ok": 2
+      },
+      "erro_pct": 0.0
+    },
+    "registrar_plano": {
+      "chamadas": 4,
+      "desfechos": {
+        "ok": 4
+      },
+      "erro_pct": 0.0
+    },
+    "salvar_preferencia": {
+      "chamadas": 2,
+      "desfechos": {
+        "ok": 2
+      },
+      "erro_pct": 0.0
+    }
+  },
+  "execucoes": [
+    {
+      "rodada": 1,
+      "caso": "GD01",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 5777.942,
+      "custo_estimado_usd": 0.0016834,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD02",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "recusou",
+      "motivo": "RECUSADO",
+      "latencia_ms": 31.705,
+      "custo_estimado_usd": 0.0,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD03",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "pediu_esclarecimento",
+      "motivo": "PRECISA_INFORMACAO",
+      "latencia_ms": 4384.526,
+      "custo_estimado_usd": 0.0014358,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD04",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "pediu_esclarecimento",
+      "motivo": "PRECISA_INFORMACAO",
+      "latencia_ms": 2284.223,
+      "custo_estimado_usd": 0.000739,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD05",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "recusou",
+      "motivo": "RECUSADO",
+      "latencia_ms": 4989.631,
+      "custo_estimado_usd": 0.0014268,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD06",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 5126.262,
+      "custo_estimado_usd": 0.0016738,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD06",
+      "etapa": 2,
+      "tipo": "nova_entrada",
+      "categoria": "aguardando_humano",
+      "motivo": "AGUARDANDO_APROVACAO",
+      "latencia_ms": 1748.339,
+      "custo_estimado_usd": 0.000971,
+      "elegivel": false,
+      "boa_se_elegivel": null
+    },
+    {
+      "rodada": 1,
+      "caso": "GD06",
+      "etapa": 3,
+      "tipo": "retomada_humana",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 1585.498,
+      "custo_estimado_usd": 0.0009982,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD06",
+      "etapa": 4,
+      "tipo": "nova_entrada",
+      "categoria": "aguardando_humano",
+      "motivo": "AGUARDANDO_APROVACAO",
+      "latencia_ms": 1937.528,
+      "custo_estimado_usd": 0.0010154,
+      "elegivel": false,
+      "boa_se_elegivel": null
+    },
+    {
+      "rodada": 1,
+      "caso": "GD06",
+      "etapa": 5,
+      "tipo": "retomada_humana",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 2035.569,
+      "custo_estimado_usd": 0.0010658,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD07",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 5779.999,
+      "custo_estimado_usd": 0.001966,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD08",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 3942.539,
+      "custo_estimado_usd": 0.0020364,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD09",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 5141.505,
+      "custo_estimado_usd": 0.0019702,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD10",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 38.149,
+      "custo_estimado_usd": 0.0,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD11",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 33.354,
+      "custo_estimado_usd": 0.0,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD12",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 3950.014,
+      "custo_estimado_usd": 0.0014128,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD13",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 5976.898,
+      "custo_estimado_usd": 0.0016958,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD14",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "recusou",
+      "motivo": "RECUSADO",
+      "latencia_ms": 32.117,
+      "custo_estimado_usd": 0.0,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD15",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "pediu_esclarecimento",
+      "motivo": "PRECISA_INFORMACAO",
+      "latencia_ms": 2685.418,
+      "custo_estimado_usd": 0.0007336,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD16",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "pediu_esclarecimento",
+      "motivo": "PRECISA_INFORMACAO",
+      "latencia_ms": 3399.928,
+      "custo_estimado_usd": 0.0007342,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD17",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 5531.055,
+      "custo_estimado_usd": 0.0016848,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD18",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "pediu_esclarecimento",
+      "motivo": "PRECISA_INFORMACAO",
+      "latencia_ms": 5045.557,
+      "custo_estimado_usd": 0.0007192,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD19",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 5195.736,
+      "custo_estimado_usd": 0.0016776,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD19",
+      "etapa": 2,
+      "tipo": "nova_entrada",
+      "categoria": "aguardando_humano",
+      "motivo": "AGUARDANDO_APROVACAO",
+      "latencia_ms": 2337.819,
+      "custo_estimado_usd": 0.00097,
+      "elegivel": false,
+      "boa_se_elegivel": null
+    },
+    {
+      "rodada": 1,
+      "caso": "GD19",
+      "etapa": 3,
+      "tipo": "retomada_humana",
+      "categoria": "recusou",
+      "motivo": "RECUSADO",
+      "latencia_ms": 15.03,
+      "custo_estimado_usd": 0.0,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 1,
+      "caso": "GD20",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "recusou",
+      "motivo": "RECUSADO",
+      "latencia_ms": 2198.587,
+      "custo_estimado_usd": 0.0007358,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD01",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 5022.839,
+      "custo_estimado_usd": 0.0016882,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD02",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "recusou",
+      "motivo": "RECUSADO",
+      "latencia_ms": 30.668,
+      "custo_estimado_usd": 0.0,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD03",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "pediu_esclarecimento",
+      "motivo": "PRECISA_INFORMACAO",
+      "latencia_ms": 2938.796,
+      "custo_estimado_usd": 0.0014166,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD04",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "pediu_esclarecimento",
+      "motivo": "PRECISA_INFORMACAO",
+      "latencia_ms": 2396.845,
+      "custo_estimado_usd": 0.000739,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD05",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "recusou",
+      "motivo": "RECUSADO",
+      "latencia_ms": 5898.808,
+      "custo_estimado_usd": 0.0014472,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD06",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 4438.609,
+      "custo_estimado_usd": 0.0016702,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD06",
+      "etapa": 2,
+      "tipo": "nova_entrada",
+      "categoria": "aguardando_humano",
+      "motivo": "AGUARDANDO_APROVACAO",
+      "latencia_ms": 1952.909,
+      "custo_estimado_usd": 0.0009716,
+      "elegivel": false,
+      "boa_se_elegivel": null
+    },
+    {
+      "rodada": 2,
+      "caso": "GD06",
+      "etapa": 3,
+      "tipo": "retomada_humana",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 2280.586,
+      "custo_estimado_usd": 0.0009894,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD06",
+      "etapa": 4,
+      "tipo": "nova_entrada",
+      "categoria": "aguardando_humano",
+      "motivo": "AGUARDANDO_APROVACAO",
+      "latencia_ms": 3407.373,
+      "custo_estimado_usd": 0.0010172,
+      "elegivel": false,
+      "boa_se_elegivel": null
+    },
+    {
+      "rodada": 2,
+      "caso": "GD06",
+      "etapa": 5,
+      "tipo": "retomada_humana",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 1931.264,
+      "custo_estimado_usd": 0.0010586,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD07",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 5691.952,
+      "custo_estimado_usd": 0.001966,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD08",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 5086.885,
+      "custo_estimado_usd": 0.0020268,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD09",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 7097.389,
+      "custo_estimado_usd": 0.001969,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD10",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 33.989,
+      "custo_estimado_usd": 0.0,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD11",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 33.424,
+      "custo_estimado_usd": 0.0,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD12",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 4651.118,
+      "custo_estimado_usd": 0.0014164,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD13",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 5285.656,
+      "custo_estimado_usd": 0.001649,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD14",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "recusou",
+      "motivo": "RECUSADO",
+      "latencia_ms": 29.895,
+      "custo_estimado_usd": 0.0,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD15",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "pediu_esclarecimento",
+      "motivo": "PRECISA_INFORMACAO",
+      "latencia_ms": 2728.739,
+      "custo_estimado_usd": 0.0007336,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD16",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "pediu_esclarecimento",
+      "motivo": "PRECISA_INFORMACAO",
+      "latencia_ms": 3001.129,
+      "custo_estimado_usd": 0.0007306,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD17",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 3935.464,
+      "custo_estimado_usd": 0.0016728,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD18",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "pediu_esclarecimento",
+      "motivo": "PRECISA_INFORMACAO",
+      "latencia_ms": 2158.989,
+      "custo_estimado_usd": 0.0007192,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD19",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "respondeu",
+      "motivo": "CONCLUIDO",
+      "latencia_ms": 4469.64,
+      "custo_estimado_usd": 0.0016884,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD19",
+      "etapa": 2,
+      "tipo": "nova_entrada",
+      "categoria": "aguardando_humano",
+      "motivo": "AGUARDANDO_APROVACAO",
+      "latencia_ms": 2195.116,
+      "custo_estimado_usd": 0.0009814,
+      "elegivel": false,
+      "boa_se_elegivel": null
+    },
+    {
+      "rodada": 2,
+      "caso": "GD19",
+      "etapa": 3,
+      "tipo": "retomada_humana",
+      "categoria": "recusou",
+      "motivo": "RECUSADO",
+      "latencia_ms": 12.238,
+      "custo_estimado_usd": 0.0,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    },
+    {
+      "rodada": 2,
+      "caso": "GD20",
+      "etapa": 1,
+      "tipo": "nova_entrada",
+      "categoria": "recusou",
+      "motivo": "RECUSADO",
+      "latencia_ms": 2726.292,
+      "custo_estimado_usd": 0.0007346,
+      "elegivel": true,
+      "boa_se_elegivel": true
+    }
+  ]
+}

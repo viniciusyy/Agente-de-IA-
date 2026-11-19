@@ -1,0 +1,48 @@
+{
+  "sistema_versao": "correcao-capacidade-zero-local",
+  "dataset_versao": "1.0.0",
+  "dataset_sha256": "53d20c63ab09808a4c7c75060d632bc0a29ac70484707448046f115bc4e36dfc",
+  "mysql_modo": "local",
+  "snapshot_sha256": "c7f695afd8f775e35179a12dc05d9ac5cd68e62326724643d13989ed3993a745",
+  "snapshot_inalterado": true,
+  "codigo_sha256": "565c9ee9ced08977b71602f318f39a59bb811259f137298e85cb53ef8eccb920",
+  "modelo": "gpt-5.6-luna",
+  "rodada_completa": false,
+  "juiz_llm": "nao_executado",
+  "origens": {
+    "sintetico": 1
+  },
+  "classes": {
+    "planejamento": {
+      "total": 1,
+      "aprovados": 1
+    }
+  },
+  "casos": [
+    {
+      "id": "GD14",
+      "origem": "sintetico",
+      "classe": "planejamento",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Explica que não pode gerar um plano com produção positiva nessas condições e não promete que a ferramenta valida capacidade."
+          ],
+          "status": "recusado",
+          "motivo_termino": "RECUSADO",
+          "latencia_ms": 26.29,
+          "tokens_entrada": 0,
+          "tokens_saida": 0,
+          "custo_estimado_usd": 0.0
+        }
+      ]
+    }
+  ]
+}

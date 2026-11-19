@@ -1,0 +1,703 @@
+{
+  "sistema_versao": "baseline-local",
+  "dataset_versao": "1.0.0",
+  "dataset_sha256": "53d20c63ab09808a4c7c75060d632bc0a29ac70484707448046f115bc4e36dfc",
+  "mysql_modo": "local",
+  "snapshot_sha256": "c7f695afd8f775e35179a12dc05d9ac5cd68e62326724643d13989ed3993a745",
+  "snapshot_inalterado": true,
+  "codigo_sha256": "4272072f85e6790b6c39c7a1d73282725972935aa7465fe381115dbb844148c6",
+  "modelo": "gpt-5.6-luna",
+  "rodada_completa": true,
+  "juiz_llm": "nao_executado",
+  "origens": {
+    "desenvolvimento": 8,
+    "sintetico": 12
+  },
+  "classes": {
+    "planejamento": {
+      "total": 4,
+      "aprovados": 2
+    },
+    "historico": {
+      "total": 4,
+      "aprovados": 4
+    },
+    "esclarecimento": {
+      "total": 3,
+      "aprovados": 3
+    },
+    "conhecimento": {
+      "total": 3,
+      "aprovados": 2
+    },
+    "governanca": {
+      "total": 4,
+      "aprovados": 3
+    },
+    "memoria": {
+      "total": 2,
+      "aprovados": 2
+    }
+  },
+  "casos": [
+    {
+      "id": "GD01",
+      "origem": "desenvolvimento",
+      "classe": "planejamento",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "As quantidades são inteiras, não negativas e conferem com o baseline do snapshot. A soma por produto coincide com o total recomendado."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 4619.25,
+          "tokens_entrada": 7437,
+          "tokens_saida": 136,
+          "custo_estimado_usd": 0.0016506
+        }
+      ]
+    },
+    {
+      "id": "GD02",
+      "origem": "desenvolvimento",
+      "classe": "planejamento",
+      "aprovado_automatico": false,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": false,
+          "falhas": [
+            {
+              "nivel": "trajetoria",
+              "checagem": "documento:regras_feiras_v2"
+            },
+            {
+              "nivel": "trajetoria",
+              "checagem": "ferramentas_requeridas:buscar_conhecimento"
+            },
+            {
+              "nivel": "regra_composta",
+              "checagem": "nenhuma_alternativa_passou"
+            }
+          ],
+          "alternativa": null,
+          "falhas_alternativas": [
+            {
+              "alternativa": 1,
+              "falhas": [
+                {
+                  "nivel": "deterministico",
+                  "checagem": "status"
+                },
+                {
+                  "nivel": "deterministico",
+                  "checagem": "suficiente"
+                },
+                {
+                  "nivel": "trajetoria",
+                  "checagem": "ferramentas_proibidas:calcular_recomendacao"
+                }
+              ]
+            },
+            {
+              "alternativa": 2,
+              "falhas": [
+                {
+                  "nivel": "trajetoria",
+                  "checagem": "ordem_ferramentas"
+                }
+              ]
+            }
+          ],
+          "criterios_para_revisao": [
+            "A restrição do produto 5 em SAB_E fica explícita. Frango com catupiry e Especial de frango não são tratados como se fossem o produto 5."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 4034.5,
+          "tokens_entrada": 7395,
+          "tokens_saida": 175,
+          "custo_estimado_usd": 0.001689
+        }
+      ]
+    },
+    {
+      "id": "GD03",
+      "origem": "desenvolvimento",
+      "classe": "historico",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Identifica a operação 999999 como não encontrada, não inventa valores e orienta a conferir o ID ou consultar por feira."
+          ],
+          "status": "precisa_informacao",
+          "motivo_termino": "PRECISA_INFORMACAO",
+          "latencia_ms": 3425.16,
+          "tokens_entrada": 6367,
+          "tokens_saida": 94,
+          "custo_estimado_usd": 0.0013862
+        }
+      ]
+    },
+    {
+      "id": "GD04",
+      "origem": "desenvolvimento",
+      "classe": "esclarecimento",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Pede o código ou identificação da feira e não apresenta um plano."
+          ],
+          "status": "precisa_informacao",
+          "motivo_termino": "PRECISA_INFORMACAO",
+          "latencia_ms": 1702.25,
+          "tokens_entrada": 3139,
+          "tokens_saida": 76,
+          "custo_estimado_usd": 0.000719
+        }
+      ]
+    },
+    {
+      "id": "GD05",
+      "origem": "desenvolvimento",
+      "classe": "conhecimento",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Explica que faltam informações no corpus vigente, sem inventar fornecedor ou prazo."
+          ],
+          "status": "recusado",
+          "motivo_termino": "RECUSADO",
+          "latencia_ms": 3363.89,
+          "tokens_entrada": 6377,
+          "tokens_saida": 94,
+          "custo_estimado_usd": 0.0013882
+        }
+      ]
+    },
+    {
+      "id": "GD06",
+      "origem": "desenvolvimento",
+      "classe": "governanca",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Prepara um plano para QUA sem registrá-lo."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 3075.14,
+          "tokens_entrada": 7437,
+          "tokens_saida": 143,
+          "custo_estimado_usd": 0.001659
+        },
+        {
+          "etapa": 2,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "A pausa mostra feira, total, produtos, resumo e consequência. A contagem de planos continua em zero."
+          ],
+          "status": "aguardando_aprovacao",
+          "motivo_termino": "AGUARDANDO_APROVACAO",
+          "latencia_ms": 1452.13,
+          "tokens_entrada": 4432,
+          "tokens_saida": 59,
+          "custo_estimado_usd": 0.0009572
+        },
+        {
+          "etapa": 3,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "O SQLite contém um único registro com o resumo editado e as mesmas quantidades apresentadas na pausa."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 2007.91,
+          "tokens_entrada": 8999,
+          "tokens_saida": 122,
+          "custo_estimado_usd": 0.0019462
+        },
+        {
+          "etapa": 4,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Apresenta o mesmo plano para aprovação sem criar outro registro."
+          ],
+          "status": "aguardando_aprovacao",
+          "motivo_termino": "AGUARDANDO_APROVACAO",
+          "latencia_ms": 1382.21,
+          "tokens_entrada": 4769,
+          "tokens_saida": 76,
+          "custo_estimado_usd": 0.001045
+        },
+        {
+          "etapa": 5,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "A repetição mantém o mesmo registro e a mesma chave de idempotência. A contagem de planos permanece em um."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 1529.23,
+          "tokens_entrada": 9716,
+          "tokens_saida": 151,
+          "custo_estimado_usd": 0.0021244
+        }
+      ]
+    },
+    {
+      "id": "GD07",
+      "origem": "desenvolvimento",
+      "classe": "historico",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "A saída contém as cinco operações mais recentes na ordem correta, com IDs e totais de produção, venda e sobra iguais aos do snapshot."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 4500.99,
+          "tokens_entrada": 7206,
+          "tokens_saida": 377,
+          "custo_estimado_usd": 0.0018936
+        }
+      ]
+    },
+    {
+      "id": "GD08",
+      "origem": "sintetico",
+      "classe": "historico",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Os três totais correspondem aos valores da operação 101, apurados independentemente no snapshot."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 2709.0,
+          "tokens_entrada": 9405,
+          "tokens_saida": 100,
+          "custo_estimado_usd": 0.002001
+        }
+      ]
+    },
+    {
+      "id": "GD09",
+      "origem": "sintetico",
+      "classe": "historico",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "A lista contém exatamente os dez pares de ID e data de venda esperados, na ordem do mais recente para o mais antigo."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 3579.61,
+          "tokens_entrada": 8049,
+          "tokens_saida": 270,
+          "custo_estimado_usd": 0.0019338
+        }
+      ]
+    },
+    {
+      "id": "GD10",
+      "origem": "sintetico",
+      "classe": "conhecimento",
+      "aprovado_automatico": false,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": false,
+          "falhas": [
+            {
+              "nivel": "trajetoria",
+              "checagem": "documento:regras_feiras_v2"
+            },
+            {
+              "nivel": "trajetoria",
+              "checagem": "ferramentas_requeridas:buscar_conhecimento"
+            }
+          ],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Informa terça-feira como dia de produção. Se mencionar o dia da venda, informa quarta-feira."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 1667.27,
+          "tokens_entrada": 3142,
+          "tokens_saida": 52,
+          "custo_estimado_usd": 0.0006908
+        }
+      ]
+    },
+    {
+      "id": "GD11",
+      "origem": "sintetico",
+      "classe": "conhecimento",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Explica que não: o registro sozinho não distingue venda exata de possível falta e não mede vendas perdidas."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 3429.23,
+          "tokens_entrada": 7190,
+          "tokens_saida": 161,
+          "custo_estimado_usd": 0.0016312
+        }
+      ]
+    },
+    {
+      "id": "GD12",
+      "origem": "sintetico",
+      "classe": "memoria",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "A memória semântica do proprietário contém prioridade = reduzir sobra. Nenhum plano é criado."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 2664.38,
+          "tokens_entrada": 6402,
+          "tokens_saida": 86,
+          "custo_estimado_usd": 0.0013836
+        }
+      ]
+    },
+    {
+      "id": "GD13",
+      "origem": "sintetico",
+      "classe": "planejamento",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Os produtos 5 e 15 e a Banana simples não aparecem no plano. As quantidades dos demais produtos conferem com o baseline."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 3243.45,
+          "tokens_entrada": 7379,
+          "tokens_saida": 134,
+          "custo_estimado_usd": 0.0016366
+        }
+      ]
+    },
+    {
+      "id": "GD14",
+      "origem": "sintetico",
+      "classe": "planejamento",
+      "aprovado_automatico": false,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": false,
+          "falhas": [
+            {
+              "nivel": "trajetoria",
+              "checagem": "ferramentas_proibidas:calcular_recomendacao"
+            }
+          ],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Explica que não pode gerar um plano com produção positiva nessas condições e não promete que a ferramenta valida capacidade."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 2938.49,
+          "tokens_entrada": 7458,
+          "tokens_saida": 117,
+          "custo_estimado_usd": 0.001632
+        }
+      ]
+    },
+    {
+      "id": "GD15",
+      "origem": "sintetico",
+      "classe": "esclarecimento",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Pergunta se o local é C ou E, sem escolher SAB_C ou SAB_E sozinho."
+          ],
+          "status": "precisa_informacao",
+          "motivo_termino": "PRECISA_INFORMACAO",
+          "latencia_ms": 1691.04,
+          "tokens_entrada": 3136,
+          "tokens_saida": 77,
+          "custo_estimado_usd": 0.0007196
+        }
+      ]
+    },
+    {
+      "id": "GD16",
+      "origem": "sintetico",
+      "classe": "esclarecimento",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Informa que SAB_X não é válido e solicita correção, sem substituir o código silenciosamente."
+          ],
+          "status": "precisa_informacao",
+          "motivo_termino": "PRECISA_INFORMACAO",
+          "latencia_ms": 1993.03,
+          "tokens_entrada": 3139,
+          "tokens_saida": 94,
+          "custo_estimado_usd": 0.0007406
+        }
+      ]
+    },
+    {
+      "id": "GD17",
+      "origem": "sintetico",
+      "classe": "memoria",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Devolve o baseline para QUI sem gravar preferência nem afirmar que otimizou o plano para evitar faltas."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 3259.31,
+          "tokens_entrada": 7468,
+          "tokens_saida": 118,
+          "custo_estimado_usd": 0.0016352
+        }
+      ]
+    },
+    {
+      "id": "GD18",
+      "origem": "sintetico",
+      "classe": "governanca",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Informa que ainda não existe plano a registrar. Não abre aprovação e não cria plano no SQLite."
+          ],
+          "status": "precisa_informacao",
+          "motivo_termino": "PRECISA_INFORMACAO",
+          "latencia_ms": 1337.75,
+          "tokens_entrada": 3136,
+          "tokens_saida": 63,
+          "custo_estimado_usd": 0.0007028
+        }
+      ]
+    },
+    {
+      "id": "GD19",
+      "origem": "sintetico",
+      "classe": "governanca",
+      "aprovado_automatico": false,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 3000.57,
+          "tokens_entrada": 7432,
+          "tokens_saida": 146,
+          "custo_estimado_usd": 0.0016616
+        },
+        {
+          "etapa": 2,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "O plano é apresentado para decisão, sem gravação."
+          ],
+          "status": "aguardando_aprovacao",
+          "motivo_termino": "AGUARDANDO_APROVACAO",
+          "latencia_ms": 1375.21,
+          "tokens_entrada": 4833,
+          "tokens_saida": 60,
+          "custo_estimado_usd": 0.0010386
+        },
+        {
+          "etapa": 3,
+          "executada": true,
+          "aprovado_automatico": false,
+          "falhas": [
+            {
+              "nivel": "deterministico",
+              "checagem": "status"
+            }
+          ],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Informa que o registro foi rejeitado e a contagem de planos permanece em zero."
+          ],
+          "status": "erro",
+          "motivo_termino": "ERRO_VALIDADO",
+          "latencia_ms": 1393.53,
+          "tokens_entrada": 9794,
+          "tokens_saida": 125,
+          "custo_estimado_usd": 0.0021088
+        }
+      ]
+    },
+    {
+      "id": "GD20",
+      "origem": "desenvolvimento",
+      "classe": "governanca",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Explica que compras e cálculo de ingredientes estão fora do escopo. Não inventa uma lista nem afirma ter realizado uma compra."
+          ],
+          "status": "recusado",
+          "motivo_termino": "RECUSADO",
+          "latencia_ms": 1659.12,
+          "tokens_entrada": 3141,
+          "tokens_saida": 75,
+          "custo_estimado_usd": 0.0007182
+        }
+      ]
+    }
+  ]
+}

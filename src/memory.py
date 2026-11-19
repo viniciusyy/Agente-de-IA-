@@ -4,26 +4,27 @@ import hashlib
 import json
 import math
 import sqlite3
+
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from src.config import settings
 from src.rag import tokenizar
-
-from collections.abc import Iterator
-from contextlib import contextmanager
+from src.seguranca import (
+    ErroSeguranca,
+    validar_preferencia,
+    validar_resumo_episodio,
+)
 
 
 def agora_iso() -> str:
-    return datetime.now(
-        timezone.utc
-    ).isoformat()
+    return datetime.now(timezone.utc).isoformat()
 
 
-def chave_de_conteudo(
-    conteudo: Any,
-) -> str:
+def chave_de_conteudo(conteudo: Any) -> str:
     canonico = json.dumps(
         conteudo,
         ensure_ascii=False,
@@ -40,8 +41,7 @@ class MemoriaLongoPrazo:
     """
     Memórias semântica e episódica.
 
-    Essas memórias ficam separadas dos checkpoints
-    utilizados pelo LangGraph.
+    Essas memórias ficam separadas dos checkpoints do LangGraph.
     """
 
     def __init__(
@@ -68,9 +68,11 @@ class MemoriaLongoPrazo:
         try:
             yield conexao
             conexao.commit()
+
         except Exception:
             conexao.rollback()
             raise
+
         finally:
             conexao.close()
 
@@ -141,14 +143,17 @@ class MemoriaLongoPrazo:
         chave: str,
         valor: str,
     ) -> dict:
-        chave = (
-            chave
-            .strip()
-            .lower()
-            .replace(" ", "_")
-        )
+        try:
+            dados = validar_preferencia(
+                chave,
+                valor,
+            )
 
-        valor = valor.strip()
+        except ErroSeguranca as erro:
+            return erro.como_resultado()
+
+        chave = dados["chave"]
+        valor = dados["valor"]
 
         conteudo = {
             "usuario_id": usuario_id,
@@ -184,8 +189,8 @@ class MemoriaLongoPrazo:
                     "content_hash": content_hash,
                 }
 
-            # Uma contradição não apaga o fato
-            # anterior. Ela cria uma nova versão.
+            # Uma contradição cria uma nova versão.
+            # A versão anterior não é apagada.
             conexao.execute(
                 """
                 INSERT INTO memoria_semantica (
@@ -220,30 +225,43 @@ class MemoriaLongoPrazo:
         with self._conectar() as conexao:
             linhas = conexao.execute(
                 """
-                SELECT chave, valor
-                FROM memoria_semantica AS atual
+                SELECT chave, valor, content_hash
+                FROM memoria_semantica
                 WHERE usuario_id = ?
                   AND ativo = 1
-                  AND id = (
-                    SELECT MAX(id)
-                    FROM memoria_semantica
-                        AS mais_recente
-                    WHERE
-                        mais_recente.usuario_id
-                            = atual.usuario_id
-                        AND mais_recente.chave
-                            = atual.chave
-                        AND mais_recente.ativo = 1
-                  )
-                ORDER BY chave
+                ORDER BY id DESC
                 """,
                 (usuario_id,),
             ).fetchall()
 
-        return {
-            linha["chave"]: linha["valor"]
-            for linha in linhas
-        }
+        fatos = {}
+
+        for linha in linhas:
+            try:
+                dados = validar_preferencia(
+                    linha["chave"],
+                    linha["valor"],
+                )
+
+            except ErroSeguranca:
+                # Não apaga registros antigos.
+                # Apenas impede sua entrada no contexto.
+                continue
+
+            esperado = chave_de_conteudo(
+                {
+                    "usuario_id": usuario_id,
+                    **dados,
+                }
+            )
+
+            if esperado == linha["content_hash"]:
+                fatos.setdefault(
+                    dados["chave"],
+                    dados["valor"],
+                )
+
+        return fatos
 
     def salvar_episodio(
         self,
@@ -251,9 +269,17 @@ class MemoriaLongoPrazo:
         resumo: str,
         tags: list[str] | None = None,
     ) -> dict:
-        tags = sorted(
-            set(tags or [])
-        )
+        try:
+            resumo = validar_resumo_episodio(
+                resumo
+            )
+
+        except ErroSeguranca as erro:
+            return erro.como_resultado()
+
+        # Tags livres não entram na memória.
+        # A tag é derivada do esquema permitido.
+        tags = ["plano_calculado_v1"]
 
         conteudo = {
             "usuario_id": usuario_id,
@@ -292,9 +318,7 @@ class MemoriaLongoPrazo:
 
         return {
             "ok": True,
-            "ja_existia": (
-                cursor.rowcount == 0
-            ),
+            "ja_existia": cursor.rowcount == 0,
             "content_hash": content_hash,
         }
 
@@ -326,51 +350,68 @@ class MemoriaLongoPrazo:
                 (usuario_id,),
             ).fetchall()
 
-        agora = datetime.now(
-            timezone.utc
-        )
-
+        agora = datetime.now(timezone.utc)
         resultados = []
 
         for linha in linhas:
-            termos = set(
-                tokenizar(
+            try:
+                resumo_seguro = validar_resumo_episodio(
                     linha["resumo"]
-                    + " "
-                    + linha["tags_json"]
                 )
+
+                criado = datetime.fromisoformat(
+                    linha["criado_em"]
+                )
+
+                if criado.tzinfo is None:
+                    continue
+
+            except (
+                ErroSeguranca,
+                ValueError,
+                TypeError,
+            ):
+                continue
+
+            esperado = chave_de_conteudo(
+                {
+                    "usuario_id": usuario_id,
+                    "resumo": resumo_seguro,
+                    "tags": ["plano_calculado_v1"],
+                }
             )
 
-            uniao = termos_consulta | termos
+            if esperado != linha["content_hash"]:
+                continue
+
+            termos = set(
+                tokenizar(resumo_seguro)
+            )
+
+            uniao = (
+                termos_consulta
+                | termos
+            )
 
             similaridade = (
-                len(
-                    termos_consulta & termos
-                )
+                len(termos_consulta & termos)
                 / len(uniao)
                 if uniao
                 else 0.0
             )
 
-            criado = datetime.fromisoformat(
-                linha["criado_em"]
-            )
-
             idade_dias = max(
-                (
-                    agora - criado
-                ).total_seconds()
+                (agora - criado).total_seconds()
                 / 86_400,
                 0.0,
             )
 
-            # O decaimento apenas rebaixa
-            # a memória. Ele não a apaga.
+            # O decaimento rebaixa a relevância,
+            # mas não apaga a memória.
             fator_temporal = math.pow(
                 0.5,
                 idade_dias
-                / settings
-                .memory_episode_half_life_days,
+                / settings.memory_episode_half_life_days,
             )
 
             score = (
@@ -381,17 +422,10 @@ class MemoriaLongoPrazo:
             if score > 0:
                 resultados.append(
                     {
-                        "resumo": linha["resumo"],
-                        "content_hash": (
-                            linha["content_hash"]
-                        ),
-                        "criado_em": (
-                            linha["criado_em"]
-                        ),
-                        "score": round(
-                            score,
-                            6,
-                        ),
+                        "resumo": resumo_seguro,
+                        "content_hash": linha["content_hash"],
+                        "criado_em": linha["criado_em"],
+                        "score": round(score, 6),
                     }
                 )
 
@@ -432,15 +466,9 @@ class MemoriaLongoPrazo:
                 return {
                     "ok": True,
                     "ja_existia": True,
-                    "registro_id": (
-                        existente["id"]
-                    ),
-                    "idempotency_key": (
-                        idempotency_key
-                    ),
-                    "criado_em": (
-                        existente["criado_em"]
-                    ),
+                    "registro_id": existente["id"],
+                    "idempotency_key": idempotency_key,
+                    "criado_em": existente["criado_em"],
                 }
 
             cursor = conexao.execute(
@@ -469,9 +497,7 @@ class MemoriaLongoPrazo:
             "ok": True,
             "ja_existia": False,
             "registro_id": registro_id,
-            "idempotency_key": (
-                idempotency_key
-            ),
+            "idempotency_key": idempotency_key,
         }
 
     def contar_planos_por_chave(

@@ -24,6 +24,39 @@ PRODUTOS_PROIBIDOS_FEIRAS_E = {
     15,
 }
 
+def resumir_operacao(resultado: dict) -> dict:
+    """Consolida os totais sem remover os registros por produto."""
+    if resultado.get("ok") is not True:
+        return resultado
+
+    total_produzido = 0
+    total_vendido = 0
+    total_sobra = 0
+
+    for registro in resultado["dados"]:
+        produzida = int(registro["quantidade_produzida"])
+        sobra = int(registro["quantidade_sobra"])
+        venda_registrada = registro.get("quantidade_vendida")
+
+        # Uma venda registrada como zero é válida. Só calculamos
+        # produzido menos sobra quando a venda não foi registrada.
+        vendida = (
+            produzida - sobra
+            if venda_registrada is None
+            else int(venda_registrada)
+        )
+
+        total_produzido += produzida
+        total_vendido += vendida
+        total_sobra += sobra
+
+    return {
+        **resultado,
+        "total_produzido": total_produzido,
+        "total_vendido": total_vendido,
+        "total_sobra": total_sobra,
+    }
+
 
 def resumir_historico(
     resultado: dict,

@@ -1,0 +1,78 @@
+{
+  "sistema_versao": "correcao-regras-feiras-local",
+  "dataset_versao": "1.0.0",
+  "dataset_sha256": "53d20c63ab09808a4c7c75060d632bc0a29ac70484707448046f115bc4e36dfc",
+  "mysql_modo": "local",
+  "snapshot_sha256": "c7f695afd8f775e35179a12dc05d9ac5cd68e62326724643d13989ed3993a745",
+  "snapshot_inalterado": true,
+  "codigo_sha256": "eb558c61574c0540e30a7d1bc1489ce6d9e9074286f376e5ef447eff08842e3b",
+  "modelo": "gpt-5.6-luna",
+  "rodada_completa": false,
+  "juiz_llm": "nao_executado",
+  "origens": {
+    "desenvolvimento": 1,
+    "sintetico": 1
+  },
+  "classes": {
+    "planejamento": {
+      "total": 1,
+      "aprovados": 1
+    },
+    "conhecimento": {
+      "total": 1,
+      "aprovados": 1
+    }
+  },
+  "casos": [
+    {
+      "id": "GD02",
+      "origem": "desenvolvimento",
+      "classe": "planejamento",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": 1,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "A restrição do produto 5 em SAB_E fica explícita. Frango com catupiry e Especial de frango não são tratados como se fossem o produto 5."
+          ],
+          "status": "recusado",
+          "motivo_termino": "RECUSADO",
+          "latencia_ms": 28.31,
+          "tokens_entrada": 0,
+          "tokens_saida": 0,
+          "custo_estimado_usd": 0.0
+        }
+      ]
+    },
+    {
+      "id": "GD10",
+      "origem": "sintetico",
+      "classe": "conhecimento",
+      "aprovado_automatico": true,
+      "etapas": [
+        {
+          "etapa": 1,
+          "executada": true,
+          "aprovado_automatico": true,
+          "falhas": [],
+          "alternativa": null,
+          "falhas_alternativas": [],
+          "criterios_para_revisao": [
+            "Informa terça-feira como dia de produção. Se mencionar o dia da venda, informa quarta-feira."
+          ],
+          "status": "concluido",
+          "motivo_termino": "CONCLUIDO",
+          "latencia_ms": 25.22,
+          "tokens_entrada": 0,
+          "tokens_saida": 0,
+          "custo_estimado_usd": 0.0
+        }
+      ]
+    }
+  ]
+}

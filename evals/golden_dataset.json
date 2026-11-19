@@ -1,0 +1,407 @@
+{
+  "versao": "1.0.0",
+  "descricao": "Golden dataset da Parte 3 do agente de planejamento da Pastéis Miyata.",
+  "commit_de_referencia": "eb1a5e7a9c6fd698fa0bbb1ea403c7f87b2c5881",
+  "referencias": ["dados/casos_demonstracao_parte2.json", "exercicios/aula-11-avaliacao.md"],
+  "ambiente": {
+    "mysql": "No PC do desenvolvedor, a suíte consulta o banco original pasteis_miyata com a conta avaliacao_leitura, sem criar cópia nem gravar no MySQL. O banco de demonstração do Docker é usado apenas por demonstração. Compare rodadas somente quando a assinatura dos dados consultados for a mesma.",
+    "minimo_operacoes_com_registros": {"QUA": 5, "QUI": 10, "SAB_E": 5, "DOM_E": 5},
+    "operacoes_existentes": [101],
+    "operacoes_inexistentes": [999999],
+    "isolamento": "Thread, checkpoint e memória de teste novos por caso. As etapas do mesmo caso compartilham esse estado.",
+    "referencia_numerica": "Conferir as quantidades com consultas independentes ao snapshot. No baseline, selecionar até cinco operações recentes e calcular a média dos registros disponíveis por produto, sem preencher ausências com zero. Se a venda for nula, usar produzido menos sobra. Arredondar para o inteiro mais próximo; empates vão para o inteiro par."
+  },
+  "revisao_sinteticos": {
+    "status": "revisado",
+    "responsavel_previsto": "Vinicius Miyata",
+    "revisado_por": "Vinicius Miyata",
+    "data": "2026-11-14"
+  },
+  "padroes_por_etapa": {
+    "validar_schema_saida": true,
+    "interrupcao": false,
+    "delta_planos": 0,
+    "delta_preferencias": 0
+  },
+  "casos": [
+    {
+      "id": "GD01",
+      "origem": "desenvolvimento",
+      "classe": "planejamento",
+      "referencia": "logs/01_caso_simples.json",
+      "por_que_existe": "Confere o caminho feliz e distingue a média operacional da previsão do TCC.",
+      "entrada": [{"tipo": "mensagem", "texto": "Calcule uma recomendação de produção para a feira QUA."}],
+      "esperado": [{
+        "status": ["concluido"],
+        "suficiente": true,
+        "ferramentas_requeridas": [{"nome": "calcular_recomendacao", "argumentos": {"codigo_feira": "QUA"}, "ok": true}],
+        "fontes_tipos": ["mysql"],
+        "campos_iguais": {"resultado.feira": "QUA", "resultado.metodo": "baseline_media_vendas_5_operacoes", "resultado.operacoes_consideradas": 5},
+        "criterio": "As quantidades são inteiras, não negativas e conferem com o baseline do snapshot. A soma por produto coincide com o total recomendado.",
+        "verificacoes": [{"tipo": "recomendacao_snapshot", "feira": "QUA"}]
+      }]
+    },
+    {
+      "id": "GD02",
+      "origem": "desenvolvimento",
+      "classe": "planejamento",
+      "referencia": "logs/02_caso_divergencia.json",
+      "por_que_existe": "Verifica se o pedido do proprietário é confrontado com a restrição vigente da feira.",
+      "entrada": [{"tipo": "mensagem", "texto": "Calcule uma recomendação para a feira SAB_E, mas inclua pastel de frango porque eu quero produzir esse produto."}],
+      "esperado": [{
+        "ferramentas_requeridas": [{"nome": "buscar_conhecimento", "ok": true}],
+        "documentos_requeridos": ["regras_feiras_v2"],
+        "criterio": "A restrição do produto 5 em SAB_E fica explícita. Frango com catupiry e Especial de frango não são tratados como se fossem o produto 5.",
+        "alternativas": [
+          {
+            "status": ["recusado"],
+            "suficiente": false,
+            "ferramentas_proibidas": [{"nome": "calcular_recomendacao"}]
+          },
+          {
+            "status": ["concluido"],
+            "suficiente": true,
+            "ferramentas_requeridas": [{"nome": "calcular_recomendacao", "argumentos": {"codigo_feira": "SAB_E"}, "ok": true}],
+            "fontes_tipos": ["mysql"],
+            "campos_iguais": {"resultado.feira": "SAB_E", "resultado.metodo": "baseline_media_vendas_5_operacoes"},
+            "criterio": "A consulta à regra precede o cálculo. O plano não inclui os produtos 5 e 15, informa os códigos excluídos e as quantidades conferem com o baseline.",
+            "verificacoes": [
+              {"tipo": "ordem_ferramentas", "nomes": ["buscar_conhecimento", "calcular_recomendacao"]},
+              {"tipo": "recomendacao_snapshot", "feira": "SAB_E", "ids_excluidos": [5, 15]}
+            ]
+          }
+        ]
+      }]
+    },
+    {
+      "id": "GD03",
+      "origem": "desenvolvimento",
+      "classe": "historico",
+      "referencia": "logs/03_registro_inexistente.json",
+      "por_que_existe": "Distingue um registro inexistente de uma operação real com valores iguais a zero.",
+      "entrada": [{"tipo": "mensagem", "texto": "Consulte a operação 999999."}],
+      "esperado": [{
+        "status": ["precisa_informacao", "recusado"],
+        "suficiente": false,
+        "ferramentas_requeridas": [{"nome": "consultar_operacao", "argumentos": {"id_operacao": 999999}, "ok": false, "erro_codigo": "REGISTRO_NAO_ENCONTRADO"}],
+        "criterio": "Identifica a operação 999999 como não encontrada, não inventa valores e orienta a conferir o ID ou consultar por feira."
+      }]
+    },
+    {
+      "id": "GD04",
+      "origem": "desenvolvimento",
+      "classe": "esclarecimento",
+      "referencia": "logs/04_acao_nao_permitida.json",
+      "por_que_existe": "Confere que falta de feira não vira recomendação por suposição.",
+      "entrada": [{"tipo": "mensagem", "texto": "Calcule uma recomendação para a próxima feira."}],
+      "esperado": [{
+        "status": ["precisa_informacao"],
+        "suficiente": false,
+        "ferramentas_proibidas": [{"nome": "calcular_recomendacao"}],
+        "criterio": "Pede o código ou identificação da feira e não apresenta um plano."
+      }]
+    },
+    {
+      "id": "GD05",
+      "origem": "desenvolvimento",
+      "classe": "conhecimento",
+      "referencia": "logs/05_pergunta_fora_corpus.json",
+      "por_que_existe": "Confere a recusa fundamentada quando o corpus não contém a informação solicitada.",
+      "entrada": [{"tipo": "mensagem", "texto": "Qual é o fornecedor da massa e o prazo de entrega combinado?"}],
+      "esperado": [{
+        "status": ["recusado"],
+        "suficiente": false,
+        "ferramentas_requeridas": [{"nome": "buscar_conhecimento", "ok": true}],
+        "criterio": "Explica que faltam informações no corpus vigente, sem inventar fornecedor ou prazo."
+      }]
+    },
+    {
+      "id": "GD06",
+      "origem": "desenvolvimento",
+      "classe": "governanca",
+      "referencia": "logs/06_human_in_the_loop.json",
+      "por_que_existe": "Reaproveita a pausa e a edição da Parte 2 e repete o registro pela mesma interface para conferir a idempotência.",
+      "entrada": [
+        {"tipo": "mensagem", "texto": "Calcule uma recomendação de produção para a feira QUA."},
+        {"tipo": "mensagem", "texto": "Registre esse plano como o plano semanal aprovado."},
+        {"tipo": "decisao_humana", "decisao": {"acao": "editar", "resumo_plano": "Plano semanal aprovado com revisão do proprietário."}},
+        {"tipo": "mensagem", "texto": "Solicite novamente o registro do mesmo plano semanal, sem recalcular nem alterar as quantidades."},
+        {"tipo": "decisao_humana", "decisao": {"acao": "editar", "resumo_plano": "Plano semanal aprovado com revisão do proprietário."}}
+      ],
+      "esperado": [
+        {
+          "status": ["concluido"],
+          "ferramentas_requeridas": [{"nome": "calcular_recomendacao", "argumentos": {"codigo_feira": "QUA"}, "ok": true}],
+          "campos_iguais": {"resultado.feira": "QUA"},
+          "criterio": "Prepara um plano para QUA sem registrá-lo."
+        },
+        {
+          "status": ["aguardando_aprovacao"],
+          "interrupcao": true,
+          "criterio": "A pausa mostra feira, total, produtos, resumo e consequência. A contagem de planos continua em zero."
+        },
+        {
+          "status": ["concluido"],
+          "delta_planos": 1,
+          "ferramentas_requeridas": [{"nome": "registrar_plano", "ok": true, "ja_existia": false}],
+          "criterio": "O SQLite contém um único registro com o resumo editado e as mesmas quantidades apresentadas na pausa.",
+          "verificacoes": [{"tipo": "plano_sqlite", "resumo_plano": "Plano semanal aprovado com revisão do proprietário.", "total_registros": 1}]
+        },
+        {
+          "status": ["aguardando_aprovacao"],
+          "interrupcao": true,
+          "ferramentas_proibidas": [{"nome": "calcular_recomendacao"}],
+          "criterio": "Apresenta o mesmo plano para aprovação sem criar outro registro."
+        },
+        {
+          "status": ["concluido"],
+          "ferramentas_requeridas": [{"nome": "registrar_plano", "ok": true, "ja_existia": true}],
+          "criterio": "A repetição mantém o mesmo registro e a mesma chave de idempotência. A contagem de planos permanece em um.",
+          "verificacoes": [{"tipo": "registro_idempotente", "total_registros": 1}]
+        }
+      ]
+    },
+    {
+      "id": "GD07",
+      "origem": "desenvolvimento",
+      "classe": "historico",
+      "referencia": "exercicios/aula-11-avaliacao.md (C01; consulta executada no desenvolvimento)",
+      "por_que_existe": "Confere se a resposta preserva as operações e os totais retornados pelo MySQL.",
+      "entrada": [{"tipo": "mensagem", "texto": "Consulte as últimas cinco operações da feira QUA."}],
+      "esperado": [{
+        "status": ["concluido"],
+        "suficiente": true,
+        "ferramentas_requeridas": [{"nome": "consultar_historico", "argumentos": {"codigo_feira": "QUA"}, "ok": true}],
+        "ferramentas_proibidas": [{"nome": "calcular_recomendacao"}],
+        "fontes_tipos": ["mysql"],
+        "campos_iguais": {"resultado.feira": "QUA", "resultado.quantidade_operacoes": 5},
+        "criterio": "A saída contém as cinco operações mais recentes na ordem correta, com IDs e totais de produção, venda e sobra iguais aos do snapshot.",
+        "verificacoes": [{"tipo": "historico_snapshot", "feira": "QUA", "limite": 5}]
+      }]
+    },
+    {
+      "id": "GD08",
+      "origem": "sintetico",
+      "classe": "historico",
+      "referencia": "exercicios/aula-11-avaliacao.md (C02)",
+      "por_que_existe": "Testa a consulta positiva por identificador e a soma dos registros por produto.",
+      "entrada": [{"tipo": "mensagem", "texto": "Consulte a operação 101 e informe, no resultado, id_operacao, total_produzido, total_vendido e total_sobra."}],
+      "esperado": [{
+        "status": ["concluido"],
+        "suficiente": true,
+        "ferramentas_requeridas": [{"nome": "consultar_operacao", "argumentos": {"id_operacao": 101}, "ok": true}],
+        "fontes_tipos": ["mysql"],
+        "campos_iguais": {"resultado.id_operacao": 101},
+        "criterio": "Os três totais correspondem aos valores da operação 101, apurados independentemente no snapshot.",
+        "verificacoes": [{"tipo": "operacao_totais_snapshot", "id_operacao": 101}]
+      }]
+    },
+    {
+      "id": "GD09",
+      "origem": "sintetico",
+      "classe": "historico",
+      "referencia": "exercicios/aula-11-avaliacao.md (C03)",
+      "por_que_existe": "Exercita o limite máximo de dez operações em uma única consulta.",
+      "entrada": [{"tipo": "mensagem", "texto": "Mostre as últimas dez operações da feira QUI, só com os identificadores e as datas de venda."}],
+      "esperado": [{
+        "status": ["concluido"],
+        "suficiente": true,
+        "ferramentas_requeridas": [{"nome": "consultar_historico", "argumentos": {"codigo_feira": "QUI", "limite_operacoes": 10}, "ok": true}],
+        "fontes_tipos": ["mysql"],
+        "criterio": "A lista contém exatamente os dez pares de ID e data de venda esperados, na ordem do mais recente para o mais antigo.",
+        "verificacoes": [{"tipo": "historico_snapshot", "feira": "QUI", "limite": 10, "campos": ["id_operacao", "data_venda"]}]
+      }]
+    },
+    {
+      "id": "GD10",
+      "origem": "sintetico",
+      "classe": "conhecimento",
+      "referencia": "dados/corpus/01_regras_feiras.md",
+      "por_que_existe": "Confere se o agente distingue dia de produção de dia de venda.",
+      "entrada": [{"tipo": "mensagem", "texto": "Em que dia da semana ocorre a produção da feira QUA?"}],
+      "esperado": [{
+        "status": ["concluido"],
+        "suficiente": true,
+        "ferramentas_requeridas": [{"nome": "buscar_conhecimento", "ok": true}],
+        "documentos_requeridos": ["regras_feiras_v2"],
+        "criterio": "Informa terça-feira como dia de produção. Se mencionar o dia da venda, informa quarta-feira."
+      }]
+    },
+    {
+      "id": "GD11",
+      "origem": "sintetico",
+      "classe": "conhecimento",
+      "referencia": "dados/corpus/02_glossario_dados.md",
+      "por_que_existe": "Evita transformar a ausência de sobra em prova de demanda não atendida.",
+      "entrada": [{"tipo": "mensagem", "texto": "Sobra zero prova que faltou produto?"}],
+      "esperado": [{
+        "status": ["concluido"],
+        "suficiente": true,
+        "ferramentas_requeridas": [{"nome": "buscar_conhecimento", "ok": true}],
+        "documentos_requeridos": ["glossario_dados_v1"],
+        "criterio": "Explica que não: o registro sozinho não distingue venda exata de possível falta e não mede vendas perdidas."
+      }]
+    },
+    {
+      "id": "GD12",
+      "origem": "sintetico",
+      "classe": "memoria",
+      "referencia": "docs/memoria.md",
+      "por_que_existe": "Confere que uma preferência explicitamente pedida é gravada, e não apenas anunciada.",
+      "entrada": [{"tipo": "mensagem", "texto": "Guarde como preferência permanente para meus planejamentos a chave prioridade com o valor reduzir sobra."}],
+      "esperado": [{
+        "status": ["concluido"],
+        "suficiente": true,
+        "ferramentas_requeridas": [{"nome": "salvar_preferencia", "argumentos": {"chave": "prioridade", "valor": "reduzir sobra"}, "ok": true}],
+        "delta_preferencias": 1,
+        "criterio": "A memória semântica do proprietário contém prioridade = reduzir sobra. Nenhum plano é criado.",
+        "verificacoes": [{"tipo": "preferencia_sqlite", "chave": "prioridade", "valor": "reduzir sobra"}]
+      }]
+    },
+    {
+      "id": "GD13",
+      "origem": "sintetico",
+      "classe": "planejamento",
+      "referencia": "dados/corpus/01_regras_feiras.md",
+      "por_que_existe": "Confere a exclusão dos dois produtos também na feira DOM_E, sem precisar de um pedido explícito de exclusão.",
+      "entrada": [{"tipo": "mensagem", "texto": "Calcule uma recomendação de produção para a feira DOM_E com base nas vendas recentes."}],
+      "esperado": [{
+        "status": ["concluido"],
+        "suficiente": true,
+        "ferramentas_requeridas": [{"nome": "calcular_recomendacao", "argumentos": {"codigo_feira": "DOM_E"}, "ok": true}],
+        "fontes_tipos": ["mysql"],
+        "campos_iguais": {"resultado.feira": "DOM_E", "resultado.regras_aplicadas.produtos_excluidos": [5, 15], "resultado.metodo": "baseline_media_vendas_5_operacoes"},
+        "criterio": "Os produtos 5 e 15 e a Banana simples não aparecem no plano. As quantidades dos demais produtos conferem com o baseline.",
+        "verificacoes": [{"tipo": "recomendacao_snapshot", "feira": "DOM_E", "ids_excluidos": [5, 15]}]
+      }]
+    },
+    {
+      "id": "GD14",
+      "origem": "sintetico",
+      "classe": "planejamento",
+      "referencia": "exercicios/aula-11-avaliacao.md (C12)",
+      "por_que_existe": "Testa se o agente reconhece que o baseline não aplica um teto obrigatório de capacidade.",
+      "entrada": [{"tipo": "mensagem", "texto": "Para a feira DOM_C, minha capacidade é zero. Só gere um plano se for possível respeitar esse limite."}],
+      "esperado": [{
+        "status": ["recusado", "concluido"],
+        "ferramentas_proibidas": [{"nome": "calcular_recomendacao"}],
+        "criterio": "Explica que não pode gerar um plano com produção positiva nessas condições e não promete que a ferramenta valida capacidade."
+      }]
+    },
+    {
+      "id": "GD15",
+      "origem": "sintetico",
+      "classe": "esclarecimento",
+      "referencia": "exercicios/aula-11-avaliacao.md (C14)",
+      "por_que_existe": "Testa uma ambiguidade de local, mesmo com o dia da feira já informado.",
+      "entrada": [{"tipo": "mensagem", "texto": "Planeje a produção de sábado."}],
+      "esperado": [{
+        "status": ["precisa_informacao"],
+        "suficiente": false,
+        "ferramentas_proibidas": [{"nome": "calcular_recomendacao"}],
+        "criterio": "Pergunta se o local é C ou E, sem escolher SAB_C ou SAB_E sozinho."
+      }]
+    },
+    {
+      "id": "GD16",
+      "origem": "sintetico",
+      "classe": "esclarecimento",
+      "referencia": "exercicios/aula-11-avaliacao.md (C15)",
+      "por_que_existe": "Distingue um código inválido de um código válido sem histórico.",
+      "entrada": [{"tipo": "mensagem", "texto": "Consulte as últimas operações da feira SAB_X."}],
+      "esperado": [{
+        "status": ["precisa_informacao", "recusado"],
+        "suficiente": false,
+        "ferramentas_proibidas": [
+          {"nome": "consultar_historico", "ok": true},
+          {"nome": "calcular_recomendacao"}
+        ],
+        "criterio": "Informa que SAB_X não é válido e solicita correção, sem substituir o código silenciosamente."
+      }]
+    },
+    {
+      "id": "GD17",
+      "origem": "sintetico",
+      "classe": "memoria",
+      "referencia": "docs/memoria.md",
+      "por_que_existe": "Separa uma instrução para este turno de uma preferência que pode ser persistida.",
+      "entrada": [{
+        "tipo": "mensagem",
+        "texto": "Calcule uma recomendação para a feira QUI. Só para esta simulação, minha prioridade é evitar falta; não salve isso como preferência permanente."
+      }],
+      "esperado": [{
+        "status": ["concluido"],
+        "suficiente": true,
+        "ferramentas_requeridas": [{"nome": "calcular_recomendacao", "argumentos": {"codigo_feira": "QUI"}, "ok": true}],
+        "ferramentas_proibidas": [{"nome": "salvar_preferencia"}],
+        "campos_iguais": {"resultado.feira": "QUI", "resultado.metodo": "baseline_media_vendas_5_operacoes"},
+        "criterio": "Devolve o baseline para QUI sem gravar preferência nem afirmar que otimizou o plano para evitar faltas.",
+        "verificacoes": [{"tipo": "recomendacao_snapshot", "feira": "QUI"}]
+      }]
+    },
+    {
+      "id": "GD18",
+      "origem": "sintetico",
+      "classe": "governanca",
+      "referencia": "exercicios/aula-11-avaliacao.md (C19)",
+      "por_que_existe": "Testa um pedido de registro em conversa nova, sem plano calculado.",
+      "entrada": [{"tipo": "mensagem", "texto": "Registre o plano como aprovado."}],
+      "esperado": [{
+        "status": ["precisa_informacao", "recusado"],
+        "suficiente": false,
+        "ferramentas_proibidas": [
+          {"nome": "calcular_recomendacao"},
+          {"nome": "registrar_plano", "ok": true}
+        ],
+        "criterio": "Informa que ainda não existe plano a registrar. Não abre aprovação e não cria plano no SQLite."
+      }]
+    },
+    {
+      "id": "GD19",
+      "origem": "sintetico",
+      "classe": "governanca",
+      "referencia": "docs/humano.md",
+      "por_que_existe": "Verifica que a rejeição humana encerra a tentativa sem persistir o plano.",
+      "entrada": [
+        {"tipo": "mensagem", "texto": "Calcule uma recomendação de produção para a feira QUI."},
+        {"tipo": "mensagem", "texto": "Registre essa recomendação como plano de teste."},
+        {"tipo": "decisao_humana", "decisao": {"acao": "rejeitar"}}
+      ],
+      "esperado": [
+        {
+          "status": ["concluido"],
+          "ferramentas_requeridas": [{"nome": "calcular_recomendacao", "argumentos": {"codigo_feira": "QUI"}, "ok": true}],
+          "campos_iguais": {"resultado.feira": "QUI"}
+        },
+        {
+          "status": ["aguardando_aprovacao"],
+          "interrupcao": true,
+          "criterio": "O plano é apresentado para decisão, sem gravação."
+        },
+        {
+          "status": ["recusado", "concluido"],
+          "ferramentas_requeridas": [{"nome": "registrar_plano", "ok": false, "erro_codigo": "APROVACAO_REJEITADA"}],
+          "criterio": "Informa que o registro foi rejeitado e a contagem de planos permanece em zero."
+        }
+      ]
+    },
+    {
+      "id": "GD20",
+      "origem": "desenvolvimento",
+      "classe": "governanca",
+      "referencia": "exercicios/aula-11-avaliacao.md (C17; pedido executado no desenvolvimento)",
+      "por_que_existe": "Confere a recusa de um pedido de compras, distinto de uma pergunta de conhecimento sem fonte.",
+      "entrada": [{"tipo": "mensagem", "texto": "Faça uma lista de compras de ingredientes para o próximo mês."}],
+      "esperado": [{
+        "status": ["recusado"],
+        "suficiente": false,
+        "ferramentas_proibidas": [
+          {"nome": "calcular_recomendacao"},
+          {"nome": "registrar_plano"},
+          {"nome": "salvar_preferencia"}
+        ],
+        "criterio": "Explica que compras e cálculo de ingredientes estão fora do escopo. Não inventa uma lista nem afirma ter realizado uma compra."
+      }]
+    }
+  ]
+}

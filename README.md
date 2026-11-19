@@ -1217,3 +1217,12 @@ Para desligar:
 ```powershell
 docker compose down
 ```
+## Traces OpenTelemetry
+
+Os traces locais são opcionais. Depois de instalar as dependências de
+`requirements.txt`, execute `python -m scripts.demonstrar_trace` para gerar
+um exemplo sem conectar ao MySQL nem chamar a API. O comando imprime o
+caminho do arquivo JSONL em `logs/traces/`.
+
+Veja [como ativar e consultar os traces](docs/uso_traces.md) e consulte o
+[plano de observabilidade](docs/observabilidade.md) para os indicadores e critérios.
