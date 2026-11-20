@@ -148,7 +148,7 @@ def main() -> None:
     print("=" * 72)
     print(
         "AGENTE DE PLANEJAMENTO — "
-        "PASTÉIS MIYATA — PARTE 2"
+        "PASTÉIS MIYATA"
     )
     print("=" * 72)
 

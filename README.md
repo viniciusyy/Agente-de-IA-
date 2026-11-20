@@ -1,531 +1,206 @@
 # Agente de Planejamento de Produção — Pastéis Miyata
 
-## Integrante
+**Integrante:** Vinicius Miyata  
+**Disciplina:** Agentes de IA com LLMs — Partes 1, 2 e 3
 
-- Vinicius Miyata
+O proprietário da Pastéis Miyata precisa definir quanto produzir para cada feira. O agente consulta o histórico, recupera regras do negócio e calcula uma recomendação para apoiar essa decisão.
 
-## Problema
+O modelo de linguagem interpreta os pedidos e escolhe as ferramentas. As consultas e os cálculos são feitos por código. A versão atual usa a média das vendas das cinco operações recentes da feira como baseline. Ela não executa o modelo definitivo de previsão nem o Simplex desenvolvidos no TCC.
 
-O proprietário da Pastéis Miyata precisa definir quanto produzir de cada tipo de pastel para cada feira sem depender apenas da experiência e de consultas manuais ao histórico.
+- [Executar com Docker em outro computador](#como-executar-o-projeto-com-docker)
+- [Executar localmente com Python e MySQL](#como-rodar)
+- [Usar o agente](#como-usar)
+- [Rodar e comparar avaliações](#avaliação-da-parte-3)
+- [Consultar traces](#traces-opentelemetry)
 
 ## Sobre o projeto
 
-Este repositório apresenta a evolução do mesmo sistema nas Partes 1 e 2 da disciplina de Agentes de IA com LLMs.
+A Parte 2 implementou o grafo LangGraph, o RAG textual, a memória, os checkpoints, a saída validada e a aprovação humana antes de registrar um plano. A Parte 3 acrescentou uma suíte de avaliação, controles de segurança fora do prompt, documentação de governança e instrumentação OpenTelemetry.
 
-O sistema é utilizado exclusivamente pelo proprietário da Pastéis Miyata.
-
-Na Parte 2, o agente passou a ser implementado como um grafo com LangGraph. O sistema recebe solicitações em linguagem natural, recupera memória e conhecimento, seleciona ferramentas, consulta o MySQL e devolve uma saída validada.
-
-A versão atual possui:
-
-- entrada em texto livre;
-- saída validada por Pydantic;
-- grafo com nós e arestas condicionais;
-- consultas estruturadas ao MySQL;
-- RAG textual sobre documentos privados da pastelaria;
-- memória de curto e longo prazo;
-- checkpoints persistentes por conversa;
-- controle da janela de contexto;
-- orçamento de passos, ferramentas, tokens, tempo e custo;
-- detector de laço;
-- human-in-the-loop antes do registro de um plano;
-- retomada, edição, rejeição e expiração da aprovação;
-- escrita idempotente;
-- logs com trajetória e motivo de término.
-
-O modelo de linguagem atua como orquestrador. Ele interpreta a solicitação e escolhe ferramentas, mas não calcula livremente as quantidades.
-
-As consultas, médias, restrições e totalizações são executadas por código Python e pelo banco MySQL.
-
-## Usuário autorizado
-
-O único usuário autorizado é o proprietário da Pastéis Miyata.
-
-```text
-AGENT_USER_ID=proprietario
-```
-
-O proprietário:
-
-- inicia as solicitações;
-- informa dados ausentes;
-- consulta resultados;
-- solicita simulações;
-- aprova ou rejeita o registro de planos;
-- pode editar o resumo antes da escrita;
-- permanece responsável pela decisão final.
+A identidade técnica padrão é `proprietario`, com a conversa `proprietario-principal`. A configuração define o perfil de uso local; não equivale a um sistema de autenticação de rede.
 
 ## Arquitetura resumida
 
-```text
-texto livre
-    |
-    v
-preparar contexto e recuperar memórias
-    |
-    v
-modelo decide responder ou chamar ferramenta
-    |
-    +--> MySQL
-    |
-    +--> RAG textual
-    |
-    +--> cálculo determinístico
-    |
-    +--> memória
-    |
-    +--> aprovação humana antes da escrita
-    |
-    v
-saída Pydantic validada
-    |
-    v
-memória episódica, quando aplicável
-```
+| Componente | Responsabilidade |
+|---|---|
+| `src/main.py` | Interface de terminal, validação inicial e apresentação da resposta |
+| `src/agent.py` e `src/graph.py` | Fachada, estado do grafo, seleção de ferramentas, limites e aprovação |
+| `src/database.py` e `src/domain.py` | Consultas estruturadas e cálculo determinístico |
+| `src/rag.py` e `dados/corpus/` | Recuperação local de regras e definições |
+| `src/memory.py` | Preferências, episódios estruturados e planos aprovados em SQLite |
+| `src/seguranca.py` | Contratos de ferramentas, filtros e verificações de escrita |
+| `src/observabilidade.py` | Spans GenAI e exportação local de traces |
+| `evals/` e `tests/` | Dataset, avaliação, comparações e testes automatizados |
 
-O MySQL continua sendo o banco operacional da Pastéis Miyata.
-
-O SQLite não substitui o MySQL. Ele é utilizado localmente somente para:
-
-- checkpoints do LangGraph;
-- memória semântica;
-- memória episódica;
-- planos aprovados.
-
-Não é necessário instalar um servidor SQLite, pois o suporte é fornecido pela biblioteca padrão do Python e pelo pacote de checkpoint do LangGraph.
+O MySQL contém os registros operacionais. O SQLite guarda checkpoints, memória e planos aprovados. O agente não altera o histórico operacional do MySQL.
 
 ## Ferramentas
 
-| Ferramenta | Função | Tipo |
-|---|---|---|
-| `consultar_historico` | Consulta no MySQL as operações recentes de uma feira | Leitura |
-| `consultar_operacao` | Consulta no MySQL uma operação pelo identificador | Leitura |
-| `buscar_conhecimento` | Recupera regras e informações do corpus | Leitura |
-| `calcular_recomendacao` | Calcula um baseline determinístico pela média das vendas recentes | Leitura e cálculo |
-| `salvar_preferencia` | Versiona uma preferência explicitamente declarada | Escrita idempotente |
-| `registrar_plano` | Solicita aprovação humana e registra o plano | Escrita idempotente |
+| Ferramenta | Função |
+|---|---|
+| `consultar_historico` | Lê as operações recentes de uma feira |
+| `consultar_operacao` | Lê uma operação pelo identificador |
+| `buscar_conhecimento` | Recupera regras e informações do corpus local |
+| `calcular_recomendacao` | Usa o histórico para calcular o baseline e aplicar restrições |
+| `salvar_preferencia` | Versiona uma preferência permitida e explicitamente autorizada |
+| `registrar_plano` | Solicita aprovação humana e registra o plano no SQLite |
 
-## Estrutura do projeto
+## Como executar o projeto com Docker
 
-```text
-.
-├── dados/
-│   ├── corpus/
-│   │   ├── 01_regras_feiras.md
-│   │   ├── 02_glossario_dados.md
-│   │   ├── 03_processo_planejamento.md
-│   │   ├── 04_produtos_status.md
-│   │   ├── 05_limites_sistema.md
-│   │   └── 99_regras_feiras_revogado.md
-│   ├── casos_demonstracao.json
-│   └── casos_demonstracao_parte2.json
-├── docs/
-│   ├── arquitetura.md
-│   ├── case.md
-│   ├── fontes.md
-│   ├── grafo.md
-│   ├── humano.md
-│   ├── io.md
-│   ├── memoria.md
-│   ├── modelos.md
-│   ├── prompts.md
-│   └── rag.md
-├── exercicios/
-│   ├── aula-05-arquitetura.md
-│   ├── aula-06-base-de-conhecimento.md
-│   └── aula-11-avaliacao.md
-├── logs/
-│   ├── 01_caso_simples.json
-│   ├── 02_caso_divergencia.json
-│   ├── 03_registro_inexistente.json
-│   ├── 04_acao_nao_permitida.json
-│   ├── 05_pergunta_fora_corpus.json
-│   └── 06_human_in_the_loop.json
-├── prompts/
-│   └── agente_planejamento_v1.md
-├── scripts/
-│   ├── demonstrar_reducer.py
-│   ├── executar_casos_parte2.py
-│   ├── gerar_io.py
-│   └── verificar_rag.py
-├── src/
-│   ├── prompts/
-│   │   ├── orquestrador_v2.md
-│   │   └── procedimento_planejamento_v1.md
-│   ├── agent.py
-│   ├── config.py
-│   ├── database.py
-│   ├── domain.py
-│   ├── graph.py
-│   ├── main.py
-│   ├── memory.py
-│   ├── rag.py
-│   └── schemas.py
-├── tests/
-│   └── test_parte2.py
-├── .env.example
-├── .gitignore
-├── conferir_grafo.py
-├── README.md
-└── requirements.txt
-```
+Este modo permite demonstrar o agente sem acesso ao banco operacional original e sem instalar Python ou MySQL diretamente no computador. É necessário ter Docker com Compose funcionando e, para pedidos que chamam o modelo, uma chave de API própria e acesso ao modelo configurado.
 
-A pasta `prompts/` da raiz preserva o prompt utilizado na Parte 1.
+### 1. Preparar o projeto
 
-Os prompts executáveis da Parte 2 ficam em:
-
-```text
-src/prompts/
-```
-
-## Como rodar
-
-### 1. Pré-requisitos
-
-Antes de executar o projeto, é necessário ter:
-
-- Python 3.11 ou superior;
-- Git;
-- MySQL em execução;
-- banco `pasteis_miyata` criado;
-- tabelas e registros utilizados pelo projeto;
-- chave válida da API;
-- créditos disponíveis no provedor configurado.
-
-A assinatura do ChatGPT e os créditos da API são serviços separados.
-
-### 2. Clonar o repositório
+No PowerShell:
 
 ```powershell
 git clone https://github.com/viniciusyy/Agente-de-IA-.git
 cd Agente-de-IA-
+
+if (-not (Test-Path -LiteralPath .env)) {
+    Copy-Item -LiteralPath .env.example -Destination .env
+}
 ```
 
-Caso o repositório já esteja no computador, abra a pasta do projeto no terminal.
+Se já tiver o repositório, abra o terminal na raiz, onde está `compose.yaml`.
 
-### 3. Criar o ambiente virtual
+Coloque o banco de demonstração recebido separadamente em `docker/mysql-init/01-demo.sql` **antes de iniciar o banco pela primeira vez**. O arquivo não faz parte do repositório. O MySQL importa os scripts de inicialização ao criar o banco em um volume vazio; trocar o arquivo não reimporta um volume existente.
 
-```powershell
-python -m venv .venv
-```
+### 2. Configurar o `.env`
 
-### 4. Instalar as dependências
+Preencha estas variáveis no `.env` da sua máquina:
 
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
-
-### 5. Criar o arquivo `.env`
-
-Copie o arquivo de exemplo:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Depois, abra o `.env` e preencha os valores locais.
-
-Exemplo de estrutura:
-
-```env
-# Modelo
+```dotenv
 OPENAI_API_KEY=
-LLM_BASE_URL=https://api.openai.com/v1
-LLM_MODEL=gpt-5.6-luna
-LLM_INPUT_PRICE_PER_MILLION=0.20
-LLM_OUTPUT_PRICE_PER_MILLION=1.20
-LLM_MAX_OUTPUT_TOKENS=700
+LLM_MODEL=
 
-# Banco MySQL
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
-MYSQL_DATABASE=pasteis_miyata
-MYSQL_USER=
-MYSQL_PASSWORD=
-
-# Orçamento
-AGENT_MAX_STEPS=10
-AGENT_MAX_TOOL_CALLS=8
-AGENT_MAX_TOKENS=12000
-AGENT_MAX_TIME_SECONDS=90
-AGENT_MAX_COST_USD=0.15
-GRAPH_RECURSION_LIMIT=24
-LOOP_REPEAT_LIMIT=3
-CONVERSATION_MAX_TURNS=6
-
-# RAG, memória e aprovação
-RAG_MAX_RESULTS=3
-RAG_MIN_SCORE=0.001
-MEMORY_EPISODE_HALF_LIFE_DAYS=90
-APPROVAL_TIMEOUT_HOURS=24
-CHECKPOINT_DATABASE=dados/checkpoints.sqlite3
-MEMORY_DATABASE=dados/memoria.sqlite3
-CORPUS_DIRECTORY=dados/corpus
-LOG_DIRECTORY=logs
-
-# Identidade
-AGENT_USER_ID=proprietario
-AGENT_THREAD_ID=proprietario-principal
+DEMO_MYSQL_ROOT_PASSWORD=
+DEMO_MYSQL_USER=
+DEMO_MYSQL_PASSWORD=
 ```
 
-O código também aceita os aliases `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` e `DB_PASSWORD`.
+Escolha um modelo disponível para sua conta e credenciais próprias para a demonstração. Não reutilize credenciais do banco original. O Compose configura a conexão do agente com o serviço `db`.
 
-Nunca coloque no GitHub:
-
-- `.env`;
-- chave da API;
-- senha do MySQL;
-- outras credenciais.
-
-### 6. Executar as verificações locais
-
-#### Testes automatizados
+### 3. Subir os serviços e executar
 
 ```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+docker compose version
+docker compose config --quiet
+docker compose up -d db
+docker compose ps
 ```
 
-Resultado obtido:
-
-```text
-Ran 8 tests
-
-OK
-```
-
-#### Avaliação do RAG
+Aguarde o serviço `db` ficar saudável. Depois:
 
 ```powershell
-.\.venv\Scripts\python.exe -m scripts.verificar_rag
+docker compose build app
+docker compose run --rm app python -c "from src.database import testar_conexao; print(testar_conexao())"
+docker compose run --rm app
 ```
 
-Resultado obtido:
-
-```text
-10 acertos em 10 perguntas
-Taxa de acerto: 100%
-```
-
-#### Demonstração do reducer
+Ao abrir o terminal do agente, faça uma pergunta da seção [Como usar](#como-usar). Para conferir a importação, use uma conta do banco de demonstração:
 
 ```powershell
-.\.venv\Scripts\python.exe -m scripts.demonstrar_reducer
+docker compose exec db mysql -u NOME_DO_USUARIO_DEMO -p pasteis_miyata
 ```
 
-Resultado esperado:
+No MySQL:
 
-```text
-EXECUÇÃO SEM REDUCER
-InvalidUpdateError
-
-EXECUÇÃO COM REDUCER
-{'resultados': ['A', 'B']}
+```sql
+SHOW TABLES;
+SELECT COUNT(*) AS total_registros FROM registros_producao;
 ```
 
-#### Conferência do grafo
+O snapshot de demonstração usado no projeto tinha 3.634 registros de produção. Confirme se o arquivo recebido corresponde ao snapshot esperado antes de comparar números.
+
+Se a conexão falhar, confira `docker compose ps`, as credenciais e os logs:
 
 ```powershell
-.\.venv\Scripts\python.exe conferir_grafo.py
+docker compose logs --tail 100 db
 ```
 
-O comando apresenta os nós e as arestas diretas e condicionais do grafo.
+Digite `sair` para encerrar o agente. `docker compose down` para os serviços e preserva os volumes. Não use `docker compose down -v` como rotina: ele remove os volumes do banco de demonstração e do estado do agente.
 
-### 7. Executar o agente
+Para rodar a suíte dentro do Docker, consulte o [guia de avaliação](docs/evals.md#avaliação-no-docker-de-demonstração). A suíte usa outra conta, somente de leitura.
+
+## Como rodar
+
+Para a instalação local, são necessários Python 3.11 ou superior, Git, MySQL com o banco e as tabelas do projeto e uma chave de API válida para o modelo selecionado.
+
+```powershell
+git clone https://github.com/viniciusyy/Agente-de-IA-.git
+cd Agente-de-IA-
+
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+
+if (-not (Test-Path -LiteralPath .env)) {
+    Copy-Item -LiteralPath .env.example -Destination .env
+}
+```
+
+No `.env`, configure a chave, o modelo e a conexão local. Exemplo de estrutura:
+
+```dotenv
+OPENAI_API_KEY=
+LLM_MODEL=
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=pasteis_miyata
+DB_USER=
+DB_PASSWORD=
+```
+
+O código também aceita `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER` e `MYSQL_PASSWORD`. Deixe as opções comentadas para usar os padrões. Se descomentar uma opção numérica, preencha um valor válido. Configure os preços por milhão de tokens somente se quiser estimar o custo do modelo utilizado.
 
 ```powershell
 .\.venv\Scripts\python.exe -m src.main
 ```
 
-O início esperado é:
-
-```text
-========================================================================
-AGENTE DE PLANEJAMENTO — PASTÉIS MIYATA — PARTE 2
-========================================================================
-Usuário autorizado: proprietário
-Usuário técnico: proprietario
-Conversa (thread_id): proprietario-principal
-Entrada: texto livre em português. Digite 'sair' para encerrar.
-```
-
-O programa também testa a conexão com o MySQL.
-
 ## Como usar
 
-O proprietário digita uma solicitação em linguagem natural.
-
-### Consultar histórico
-
-```text
-Consulte as últimas cinco operações da feira QUA.
-```
-
-### Consultar uma operação
-
-```text
-Consulte a operação 101.
-```
-
-### Consultar uma regra
-
-```text
-Qual regra vale para pastel de frango na SAB_E?
-```
-
-### Calcular uma recomendação
-
-```text
-Calcule uma recomendação de produção para a feira QUA.
-```
-
-### Solicitar o registro do último plano
-
-Depois de calcular uma recomendação na mesma conversa:
-
-```text
-Registre esse plano como o plano semanal aprovado.
-```
-
-### Informar uma preferência
-
-```text
-Minha prioridade padrão é reduzir sobras.
-```
-
-### Encerrar
-
-```text
-sair
-```
-
-## Contrato da saída
-
-Toda resposta pública segue o objeto `SaidaAgente`.
-
-Exemplo estrutural:
-
-```json
-{
-  "status": "concluido",
-  "resultado": {},
-  "fontes": [],
-  "suficiente": true,
-  "motivo": "A solicitação foi concluída.",
-  "proxima_acao": null
-}
-```
-
-Os status possíveis são:
-
-| Status | Significado |
+| Objetivo | Exemplo de solicitação |
 |---|---|
-| `concluido` | A solicitação foi concluída |
-| `precisa_informacao` | O proprietário precisa informar algum dado |
-| `recusado` | A solicitação está fora do escopo ou não possui fonte suficiente |
-| `aguardando_aprovacao` | O grafo está pausado antes de uma escrita |
-| `erro` | A execução terminou com erro validado |
+| Consultar histórico | `Consulte as últimas cinco operações da feira QUA.` |
+| Consultar uma operação | `Consulte a operação 101.` |
+| Consultar uma regra | `Qual regra vale para pastel de frango na SAB_E?` |
+| Calcular uma recomendação | `Calcule uma recomendação de produção para a feira QUA.` |
+| Solicitar o registro, depois de calcular na mesma conversa | `Registre esse plano como o plano semanal aprovado.` |
+| Guardar a preferência permitida | `Guarde como preferência permanente a chave prioridade com o valor reduzir sobra.` |
+| Encerrar | `sair` |
 
-Uma recusa também é uma saída válida. O agente não inventa uma resposta quando o banco, as ferramentas ou o corpus não sustentam a informação.
+Para `prioridade`, os valores cadastráveis são `reduzir sobra` e `evitar falta`. Uma declaração genérica ou instrução recuperada do corpus não autoriza a escrita.
 
-## Aprovação humana
+### Aprovação humana
 
-Quando o modelo solicita `registrar_plano`, o grafo para antes da escrita.
-
-O terminal apresenta:
-
-- ação;
-- argumentos;
-- feira;
-- quantidades;
-- total;
-- resumo;
-- consequência;
-- prazo.
-
-O proprietário escolhe:
+O grafo pausa antes de registrar um plano, mostra a proposta e pede:
 
 ```text
 [A]provar, [R]ejeitar ou [E]ditar?
 ```
 
-### Aprovar
+- `A`: aprova o plano apresentado.
+- `R`: rejeita o registro.
+- `E`: permite alterar apenas o resumo, não as quantidades calculadas.
 
-Digite:
+O checkpoint permite retomar a aprovação com a mesma identidade e a mesma `thread_id`. Uma decisão inválida, rejeitada ou vencida não grava o plano. O prazo padrão é de 24 horas, e a repetição da mesma escrita não cria dois registros.
 
-```text
-A
-```
+### Contrato da saída
 
-### Rejeitar
+A resposta contém `status`, `resultado`, `fontes`, `suficiente`, `motivo` e `proxima_acao`. Os status incluem `concluido`, `precisa_informacao`, `recusado`, `aguardando_aprovacao` e `erro`. O resumo da execução também mostra motivo de término, passos, ferramentas, tokens, custo estimado e log.
 
-Digite:
+### Exemplo real da Parte 2
 
-```text
-R
-```
+Do [caso oficial de entrada incompleta](logs/04_acao_nao_permitida.json), executado no commit `00bab35`.
 
-### Editar o resumo
-
-Digite:
-
-```text
-E
-```
-
-Depois, informe o novo resumo.
-
-Se o programa for encerrado durante a pausa, o checkpoint mantém a aprovação pendente. Ao iniciar novamente com a mesma `thread_id`, o sistema apresenta a decisão pendente.
-
-Se a aprovação não for retomada dentro de 24 horas, ela expira e nenhuma escrita é realizada.
-
-A repetição da mesma escrita não cria dois registros.
-
-## Como interpretar a execução
-
-Cada execução apresenta:
-
-```text
-SAÍDA VALIDADA
-RESUMO DA EXECUÇÃO
-Motivo da parada
-Passos
-Ferramentas
-Tokens de entrada
-Tokens de saída
-Custo estimado
-Log
-```
-
-Os principais motivos são:
-
-| Motivo | Significado |
-|---|---|
-| `CONCLUIDO` | Resultado concluído |
-| `PRECISA_INFORMACAO` | Dados obrigatórios estão ausentes |
-| `RECUSADO` | Solicitação não atendida com segurança |
-| `AGUARDANDO_APROVACAO` | Grafo pausado antes da escrita |
-| `LIMITE_DE_PASSOS` | Limite de passos atingido |
-| `LIMITE_DE_FERRAMENTAS` | Limite de ferramentas atingido |
-| `LIMITE_DE_TOKENS` | Limite de tokens atingido |
-| `LIMITE_DE_TEMPO` | Limite de tempo atingido |
-| `LIMITE_DE_CUSTO` | Limite de custo atingido |
-| `LACO_DETECTADO` | A mesma decisão foi repetida |
-| `ERRO_DO_MODELO` | O provedor ou modelo retornou erro |
-
-## Exemplo real da Parte 2
-
-O exemplo abaixo foi copiado da execução oficial registrada em `logs/04_acao_nao_permitida.json`.
-
-- Data da execução: `2026-10-19T21:56:42.497377`
-- Commit executado: `00bab3576c181c4ea08360a37714eb49d9ad94b3`
-
-Entrada real:
+Entrada:
 
 ```text
 Calcule uma recomendação para a próxima feira.
 ```
 
-Saída real completa:
+Saída:
 
 ```json
 {
@@ -544,685 +219,95 @@ Saída real completa:
 }
 ```
 
-Esse caso demonstra que o agente não escolhe uma feira silenciosamente e não chama a ferramenta de recomendação quando uma informação obrigatória está ausente.
+O agente pede a informação, sem escolher uma feira por conta própria. Os [contratos e exemplos completos](docs/io.md) e os [seis casos oficiais](dados/casos_demonstracao_parte2.json) documentam também o caminho feliz, a regra divergente, o registro inexistente, a recusa por falta de conhecimento e a aprovação humana.
 
-Os demais exemplos completos estão em:
+## Verificações locais
 
-```text
-docs/io.md
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_seguranca*.py" -v
+.\.venv\Scripts\python.exe -m scripts.verificar_rag
+.\.venv\Scripts\python.exe -m scripts.demonstrar_reducer
+.\.venv\Scripts\python.exe conferir_grafo.py
 ```
 
-## Casos oficiais da Parte 2
+Na revisão da Parte 3, **105 testes passaram**, incluindo **39 de segurança e integração**. Os testes dos controles usam modelo simulado e estado temporário, sem consultar o MySQL operacional nem a API. Veja as [evidências de segurança](docs/seguranca.md#6-evidências-executadas).
 
-Os seis casos são definidos em:
-
-```text
-dados/casos_demonstracao_parte2.json
-```
-
-| Caso | Solicitação | O que demonstra |
-|---|---|---|
-| Caminho feliz | Recomendação para `QUA` | MySQL, cálculo determinístico e saída validada |
-| Divergência | Pedir Frango para `SAB_E` | Recuperação e aplicação da regra |
-| Registro inexistente | Consultar operação `999999` | Erro de ferramenta tratado como dado |
-| Entrada incompleta | Pedir a próxima feira sem identificá-la | O agente pergunta em vez de escolher |
-| Fora do corpus | Perguntar fornecedor e prazo | Recusa por falta de conhecimento |
-| Human-in-the-loop | Registrar plano calculado | Pausa, edição humana e idempotência |
-
-## Gerar os seis logs oficiais
-
-Antes da execução, o repositório precisa estar sem alterações pendentes. Isso permite registrar no log o commit exato testado.
-
-Confira:
+Para regenerar os logs oficiais da Parte 2, use um checkout sem alterações pendentes e um ambiente de execução autorizado. Os resultados históricos já estão em `logs/`.
 
 ```powershell
 git status
-```
-
-Depois execute:
-
-```powershell
 .\.venv\Scripts\python.exe -m scripts.executar_casos_parte2
-```
-
-O comando gera:
-
-```text
-logs/01_caso_simples.json
-logs/02_caso_divergencia.json
-logs/03_registro_inexistente.json
-logs/04_acao_nao_permitida.json
-logs/05_pergunta_fora_corpus.json
-logs/06_human_in_the_loop.json
-```
-
-Cada log registra:
-
-- entrada;
-- saída;
-- modelo;
-- versão dos prompts;
-- parâmetros;
-- trajetória;
-- ferramentas;
-- fontes;
-- tokens;
-- custo;
-- motivo de término;
-- commit utilizado.
-
-Depois, atualize automaticamente os exemplos reais:
-
-```powershell
 .\.venv\Scripts\python.exe -m scripts.gerar_io
 ```
+
+## Avaliação da Parte 3
+
+A suíte executa os 20 casos do [golden dataset](evals/golden_dataset.json) pela mesma fachada `AgentePlanejamento` utilizada pelo terminal. O MySQL é usado somente para leitura; os checkpoints, preferências e planos dos casos usam SQLite temporário.
+
+### Executar a suíte
+
+Na raiz do projeto, com as dependências instaladas, configure a conta `avaliacao_leitura` conforme o [guia de avaliação](docs/evals.md#preparar-e-rodar-a-suíte). Use somente um banco autorizado e compatível com o dataset.
+
+```powershell
+$env:EVAL_MYSQL_MODO = 'local'
+$env:EVAL_MYSQL_PASSWORD = [System.Net.NetworkCredential]::new(
+    '', (Read-Host 'Senha da conta de avaliação' -AsSecureString)
+).Password
+
+.\.venv\Scripts\python.exe -m evals.rodar --conferir
+```
+
+O pré-teste não chama o modelo. Se ele passar, configure a chave e o modelo no `.env`. Execute a rodada completa **somente se o envio dos dados ao provedor estiver autorizado**:
+
+```powershell
+.\.venv\Scripts\python.exe -m evals.rodar --versao minha-versao --confirmar-dados-autorizados
+Remove-Item Env:EVAL_MYSQL_PASSWORD -ErrorAction SilentlyContinue
+```
+
+A rodada imprime o placar por classe e grava `resultado.json` em uma nova pasta de `evals/resultados/`. Se parar no pré-teste, feche o terminal ou remova a variável da senha.
+
+### Comparar duas rodadas
+
+Este exemplo reproduz a comparação publicada sem MySQL, API ou chave:
+
+```powershell
+$antes = 'evals/resultados/baseline-local-20261114T225713610907Z'
+$depois = 'evals/resultados/regressao-final-local-20261117T040153159929Z'
+
+.\.venv\Scripts\python.exe -m evals.comparar "$antes" "$depois"
+```
+
+O resultado registrado é **16/20 → 20/20 (+20 pontos percentuais)**. Compare apenas rodadas completas, com o mesmo dataset, modo MySQL e snapshot estável. Os critérios e as outras rodadas estão em [Avaliação do agente](docs/evals.md).
+
+## Traces OpenTelemetry
+
+Para gerar uma demonstração sem conectar ao MySQL nem chamar a API:
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.demonstrar_trace
+```
+
+O comando imprime o caminho do JSONL em `logs/traces/`. A demonstração faz parte da coorte de teste e não entra no cálculo dos SLOs. Consulte [como ativar, abrir e interpretar os traces](docs/uso_traces.md), o [plano com os resultados](docs/observabilidade.md) e o [extrato sanitizado de uma aprovação](docs/trace-aprovacao.json).
 
 ## Documentação
 
 | Documento | Conteúdo |
 |---|---|
-| `docs/case.md` | Problema, usuários, negócio e complemento do domínio |
-| `docs/modelos.md` | Comparação e escolha do modelo |
-| `docs/fontes.md` | Fontes consultadas |
-| `docs/io.md` | Contratos de entrada e saída e exemplos reais |
-| `docs/prompts.md` | Plano de prompt engineering |
-| `docs/arquitetura.md` | Arquitetura e nível de autonomia |
-| `docs/rag.md` | Corpus, recuperação e medição |
-| `docs/memoria.md` | Checkpoint e memórias do agente |
-| `docs/grafo.md` | Topologia, padrões, estado e reducers |
-| `docs/humano.md` | Pausa, retomada, expiração e idempotência |
-
-## Limitações
-
-Esta versão:
-
-- é utilizada somente pelo proprietário;
-- ainda utiliza um baseline pela média das cinco operações recentes;
-- ainda não utiliza os modelos definitivos de previsão do TCC;
-- ainda não executa a otimização por Simplex;
-- não gera SQL livre pelo modelo;
-- não altera os registros históricos do MySQL;
-- não considera sobra zero como prova de falta de produto;
-- não registra plano sem confirmação humana.
-
-## Segurança
-
-Não devem ser enviados ao repositório:
-
-- `.env`;
-- chaves de API;
-- senhas do MySQL;
-- bancos locais `*.sqlite3`;
-- ambiente virtual;
-- logs automáticos intermediários;
-- credenciais pessoais.
-
-O repositório contém somente `.env.example`, sem valores privados.
-
-Caso alguma chave tenha sido exposta fora do `.env`, ela deve ser revogada e substituída.
-
-## Evidências obtidas
-
-Na validação da Parte 2 foram obtidos:
-
-- 8 testes automatizados executados com sucesso;
-- 10 acertos em 10 perguntas do conjunto de verificação do RAG;
-- documento revogado removido da recuperação normal;
-- erro de concorrência reproduzido sem reducer;
-- atualização paralela acumulada corretamente com reducer;
-- recomendação determinística consultando o MySQL;
-- saída pública validada pelo Pydantic;
-- seis casos oficiais registrados em JSON;
-- human-in-the-loop executado antes da escrita;
-- edição humana aplicada antes do registro;
-- escrita idempotente verificada;
-- recusa quando o corpus não sustenta a resposta.
-
-Os seis logs oficiais foram gerados a partir do commit:
-
-```text
-00bab3576c181c4ea08360a37714eb49d9ad94b3
-```
-
-## Estado atual
-
-A arquitetura, o RAG, a memória, o grafo, os contratos de entrada e saída, o human-in-the-loop, os testes automatizados e os seis casos oficiais estão implementados e documentados.
-
-A Parte 2 possui código executável, documentação versionada, exemplos reais e logs vinculados ao commit testado.
-
-
-## Como executar o projeto com Docker
-
-Este guia explica como executar a versão acadêmica do **Agente de Planejamento de Produção — Pastéis Miyata** em outro computador, sem depender do ambiente utilizado durante o desenvolvimento.
-
-O projeto utiliza dois contêineres Docker:
-
-- **App:** executa o agente de IA desenvolvido em Python e LangGraph.
-- **DB:** executa o MySQL 8.0.46 com uma cópia independente do banco de dados da pastelaria.
-
-Com essa configuração, não é necessário instalar Python, MySQL ou as bibliotecas do projeto separadamente.
-
-> **Observação:** a versão atual do agente realiza consultas, recuperação de conhecimento e recomendações por meio de cálculos determinísticos. Ela ainda não incorpora os modelos definitivos de previsão de demanda e a otimização por Simplex desenvolvidos no TCC.
-
-### 1. Pré-requisitos
-
-Para executar o projeto, é necessário:
-
-- Windows com [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e em execução.
-- Docker configurado para utilizar contêineres Linux, com WSL 2 quando aplicável.
-- [Git](https://git-scm.com/) instalado ou o repositório baixado em formato ZIP.
-- Conexão com a internet para baixar as imagens Docker e acessar a API do modelo.
-- Chave de API válida e acesso ao modelo configurado.
-- Arquivo `01-demo.sql` disponibilizado separadamente pelo responsável do projeto.
-
-**Não é necessário instalar:**
-
-- Python;
-- MySQL Server;
-- MySQL Workbench;
-- bibliotecas Python manualmente.
-
-Todos esses componentes necessários à execução da aplicação são preparados pelo Docker.
-
-### 2. Clonar o repositório
-
-Abra o PowerShell no Windows e execute:
-
-```powershell
-git clone https://github.com/viniciusyy/Agente-de-IA-.git
-```
-
-Entre na pasta do projeto:
-
-```powershell
-cd Agente-de-IA-
-```
-
-Caso o repositório já esteja baixado, basta abrir o terminal na pasta principal do projeto.
-
-A estrutura principal deverá conter:
-
-```text
-Agente-de-IA-/
-├── docker/
-│   └── mysql-init/
-├── docs/
-├── src/
-├── dados/
-├── logs/
-├── Dockerfile
-├── compose.yaml
-├── .dockerignore
-├── .env.example
-├── .gitignore
-├── requirements.txt
-└── README.md
-```
-
-### 3. Adicionar o banco de dados de demonstração
-
-O sistema utiliza uma cópia independente do banco de dados original da Pastéis Miyata.
-
-O arquivo SQL deve ser solicitado ao responsável pelo projeto e colocado no seguinte diretório:
-
-```text
-Agente-de-IA-/docker/mysql-init/01-demo.sql
-```
-
-Se as pastas `docker` e `mysql-init` não existirem, elas deverão ser criadas.
-
-O banco de demonstração utilizado nos testes contém:
-
-| Informação | Valor |
-|---|---|
-| Banco de dados | `pasteis_miyata` |
-| Versão MySQL | 8.0.46 |
-| Tabelas | 6 |
-| Registros de produção | 3.634 |
-| Data do snapshot | 03/11/2026 |
-
-As tabelas presentes são:
-
-- `categorias`
-- `feiras`
-- `operacoes`
-- `produtos`
-- `produtos_feiras`
-- `registros_producao`
-
-**Importante:** o arquivo deve estar na pasta indicada antes da primeira inicialização do MySQL no Docker.
-
-O banco utilizado no Docker é independente do banco operacional original e não recebe atualizações automaticamente.
-
-### 4. Configurar as variáveis de ambiente
-
-Na pasta principal do projeto, execute:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Esse comando criará o arquivo `.env` a partir das configurações de exemplo.
-
-Abra o arquivo `.env` e configure a chave de API e o modelo de linguagem.
-
-Exemplo:
-
-```dotenv
-# MODELO DE LINGUAGEM
-
-LLM_BASE_URL=https://api.openai.com/v1
-OPENAI_API_KEY=COLOQUE_SUA_CHAVE_AQUI
-LLM_MODEL=COLOQUE_O_MODELO_DISPONIVEL_AQUI
-```
-
-Em seguida, configure as credenciais exclusivas do MySQL de demonstração:
-
-```dotenv
-# MYSQL DOCKER - AMBIENTE DE DEMONSTRACAO
-
-DEMO_MYSQL_ROOT_PASSWORD=ESCOLHA_UMA_SENHA_FORTE
-DEMO_MYSQL_USER=agente_demo
-DEMO_MYSQL_PASSWORD=ESCOLHA_OUTRA_SENHA_FORTE
-```
-
-Substitua os valores de exemplo por credenciais válidas e mantenha as demais configurações existentes no arquivo.
-
-O `compose.yaml` configura automaticamente a conexão entre o agente e o banco MySQL utilizando o nome do serviço `db`.
-
-**Atenção:**
-
-- Nunca publique o arquivo `.env` no GitHub.
-- Não compartilhe sua chave de API.
-- A utilização da API pode gerar custos.
-- A assinatura do ChatGPT não fornece automaticamente créditos para utilização da API.
-
-### 5. Verificar a configuração do Docker
-
-Abra o Docker Desktop e confirme que ele está em execução.
-
-Em seguida, no terminal do projeto, execute:
-
-```powershell
-docker --version
-docker compose version
-```
-
-Os comandos devem apresentar as versões instaladas.
-
-Para validar o arquivo `compose.yaml`, execute:
-
-```powershell
-docker compose config --quiet
-```
-
-Se não aparecer nenhum erro, a configuração foi validada.
-
-### 6. Iniciar o MySQL no Docker
-
-Com o Docker Desktop aberto, execute:
-
-```powershell
-docker compose up -d db
-```
-
-Esse comando inicia o contêiner MySQL responsável pelo banco de demonstração.
-
-Na primeira execução, o Docker realizará automaticamente:
-
-1. Download da imagem MySQL, caso necessário.
-2. Criação do contêiner do banco.
-3. Criação do volume para persistência dos dados.
-4. Criação do banco `pasteis_miyata`.
-5. Importação do arquivo `01-demo.sql`, desde que o volume esteja vazio.
-
-Para verificar o estado do banco:
-
-```powershell
-docker compose ps
-```
-
-O serviço `db` deverá apresentar um status semelhante a:
-
-```text
-Up ... (healthy)
-```
-
-Esse status indica que o servidor MySQL está funcionando.
-
-### 7. Construir a imagem do agente
-
-Após iniciar o MySQL, execute:
-
-```powershell
-docker compose build app
-```
-
-O Docker realizará as seguintes operações:
-
-1. Preparação do ambiente Python 3.11.
-2. Instalação das dependências presentes no `requirements.txt`.
-3. Cópia dos arquivos do projeto.
-4. Construção da imagem responsável pela execução do agente.
-
-Entre as principais tecnologias utilizadas estão:
-
-- Python;
-- LangGraph;
-- OpenAI API;
-- Pydantic;
-- MySQL Connector;
-- SQLite;
-- recuperação textual de conhecimento (RAG).
-
-O comando deverá apresentar uma mensagem semelhante a:
-
-```text
-Image agente-de-ia--app Built
-```
-
-Isso indica que a imagem foi construída com sucesso.
-
-### 8. Testar a conexão com o banco de dados
-
-Antes de iniciar o agente, recomenda-se verificar se a aplicação Python consegue acessar o MySQL.
-
-Execute:
-
-```powershell
-docker compose run --rm app python -c "from src.database import testar_conexao; print(testar_conexao())"
-```
-
-O resultado esperado é:
-
-```text
-{
-  'ok': True,
-  'mensagem': 'Conexão com o MySQL realizada com sucesso.',
-  'banco': 'pasteis_miyata'
-}
-```
-
-Esse resultado confirma que:
-
-- o contêiner Python está funcionando;
-- o MySQL está acessível;
-- as credenciais estão corretas;
-- a aplicação consegue consultar o banco de demonstração.
-
-#### Verificar os registros importados
-
-Para acessar o MySQL do Docker:
-
-```powershell
-docker compose exec db mysql -u agente_demo -p pasteis_miyata
-```
-
-Digite a senha configurada em `DEMO_MYSQL_PASSWORD`.
-
-No terminal do MySQL, execute:
-
-```sql
-SHOW TABLES;
-```
-
-Para verificar a quantidade de registros:
-
-```sql
-SELECT COUNT(*) AS total_registros
-FROM registros_producao;
-```
-
-Na cópia utilizada durante os testes, o resultado obtido foi:
-
-```text
-+-----------------+
-| total_registros |
-+-----------------+
-|            3634 |
-+-----------------+
-```
-
-Caso outra versão do banco seja disponibilizada, a quantidade de registros poderá ser diferente.
-
-Para sair do MySQL:
-
-```sql
-exit;
-```
-
-### 9. Executar o agente de IA
-
-Com o banco de dados funcionando e a imagem construída, execute:
-
-```powershell
-docker compose run --rm app
-```
-
-O sistema deverá apresentar a interface do agente:
-
-```text
-========================================================================
-AGENTE DE PLANEJAMENTO — PASTÉIS MIYATA — PARTE 2
-========================================================================
-
-Usuário autorizado: proprietário
-Usuário técnico: proprietario
-Conversa (thread_id): proprietario-principal
-
-Entrada: texto livre em português.
-Digite 'sair' para encerrar.
-
-Conexão com o MySQL realizada com sucesso.
-
-Proprietário:
-```
-
-Nesse momento, o agente estará pronto para receber solicitações em linguagem natural.
-
-O modelo de linguagem interpreta a solicitação e seleciona as ferramentas necessárias. As consultas e os cálculos são realizados pelo código Python, e não diretamente pelo LLM.
-
-### 10. Exemplos de utilização
-
-#### Exemplo 1 — Consultar histórico de uma feira
-
-```text
-Consulte as últimas cinco operações da feira QUA.
-```
-
-O agente deverá consultar os registros disponíveis no MySQL e apresentar os resultados.
-
-#### Exemplo 2 — Consultar uma operação específica
-
-```text
-Consulte a operação 101.
-```
-
-O agente deverá buscar os dados correspondentes à operação informada.
-
-#### Exemplo 3 — Consultar regras da pastelaria
-
-```text
-Qual regra vale para pastel de frango na SAB_E?
-```
-
-O agente deverá consultar as informações disponíveis na base de conhecimento e identificar as restrições comerciais aplicáveis.
-
-#### Exemplo 4 — Solicitar uma recomendação
-
-```text
-Calcule uma recomendação de produção para a feira QUA.
-```
-
-O agente deverá consultar o histórico necessário e acionar a ferramenta de cálculo determinístico.
-
-#### Exemplo 5 — Testar o tratamento de registros inexistentes
-
-```text
-Consulte a operação 999999.
-```
-
-O sistema deverá identificar que a operação não existe e apresentar uma resposta apropriada, sem inventar registros.
-
-#### Exemplo 6 — Solicitar aprovação humana
-
-Após calcular uma recomendação:
-
-```text
-Registre esse plano como o plano semanal aprovado.
-```
-
-O agente poderá interromper a execução para solicitar uma decisão humana.
-
-As opções são:
-
-```text
-[A]provar, [R]ejeitar ou [E]ditar?
-```
-
-- `A`: aprova o registro.
-- `R`: rejeita o registro.
-- `E`: permite editar o resumo antes do registro.
-
-A aprovação humana é obrigatória para as operações de escrita que exigem autorização.
-
-O registro de planos é realizado na persistência local SQLite, sem alterar o histórico operacional do MySQL.
-
-### 11. Encerrar o agente
-
-Para encerrar a interação, digite:
-
-```text
-sair
-```
-
-O sistema finalizará a interface de maneira controlada.
-
-Para desligar os serviços Docker, execute no PowerShell:
-
-```powershell
-docker compose down
-```
-
-Esse comando interrompe e remove os contêineres do projeto, preservando os volumes de dados.
-
-**Importante:** não utilize `docker compose down -v` como rotina, pois a opção `-v` também remove os volumes persistentes, incluindo o banco de demonstração e o estado do agente.
-
-### 12. Executar novamente
-
-Após a configuração inicial, não é necessário reinstalar as dependências ou reconstruir a imagem a cada execução.
-
-Abra o Docker Desktop, entre na pasta do projeto e execute:
-
-```powershell
-docker compose run --rm app
-```
-
-O Docker iniciará o serviço de banco necessário, caso ele esteja parado.
-
-Para encerrar:
-
-```text
-sair
-```
-
-E, se desejar desligar os serviços restantes:
-
-```powershell
-docker compose down
-```
-
-### 13. Problemas comuns
-
-| Problema | Possível solução |
-|---|---|
-| Docker não é reconhecido | Verificar a instalação do Docker Desktop e reiniciar o terminal. |
-| Docker Desktop não inicia | Verificar os requisitos de virtualização e WSL 2. |
-| Banco apresenta erro de conexão | Confirmar que o contêiner MySQL está funcionando. |
-| Banco não possui tabelas | Verificar se `01-demo.sql` foi disponibilizado antes da primeira inicialização do volume. |
-| Acesso negado ao MySQL | Conferir as credenciais configuradas no `.env`. |
-| Chave da API inválida | Verificar `OPENAI_API_KEY` e o acesso ao modelo. |
-| Modelo indisponível | Configurar um modelo válido em `LLM_MODEL`. |
-| Erro 401 ou 429 na API | Conferir autenticação, saldo e limites de utilização do provedor. |
-| Agente não recebe solicitações | Executar a aplicação de forma interativa utilizando `docker compose run --rm app`. |
-
-Para consultar os logs do MySQL:
-
-```powershell
-docker compose logs --tail 100 db
-```
-
-Para consultar o estado dos serviços:
-
-```powershell
-docker compose ps
-```
-
-### 14. Segurança dos dados
-
-O ambiente Docker foi preparado para permitir a execução acadêmica do agente sem fornecer acesso ao banco operacional original.
-
-As seguintes medidas devem ser observadas:
-
-- O banco de demonstração deve ser disponibilizado separadamente e revisado antes da entrega.
-- O arquivo `.env` não deve ser publicado no GitHub.
-- Chaves de API e senhas não devem ser incluídas no código-fonte.
-- Os arquivos SQLite locais devem permanecer fora do controle de versão.
-- A cópia do MySQL contém um snapshot dos dados, sem sincronização automática com o banco original.
-- As operações de demonstração não devem modificar registros históricos do banco operacional.
-
-O identificador `proprietario` utilizado no agente representa o perfil configurado para demonstração e não constitui um sistema completo de autenticação.
-
-### 15. Resumo dos comandos
-
-Para uma primeira instalação:
-
-```powershell
-# Clonar o repositório
-git clone https://github.com/viniciusyy/Agente-de-IA-.git
-
-# Entrar na pasta do projeto
-cd Agente-de-IA-
-
-# Criar arquivo de configuração
-Copy-Item .env.example .env
-
-# Configurar o .env e adicionar
-# docker/mysql-init/01-demo.sql
-
-# Validar o Docker Compose
-docker compose config --quiet
-
-# Iniciar o MySQL
-docker compose up -d db
-
-# Construir a imagem Python
-docker compose build app
-
-# Testar a conexão
-docker compose run --rm app python -c "from src.database import testar_conexao; print(testar_conexao())"
-
-# Executar o agente
-docker compose run --rm app
-```
-
-Para as próximas execuções:
-
-```powershell
-docker compose run --rm app
-```
-
-Para desligar:
-
-```powershell
-docker compose down
-```
-## Traces OpenTelemetry
-
-Os traces locais são opcionais. Depois de instalar as dependências de
-`requirements.txt`, execute `python -m scripts.demonstrar_trace` para gerar
-um exemplo sem conectar ao MySQL nem chamar a API. O comando imprime o
-caminho do arquivo JSONL em `logs/traces/`.
-
-Veja [como ativar e consultar os traces](docs/uso_traces.md) e consulte o
-[plano de observabilidade](docs/observabilidade.md) para os indicadores e critérios.
+| [Case](docs/case.md) | Problema, usuário e regras do domínio |
+| [Arquitetura](docs/arquitetura.md) e [grafo](docs/grafo.md) | Componentes, estado, nós, autonomia e reducers |
+| [Entrada e saída](docs/io.md) e [prompts](docs/prompts.md) | Contratos, exemplos e instruções do modelo |
+| [RAG](docs/rag.md) e [memória](docs/memoria.md) | Recuperação, checkpoints e persistência restrita |
+| [Supervisão humana](docs/humano.md) | Pausa, retomada, expiração e idempotência |
+| [Modelos](docs/modelos.md) e [fontes](docs/fontes.md) | Escolha de modelo e referências consultadas |
+| [Avaliação](docs/evals.md) | Dataset, propriedades, níveis de checagem e rodadas |
+| [Histórico de mudanças](docs/mudancas.md) | Correções, commits e evidências |
+| [Model card](docs/model-card.md) | Autoridade, limitações e reconstrução de uma decisão |
+| [Segurança](docs/seguranca.md) | Riscos, controles, testes e auditoria Git |
+| [Observabilidade](docs/observabilidade.md) | Plano, métricas, SLOs e limites da amostra |
+
+## Limites e cuidados
+
+O agente apoia a decisão do proprietário. Não compra, não paga, não inicia a produção e não escreve no MySQL operacional. Sobra zero não prova falta de produto. O baseline usa vendas observadas, não estima sozinho a demanda perdida e não produz um plano ótimo.
+
+Não publique `.env`, chaves, senhas, bancos locais, traces brutos nem o banco de demonstração compartilhado separadamente. Use apenas dados autorizados para o processamento no provedor.
